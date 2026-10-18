@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800" role="img" aria-labelledby="title desc">
+<title id="title">景観に合わせた選曲</title>
+<desc id="desc">これから通る景観と車内の状態から曲調を決め、楽曲DB・好み・再生履歴と照合して次の1曲を選び、Spotifyで再生する。</desc>
+<rect width="1600" height="800" fill="white"/>
+<text x="60" y="40" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">景観に合わせた選曲</text>
+<rect x="60" y="140" width="440" height="170" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="164" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">これから通る景観</text>
+<text x="86" y="218" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">案内ルート・現在位置から先読み</text>
+<text x="86" y="250" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">海・森林・水辺などの特徴を集計</text>
+<rect x="580" y="140" width="440" height="170" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="164" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">車内・運転の状態</text>
+<text x="606" y="218" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">時間帯・会話・運転状況を反映</text>
+<text x="606" y="250" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">会話中は歌声の主張を控えめに</text>
+<rect x="1100" y="140" width="440" height="170" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="164" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">曲の特徴と好み</text>
+<text x="1126" y="218" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">楽曲DB・プレイリスト（任意）</text>
+<text x="1126" y="250" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">再生履歴で繰り返しや偏りを抑制</text>
+<polyline points="280,310 280,345 540,345 540,380" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="540,380 533.9104825224427,367.39374056706254 546.0895174775573,367.39374056706254" fill="#444444"/>
+<polyline points="800,310 800,345 540,345 540,380" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="540,380 533.9104825224427,367.39374056706254 546.0895174775573,367.39374056706254" fill="#444444"/>
+<rect x="60" y="380" width="960" height="155" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="404" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">景色と車内に合う曲調を決める</text>
+<text x="86" y="458" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">明るさ・速さ・歌声の強さなど、6つの特徴に変換</text>
+<polyline points="540,535 540,585" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="540,585 533.9104825224427,572.3937405670625 546.0895174775573,572.3937405670625" fill="#444444"/>
+<polyline points="1320,310 1320,560 800,560 800,585" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="800,585 793.9104825224427,572.3937405670625 806.0895174775573,572.3937405670625" fill="#444444"/>
+<rect x="60" y="585" width="960" height="155" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="609" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">次の1曲を選ぶ</text>
+<text x="86" y="663" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">曲調の近さに好み・再生履歴を加えて、候補曲を比較</text>
+<polyline points="1020,665 1100,665" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,665 1087.3937405670624,671.0895174775573 1087.3937405670624,658.9104825224427" fill="#444444"/>
+<rect x="1100" y="585" width="440" height="155" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="609" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">Spotifyで再生</text>
+<text x="1126" y="663" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="400" fill="#666666">今の曲の終わりに切り替える</text>
+</svg>
