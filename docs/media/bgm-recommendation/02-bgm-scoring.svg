@@ -1,1 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="760" viewBox="0 0 1536 760" role="img" aria-label="景観から音楽の6軸と採点まで"><rect width="100%" height="100%" fill="white"/><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#666"/></marker></defs><text x="58" y="76" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="34" font-weight="700" fill="#222">景観から選曲までの計算</text><rect x="58" y="147" width="420" height="265" fill="white" stroke="#b9b9b9" stroke-width="1.6"/><text x="83" y="189" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="24" font-weight="700" fill="#242424">A  先読み区間を集計</text><text x="83" y="228" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">現在位置 8.0 km・曲長 240秒</text><text x="83" y="255" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">速度40km/hなら約2.67km先</text><text x="83" y="282" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">森林と海の重なりを集計</text><text x="83" y="309" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">区間長から v、データ精度から q</text><text x="83" y="395" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="14" font-weight="400" fill="#777">scenic.ts / v=強さ・q=信頼度</text><rect x="558" y="147" width="420" height="265" fill="white" stroke="#b9b9b9" stroke-width="1.6"/><text x="583" y="189" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="24" font-weight="700" fill="#242424">B  目標の6軸を計算</text><text x="583" y="228" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">全軸 0.5 から開始</text><text x="583" y="255" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">T = 0.5 + Σ(v × q × 係数)</text><text x="583" y="282" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">海：明るさ・広がりを上げる</text><text x="583" y="309" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">森：激しさを下げ生楽器を上げる</text><text x="583" y="395" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="14" font-weight="400" fill="#777">engine.ts / 時刻・車内状態で補正</text><rect x="1058" y="147" width="420" height="265" fill="white" stroke="#b9b9b9" stroke-width="1.6"/><text x="1083" y="189" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="24" font-weight="700" fill="#242424">C  楽曲を比較・採点</text><text x="1083" y="228" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">候補内の6軸順位 R を計算</text><text x="1083" y="255" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">目標 T と加重距離 D を計算</text><text x="1083" y="282" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">好み・共有・知名度で加点</text><text x="1083" y="309" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="400" fill="#676767">履歴・偏り・超過で減点</text><text x="1083" y="395" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="14" font-weight="400" fill="#777">score = −D + 加点 − 減点</text><line x1="478" y1="280" x2="558" y2="280" stroke="#666" stroke-width="2.2" marker-end="url(#arrow)"/><line x1="978" y1="280" x2="1058" y2="280" stroke="#666" stroke-width="2.2" marker-end="url(#arrow)"/><text x="77" y="500" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="24" font-weight="700" fill="#242424">6軸の意味（各0〜1）</text><rect x="82" y="544" width="451" height="68" fill="white" stroke="#cecece"/><text x="95" y="569" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">energy</text><text x="95" y="597" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : 静か   →   1 : 激しい</text><rect x="572" y="544" width="451" height="68" fill="white" stroke="#cecece"/><text x="585" y="569" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">valence</text><text x="585" y="597" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : 暗い   →   1 : 明るい</text><rect x="1062" y="544" width="451" height="68" fill="white" stroke="#cecece"/><text x="1075" y="569" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">tempo</text><text x="1075" y="597" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : 遅い   →   1 : 速い</text><rect x="82" y="627" width="451" height="68" fill="white" stroke="#cecece"/><text x="95" y="652" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">acoustic</text><text x="95" y="680" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : 電子音   →   1 : 生楽器</text><rect x="572" y="627" width="451" height="68" fill="white" stroke="#cecece"/><text x="585" y="652" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">spacious</text><text x="585" y="680" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : 密な音   →   1 : 広がる音</text><rect x="1062" y="627" width="451" height="68" fill="white" stroke="#cecece"/><text x="1075" y="652" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="18" font-weight="700" fill="#252525">vocal</text><text x="1075" y="680" font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" font-size="17" font-weight="400" fill="#777">0 : インスト   →   1 : 歌声中心</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="860" viewBox="0 0 1536 860" role="img" aria-labelledby="title desc"><title id="title">景観から選曲までの計算</title><desc id="desc">8種類の景観特徴から音楽の6軸を計算する。海と森林は例。先読み、目標計算、採点と6軸の意味を示す。</desc><rect width="1536" height="860" fill="white"/><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#666"/></marker></defs><g font-family="Noto Sans CJK JP, Noto Sans JP, sans-serif" fill="#333">
+<text x='48' y='70' font-size='36' font-weight='700'>景観から選曲までの計算</text>
+<rect x='48' y='116' width='448' height='430' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<rect x='544' y='116' width='448' height='430' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<rect x='1040' y='116' width='448' height='430' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='72' y='160' font-size='27' font-weight='700'>A  先読み区間を集計</text>
+<text x='72' y='204' font-size='22' font-weight='400'>例：現在8.0 km・曲長240秒</text>
+<text x='72' y='240' font-size='22' font-weight='400'>速度40 km/h → 約2.67 km先</text>
+<text x='72' y='276' font-size='22' font-weight='400'>通過区間の景観を種類別に集計</text>
+<text x='72' y='326' font-size='22' font-weight='400'>v：評価済み区間での占有率</text>
+<text x='72' y='362' font-size='22' font-weight='400'>q：データの信頼度 × 評価済み割合</text>
+<text x='72' y='412' font-size='21' font-weight='400'>海の近さと、見えるかは別に扱う</text>
+<text x='72' y='448' font-size='21' font-weight='400'>開放度は数値がある区間から計算</text>
+<text x='72' y='518' font-size='18' font-weight='400'>scenic.ts / 入力のある特徴をBへ</text>
+<text x='568' y='160' font-size='27' font-weight='700'>B  目標の6軸を計算</text>
+<text x='568' y='204' font-size='22' font-weight='400'>全軸0.5から、各特徴の影響を合算</text>
+<text x='568' y='240' font-size='24' font-weight='400'>T = 0.5 + Σ(v × q × 係数)</text>
+<text x='568' y='286' font-size='22' font-weight='400'>例：海沿い → 明るさ・広がり↑</text>
+<text x='568' y='322' font-size='22' font-weight='400'>例：森林 → 激しさ↓・生楽器感↑</text>
+<text x='568' y='370' font-size='21' font-weight='700'>対象は8特徴（入力があるもの）</text>
+<text x='568' y='404' font-size='20' font-weight='400'>海の近さ・海の眺望・開放度・森林</text>
+<text x='568' y='436' font-size='20' font-weight='400'>自然・田園・市街地・水辺</text>
+<text x='568' y='478' font-size='20' font-weight='400'>時刻・車内状態などで補正し0〜1へ</text>
+<text x='568' y='518' font-size='18' font-weight='400'>engine.ts / computeTarget</text>
+<text x='1064' y='160' font-size='27' font-weight='700'>C  楽曲を比較・採点</text>
+<text x='1064' y='204' font-size='22' font-weight='400'>候補内の6軸順位 R を計算</text>
+<text x='1064' y='240' font-size='22' font-weight='400'>目標 T との加重距離 D を計算</text>
+<text x='1064' y='286' font-size='22' font-weight='400'>好み・共有・知名度で加点</text>
+<text x='1064' y='322' font-size='22' font-weight='400'>履歴・偏り・上限超過などで減点</text>
+<text x='1064' y='370' font-size='21' font-weight='700'>目標に近い曲ほど高評価</text>
+<text x='1064' y='412' font-size='21' font-weight='400'>上位の候補から確率で選ぶ</text>
+<text x='1064' y='448' font-size='21' font-weight='400'>高得点ほど選ばれやすい</text>
+<text x='1064' y='518' font-size='20' font-weight='400'>score = −D + 加点 − 減点</text>
+<path d="M496 330 H540 M992 330 H1036" fill="none" stroke="#666" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x='48' y='600' font-size='28' font-weight='700'>6軸の意味（各0〜1）</text>
+<rect x='48' y='626' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='66' y='658' font-size='24' font-weight='700'>energy</text>
+<text x='66' y='693' font-size='22' font-weight='400'>0：静か → 1：激しい</text>
+<rect x='544' y='626' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='562' y='658' font-size='24' font-weight='700'>valence</text>
+<text x='562' y='693' font-size='22' font-weight='400'>0：暗い → 1：明るい</text>
+<rect x='1040' y='626' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='1058' y='658' font-size='24' font-weight='700'>tempo</text>
+<text x='1058' y='693' font-size='22' font-weight='400'>0：遅い → 1：速い</text>
+<rect x='48' y='732' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='66' y='764' font-size='24' font-weight='700'>acoustic</text>
+<text x='66' y='799' font-size='22' font-weight='400'>0：電子音 → 1：生楽器</text>
+<rect x='544' y='732' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='562' y='764' font-size='24' font-weight='700'>spacious</text>
+<text x='562' y='799' font-size='22' font-weight='400'>0：密な音 → 1：広がる音</text>
+<rect x='1040' y='732' width='448' height='90' fill='white' stroke='#c4c4c4' stroke-width='1.5'/>
+<text x='1058' y='764' font-size='24' font-weight='700'>vocal</text>
+<text x='1058' y='799' font-size='22' font-weight='400'>0：インスト → 1：歌声中心</text>
+</g></svg>
