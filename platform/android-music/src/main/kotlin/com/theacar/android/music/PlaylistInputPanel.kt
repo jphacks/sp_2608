@@ -54,7 +54,7 @@ internal fun PlaylistInputPanel(
             FilterChip(selected = state.mode == mode, onClick = { onMode(mode) }, enabled = editable, label = { Text(label) })
         }
         Text(if (state.mode == RecommendationMode.PLAYLIST) "取り込んだリスト内から、景観と車内の様子に合う曲を選びます。候補が尽きてもリスト外には切り替えません。"
-            else "リストの曲と同じアーティストを優先し、TheaCarのカタログの曲も候補にします。")
+            else "リストの曲と同じアーティストを優先し、旅れこのカタログの曲も候補にします。")
         Text("表示名・曲名・アーティスト・曲IDを景観BGMサーバーへ送ります。未登録の曲は特徴の推定に外部AIを使います。取込結果はアプリ終了まで保持します。変更は景観BGMを終了してから行ってください。",
             style = MaterialTheme.typography.bodySmall)
     }

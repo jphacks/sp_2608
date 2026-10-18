@@ -2,11 +2,12 @@ import { Hono } from 'hono';
 import type { SqlDatabase } from './db';
 import { recommend, type PoolTrack, type Scene } from './engine';
 import { sceneFromScenicRoute, type ScenicRoute } from './scenic';
-import { ROUTE_ID, routeTimeline } from './route-source';
-import { DEFAULT_MODE, MODE_IDS, MODE_LABELS, isModeId } from './modes';
+import { routeTimeline } from './route-source';
+import { DEFAULT_MODE, MODE_IDS, MODE_LABELS } from './modes';
 import { SPOTIFY_PARAMS, SpotifyRateLimitError, getAccessToken, searchByIsrc } from './spotify';
 import { ANNOTATE_PARAMS, GeminiRateLimitError, annotateBatch, modelVersion, type Annotation } from './annotate';
 import { partyRoutes } from './party';
+import { InvalidRecommendation, parseRecommendation, type RecommendationRequest } from './recommend-input';
 
 type Bindings = {
   bgm_db: SqlDatabase; // Workers では D1、PC では sqlite.ts
@@ -67,6 +68,13 @@ app.post('/annotate', async (c) => {
   if (body.tracks.length > MAX_TRACKS) {
     return c.json({ error: `max ${MAX_TRACKS} tracks per request` }, 400);
   }
+  if ((body.force !== undefined && typeof body.force !== 'boolean') || body.tracks.some((track) =>
+    !track || typeof track.title !== 'string' || !track.title.trim() || track.title.length > 500 ||
+    typeof track.artist !== 'string' || !track.artist.trim() || track.artist.length > 500 ||
+    (track.track_id !== undefined && (typeof track.track_id !== 'string' || !track.track_id.trim() || track.track_id.length > 500)) ||
+    (track.duration_ms !== undefined && (!Number.isFinite(track.duration_ms) || track.duration_ms <= 0 || track.duration_ms > 3_600_000)))) {
+    return c.json({ error: 'invalid tracks or force' }, 400);
+  }
 
   const tracks = dedupe(
     body.tracks
@@ -125,22 +133,17 @@ app.post('/annotate', async (c) => {
 
 // 景観・車内状態・候補プールから次の1曲を選ぶ
 app.post('/recommend', async (c) => {
-  const body = await c.req.json<any>().catch(() => null);
-  if ((!body?.scene && !body?.route) || !Array.isArray(body.members) || body.members.length === 0) {
-    return c.json({ error: 'scene (or route) and members are required' }, 400);
-  }
-  // route は timeline を直接送るか、景観エンジンのルート ID（route_id）を送る
-  if (body.route && (!Number.isFinite(body.route.position_m) ||
-      (!Array.isArray(body.route.timeline) && !(typeof body.route.route_id === 'string' && ROUTE_ID.test(body.route.route_id))))) {
-    return c.json({ error: 'route.position_m and route.timeline (or route.route_id) are required' }, 400);
-  }
-  if (body.mode != null && !isModeId(body.mode)) {
-    return c.json({ error: `mode must be one of ${MODE_IDS.join(', ')}` }, 400);
+  let body: RecommendationRequest;
+  try {
+    body = parseRecommendation(await c.req.json<unknown>().catch(() => null));
+  } catch (error) {
+    if (error instanceof InvalidRecommendation) return c.json({ error: error.message }, 400);
+    throw error;
   }
   const members: { id: string; name: string }[] = body.members;
 
   // pool：同乗者のプレイリストの曲と所有者。カタログにある曲は 'isrc:XXXX' で送ると、カタログの同じ曲に所有者が付く
-  let poolSpec: { track_id: string; owners: string[] }[] = Array.isArray(body.pool) ? body.pool : [];
+  let poolSpec: { track_id: string; owners?: string[] }[] = body.pool ?? [];
   const feats = new Map<string, any>();
 
   if (!Array.isArray(body.pool)) {
@@ -176,7 +179,7 @@ app.post('/recommend', async (c) => {
     .map(([id, o]) => ({ ...feats.get(id), owners: [...o] }));
   const missing = [...owners.keys()].filter((id) => !feats.has(id));
 
-  const history = (body.history ?? []).map((h: any) => ({
+  const history = (body.history ?? []).map((h) => ({
     ...h,
     artist: h.artist ?? feats.get(h.track_id)?.artist,
   }));
@@ -189,7 +192,7 @@ app.post('/recommend', async (c) => {
   if (body.route && Array.isArray(body.route.timeline)) {
     route = body.route as ScenicRoute;
     routeStatus = 'given';
-  } else if (body.route) {
+  } else if (body.route?.route_id) {
     // 取れなくても選曲は止めない。景観なし（scene の値だけ）で選ぶ
     const resolved = await routeTimeline(c.env.bgm_db, c.env.SCENIC_INTERNAL_URL, body.route.route_id);
     routeStatus = resolved ? 'resolved' : 'unavailable';
@@ -210,6 +213,9 @@ app.post('/recommend', async (c) => {
 // body: { track_ids: ['isrc:XXXX', ...] }（1回 SPOTIFY_PARAMS.maxPerRequest 曲まで）
 app.post('/link/spotify', async (c) => {
   const body = await c.req.json<{ track_ids?: string[] }>().catch(() => null);
+  if (!Array.isArray(body?.track_ids) || body.track_ids.some((id) => typeof id !== 'string' || !id.trim() || id.length > 500)) {
+    return c.json({ error: 'track_ids must be an array of non-empty strings' }, 400);
+  }
   const ids = [...new Set(body?.track_ids ?? [])];
   if (ids.length === 0) return c.json({ error: 'track_ids is required' }, 400);
   if (ids.length > SPOTIFY_PARAMS.maxPerRequest) {

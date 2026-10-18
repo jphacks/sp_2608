@@ -11,7 +11,7 @@
 
 ## URL と API
 
-公開 URL の雛形: `${PUBLIC_BASE_URL}/t/{id}`（`id` は TripMemory の UUID）。ドメインは未定。決まったら `web/wrangler.jsonc` の `PUBLIC_BASE_URL` と Android 側の定数を揃える。
+公開ページは`/t/{id}`（`id`はTripMemoryのUUID）。Androidの`MEMORY_WEB_URL`にデプロイ先を設定する。Workerの`PUBLIC_BASE_URL`は空ならリクエスト元のoriginを使い、独自ドメインを固定したい場合だけ指定する。
 
 | メソッド | パス | 用途 | 認証 |
 | --- | --- | --- | --- |
@@ -43,6 +43,7 @@
 - `tracks` と `mood` の形は下の「音楽と盛り上がり」と同じ。両方空なら 400。
 - 同じ `id` は置き換え（再送しても二重にならない）。応答は新規 `201` / 置き換え `200` で `{"id": "..."}`。
 - 旅との結び付け: 旅の記録に `music` が同梱されていればそれを優先。無ければ、同じ `deviceId` で時間が重なる（`started_at <= 旅の到着` かつ `ended_at >= 旅の出発`）ログをまとめて使う。複数あれば時刻順に連結。
+- 公開する曲は旅の期間と重なる部分だけ、発話サンプルは出発時刻以上・到着時刻未満に絞る。同梱・別送の両方に適用し、元ログは変更しない。終了時刻がない曲は同じログの次曲、最後の曲はログの終了・到着の早い方までとして扱う。期間内のデータがなければ`music`はnull。
 - 送れなかったログは端末の `filesDir/music-logs/` に残り、次の案内開始時に再送される。
 
 ### GET /api/trips/{id}
@@ -102,16 +103,16 @@ Android の BGM 機能（`BgmMusicSession` の履歴と `CabinMoodTracker` の�
 
 ## データの流れ
 
-1. ナビ到着 → Android で TripMemory を作り、写真をデフォルメ（JPEG）する。
-2. Android が `POST /api/trips` に JSON と JPEG を送る（共有トークン付き）。
+1. ナビ到着時にTripMemoryを端末へ保存する。ステッカー画面で写真や地名・メンバーを加える。
+2. 保存・印刷時にAndroidが`POST /api/trips`へJSONと任意のJPEGを送る（共有トークン付き）。失敗時は次回起動・書き出し時に再送する。
 3. Worker が JSON を検証し、D1 の `trips` に保存（`music` 同梱なら `music_logs` にも）、写真を R2（`{id}.jpg`）に保存。`url` を返す。
    - 音楽機能は案内の終了時に、別途 `POST /api/music-logs` で曲と発話割合を送る（D1 の `music_logs` / `music_tracks` / `music_mood`）。
-4. Android は返ってきた `url` を QR にしてステッカーに印刷する。URL は `${PUBLIC_BASE_URL}/t/{id}` なので、送信前に Android 側で組み立ててもよい（`id` は Android が採番する UUID）。
+4. Androidは`MEMORY_WEB_URL/t/{id}`をQRにする。送信とQRに同じ接続先を使い、送信完了前でも画像を書き出せる。未送信の間はQR先が404になる場合がある。
 5. 誰かが QR を読むと `GET /t/{id}` が HTML を返す。写真は `/t/{id}/photo.jpg`、地図タイルはブラウザが OpenFreeMap から直接取る。
 
 ## Android 側との接続点
 
-- URL 雛形: `https://<未定>/t/{id}`。Android 側の定数と `PUBLIC_BASE_URL` を同じ値にする。
+- 接続先: `local.properties`の`MEMORY_WEB_URL`にWeb版のURLを指定する。Workerで`PUBLIC_BASE_URL`を固定する場合は同じ接続先にそろえる。
 - トークン: `TRIP_UPLOAD_TOKEN`（Workers の secret）。Android 側は同じ文字列を `Authorization: Bearer ...` で送る。アプリに埋め込む共有トークンなので、漏れたら `wrangler secret put` で差し替える前提。音楽機能は `MEMORY_WEB_TOKEN`（`local.properties`）として同じ値を使う。ステッカー側の送信も同じ値にする。
 - 端末 ID: ステッカー側の `POST /api/trips` でも `X-Device-Id` に `installId(context)` の値を付けること。付けないと別送の音楽ログと結び付かない。
 - 写真: デフォルメ後の JPEG を `photo` フィールドで送る。写真の向き・比率はステッカー上部（横 7 : 縦 6.5 程度）に `object-fit: cover` で収める。
@@ -122,15 +123,16 @@ Android の BGM 機能（`BgmMusicSession` の履歴と `CabinMoodTracker` の�
 
 ```sh
 cd web
-npm install
-wrangler login
-wrangler d1 create tabireco               # 出た database_id を wrangler.jsonc の d1_databases[0].database_id に入れる
-wrangler d1 migrations apply tabireco     # スキーマを適用（ローカルは --local）
-wrangler r2 bucket create tabireco-photos
-wrangler secret put TRIP_UPLOAD_TOKEN     # アプリと共有する文字列
-# ドメインが決まったら wrangler.jsonc の vars.PUBLIC_BASE_URL と routes を設定
+npm ci
+npx wrangler login
+npx wrangler d1 create tabireco               # 出た database_id を wrangler.jsonc の d1_databases[0].database_id に入れる
+npx wrangler d1 migrations apply tabireco --remote
+npx wrangler r2 bucket create tabireco-photos
+npx wrangler secret put TRIP_UPLOAD_TOKEN     # アプリと共有する文字列
 npm run deploy
 ```
+
+表示されたデプロイ先をAndroidの`MEMORY_WEB_URL`へ設定する。`PUBLIC_BASE_URL`が空ならそのドメインを使うため、ローカルではlocalhost、本番ではデプロイ先のURLが返る。独自ドメインを使う場合だけ`PUBLIC_BASE_URL`とroutesも設定する。
 
 ## 構成
 

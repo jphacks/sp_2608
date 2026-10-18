@@ -13,9 +13,9 @@ Cloudflare Workers（TypeScript）。記録と音楽ログはD1、写真はR2。
 リポジトリを取ってきて（すでにあるなら `git pull origin main`）、ルートではなく `web/` の中で実行する。
 
 ```sh
-git clone https://github.com/takumamiraidai/TheaCar.git
-cd TheaCar/web
-npm install
+git clone https://github.com/jphacks/sp_2608.git
+cd sp_2608/web
+npm ci
 cp .dev.vars.example .dev.vars            # API のトークン。中身は TRIP_UPLOAD_TOKEN=dev-token のままで可
 npx wrangler d1 migrations apply tabireco --local   # ローカル DB に表を作る（初回と migrations/ が増えたとき）
 npm run dev                               # http://localhost:8787 で起動
@@ -31,7 +31,7 @@ npm run dev                               # http://localhost:8787 で起動
 別のターミナルで（`npm run dev` は動かしたまま）:
 
 ```sh
-cd TheaCar/web
+cd sp_2608/web
 # 旅の記録
 curl -X POST http://localhost:8787/api/trips \
   -H 'Authorization: Bearer dev-token' \

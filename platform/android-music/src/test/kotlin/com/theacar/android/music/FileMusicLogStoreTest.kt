@@ -10,6 +10,26 @@ import kotlin.test.*
 class FileMusicLogStoreTest {
     @get:Rule val temporaryFolder = TemporaryFolder()
 
+    @Test fun failedWritePreservesThePreviousLog() = runTest {
+        val directory = temporaryFolder.newFolder("logs")
+        val store = FileMusicLogStore(directory)
+        store.save("record", "original")
+        val failing = FileMusicLogStore(directory) { file, _ -> file.writeText("partial"); throw java.io.IOException("disk full") }
+        assertFailsWith<java.io.IOException> { failing.save("record", "new") }
+        assertEquals("original", store.read("record"))
+        assertEquals(listOf("record.json"), directory.list()?.toList())
+    }
+
+    @Test fun temporaryFilesAreNotRetried() = runTest {
+        val directory = temporaryFolder.newFolder("logs")
+        val store = FileMusicLogStore(directory)
+        store.save("record", "original")
+        store.save("record", "updated")
+        File(directory, "interrupted.tmp").writeText("partial")
+        assertEquals(listOf("record"), store.pending())
+        assertEquals("updated", FileMusicLogStore(directory).read("record"))
+    }
+
     @Test fun unreadableFileDoesNotPreventSendingOtherFiles() = runTest {
         val directory = temporaryFolder.newFolder("logs")
         val store = FileMusicLogStore(directory)

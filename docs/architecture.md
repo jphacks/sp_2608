@@ -56,7 +56,7 @@ OSMからValhallaタイル、道路特徴、地名検索用データを作りま
 
 `TheaCarApplication`が実ナビ・音楽・窓のRuntimeを所有し、GPSを共有します。スマホとAndroid Autoは同じ`NavigationSession`を読みます。Activityや車載Screenの破棄で案内そのものを終了しません。
 ホームの`AppGraph.demo()`は別のデモ構成です。iOSの地図・TTS・バックグラウンド案内は未実装です。
-旅の記録は`AndroidMemoryRuntime`が保存先を1つ所有し、到着時の保存（`AndroidNavigationRuntime`の`TripRecorder`）・ステッカー画面・旅の記録タブが同じものを読み書きします。地名は目的地検索で選んだ名前を使い、ステッカー画面で書き換えられます。
+旅の記録は`AndroidMemoryRuntime`が保存先を1つ所有します。`androidApp`が案内状態と`TripRecorder`を接続し、到着時の保存・ステッカー画面・旅の記録タブが同じ保存先を使います。ナビ画面は`NavigationTripRecording`を通じて保存結果・再試行・画面遷移を扱い、記録の保存実装には依存しません。保存に失敗した記録はプロセス内に保持し、到着画面から再試行できます。地名は目的地検索で選んだ名前を使い、ステッカー画面で書き換えられます。
 
 入力の確定は`feature/memory`の`TripMemoryEditor`、再送は`TripMemoryPublisher`、HTTPは`data/memory`の`TripMemoryApi`が担当します。写真の加工・描画・ファイル保存はAndroidアダプターへ置き、記録一覧では表示するカードだけ写真を読み込みます。[旅のステッカー](memory-sticker.md)に操作と保存形式をまとめています。
 
@@ -85,15 +85,17 @@ OSMからValhallaタイル、道路特徴、地名検索用データを作りま
 
 BLEはUUID・機器名で接続先を照合します。機器認証は未実装です。操作と制約は[窓の操作](window-control.md)を参照してください。
 
-<<<<<<< HEAD
-依存整理が残っているのは次の箇所です。
+`AndroidSpotifyRuntime`は部品の組み立て、再生方式の切り替え、ログアウト時の後始末を担当します。
 
-- `feature/memory`の`ReverseGeocoder`：HTTP実装と`data/valhalla`へ依存。地名解決の契約とアダプターへの分離が必要です。
-
-`AndroidSpotifyRuntime`は部品の組み立てと、部品をまたぐ操作（おまかせ再生と景観BGMの排他、ログアウト時の後始末）を持ちます。認証は`SpotifyAuthController`、認証設定は`SpotifyAuthSettings`、再生状態の監視は`PlaybackMonitor`、景観BGMの実行は`BgmPlaybackLoop`、車内の発話判定は`CabinSpeechMonitor`が担当します。`DriveEnvironmentController`が位置取得・気象確認・おまかせ再生の定期更新を管理します。音楽の記録は`MusicLogUploader`が送信と再送を管理し、HTTPは`data/bgm`の`MusicLogApi`、端末保存は`FileMusicLogStore`が担当します。
-=======
-`AndroidSpotifyRuntime`は部品の組み立てと、部品をまたぐ操作（おまかせ再生と景観BGMの排他、ログアウト時の後始末）だけを持ちます。認証は`SpotifyAuthController`、再生状態の監視は`PlaybackMonitor`、景観BGMの実行は`BgmPlaybackLoop`、車内の発話判定は`CabinSpeechMonitor`、旅の音楽の記録の送信は`MusicLogUploader`（HTTPは`data/bgm`の`MusicLogApi`）が受け持ちます。気象取得とおまかせ再生のループはまだ`AndroidSpotifyRuntime`にあります。
->>>>>>> origin/main
+| 処理 | 担当 |
+| --- | --- |
+| 認証・認証設定 | `SpotifyAuthController`・`SpotifyAuthSettings` |
+| 再生状態の監視 | `PlaybackMonitor` |
+| 景観BGMの実行 | `BgmPlaybackLoop` |
+| 位置・気象確認とおまかせ再生の定期更新 | `DriveEnvironmentController` |
+| 発話判定 | `CabinSpeechMonitor` |
+| 音楽ログの送信・再送 | `MusicLogUploader` |
+| 音楽ログのHTTP・端末保存 | `data/bgm`の`MusicLogApi`・`FileMusicLogStore` |
 
 依存境界は`verifyModuleBoundaries`で検査します。変更と確認手順は[開発ガイド](../CONTRIBUTING.md)を参照してください。
 

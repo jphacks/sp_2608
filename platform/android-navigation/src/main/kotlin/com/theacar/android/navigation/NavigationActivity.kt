@@ -25,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import com.theacar.android.memory.MemoryActivity
 import com.theacar.model.Coordinate
 import com.theacar.location.LocationStatus
 import com.theacar.navigation.NavigationPhase
@@ -86,7 +85,9 @@ class NavigationActivity : ComponentActivity() {
                 val tokenLoaded by runtime.routingTokenLoaded.collectAsState()
                 val tokenError by runtime.routingTokenError.collectAsState()
                 val tokenFromBuild by runtime.routingTokenFromBuild.collectAsState()
-                val savedMemoryId by runtime.tripRecorder.lastSavedId.collectAsState()
+                val recording = (application as AndroidNavigationOwner).tripRecording
+                val savedMemoryId = recording?.lastSavedId?.collectAsState()?.value
+                val memorySaveFailed = recording?.saveFailed?.collectAsState()?.value == true
                 val mapState = mapController?.displayState?.collectAsState()?.value ?: MapDisplayState.DISABLED
                 TheaCarTheme {
                     NavigationControls(state, location, runtime.configuration, voice, viaPoints.size,
@@ -140,7 +141,9 @@ class NavigationActivity : ComponentActivity() {
                             if (missing.isEmpty()) startGuidance() else startPermissionRequest.launch(missing.toTypedArray())
                         },
                         onStop = runtime.session::stop,
-                        onCreateMemory = savedMemoryId?.let { id -> { startActivity(MemoryActivity.intent(this@NavigationActivity, id)) } },
+                        onCreateMemory = savedMemoryId?.let { id -> { recording?.open(this@NavigationActivity, id) } },
+                        memorySaveFailed = memorySaveFailed,
+                        onRetryMemorySave = { recording?.retry() },
                         onRequestPermissions = ::requestPermissions,
                         onOpenLocationSettings = ::openLocationSettings,
                         onVoiceChanged = runtime::setVoiceEnabled,

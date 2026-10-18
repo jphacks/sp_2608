@@ -9,6 +9,10 @@ import com.theacar.music.PendingMusicLogStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
+import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 /**
  * 旅の音楽の記録を Web 版へ送る [MusicLogUploader] を組み立てる。
@@ -24,9 +28,22 @@ internal fun androidMusicLogUploader(context: Context): MusicLogUploader {
 }
 
 /** 送れていない記録を、1件1ファイル（<id>.json）で端末に残す。 */
-internal class FileMusicLogStore(private val directory: File) : PendingMusicLogStore {
+internal class FileMusicLogStore(
+    private val directory: File,
+    private val write: (File, String) -> Unit = { file, json ->
+        FileOutputStream(file).use { stream -> stream.write(json.toByteArray(Charsets.UTF_8)); stream.fd.sync() }
+    },
+) : PendingMusicLogStore {
     override suspend fun save(id: String, json: String) = withContext(Dispatchers.IO) {
-        File(directory.apply { mkdirs() }, "$id.json").writeText(json)
+        require(Regex("[A-Za-z0-9_-]{1,128}").matches(id))
+        if (!directory.isDirectory && !directory.mkdirs()) throw IOException("音楽ログの保存先を作成できません")
+        val temp = File.createTempFile("log-$id-", ".tmp", directory)
+        try {
+            write(temp, json)
+            Files.move(temp.toPath(), File(directory, "$id.json").toPath(),
+                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+            Unit
+        } finally { temp.delete() }
     }
 
     override suspend fun pending() = withContext(Dispatchers.IO) {

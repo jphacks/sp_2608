@@ -2,6 +2,7 @@
 
 import type { StoredTrip, Trip } from "./trip";
 import type { MoodSample, PlayedTrack, TripMusic } from "./music";
+import { musicInPeriod } from "./music";
 
 export type Env = {
   DB: D1Database;
@@ -135,25 +136,27 @@ export async function putMusicLog(env: Env, log: MusicLog, now: number): Promise
 }
 
 type TrackRow = { log_id: string; track_id: string; title: string; artist: string; genre: string | null; started_at: number; ended_at: number | null };
-type MoodRow = { at: number; speech_ratio: number };
+type MoodRow = { log_id: string; at: number; speech_ratio: number };
 
 /**
  * 旅の音楽。旅に直接付いたログがあればそれ。無ければ同じ端末で時間が重なるログをまとめる。
  * どちらも無ければ null。
  */
 export async function getTripMusic(env: Env, trip: StoredTrip): Promise<TripMusic | null> {
-  let logIds = (
-    await env.DB.prepare("SELECT id FROM music_logs WHERE trip_id = ?1").bind(trip.id).all<{ id: string }>()
-  ).results.map((r) => r.id);
-  if (logIds.length === 0 && trip.deviceId) {
-    logIds = (
+  type LogPeriod = { id: string; ended_at: number };
+  let logs = (
+    await env.DB.prepare("SELECT id, ended_at FROM music_logs WHERE trip_id = ?1").bind(trip.id).all<LogPeriod>()
+  ).results;
+  if (logs.length === 0 && trip.deviceId) {
+    logs = (
       await env.DB.prepare(
-        "SELECT id FROM music_logs WHERE device_id = ?1 AND trip_id IS NULL AND started_at <= ?3 AND ended_at >= ?2 ORDER BY started_at",
+        "SELECT id, ended_at FROM music_logs WHERE device_id = ?1 AND trip_id IS NULL AND started_at <= ?3 AND ended_at >= ?2 ORDER BY started_at",
       )
         .bind(trip.deviceId, trip.startedAtEpochMillis, trip.arrivedAtEpochMillis)
-        .all<{ id: string }>()
-    ).results.map((r) => r.id);
+        .all<LogPeriod>()
+    ).results;
   }
+  const logIds = logs.map((log) => log.id);
   if (logIds.length === 0) return null;
   const marks = logIds.map((_, i) => `?${i + 1}`).join(", ");
   const [tracks, mood] = await Promise.all([
@@ -162,19 +165,26 @@ export async function getTripMusic(env: Env, trip: StoredTrip): Promise<TripMusi
     )
       .bind(...logIds)
       .all<TrackRow>(),
-    env.DB.prepare(`SELECT at, speech_ratio FROM music_mood WHERE log_id IN (${marks}) ORDER BY at`).bind(...logIds).all<MoodRow>(),
+    env.DB.prepare(`SELECT log_id, at, speech_ratio FROM music_mood WHERE log_id IN (${marks}) ORDER BY at`).bind(...logIds).all<MoodRow>(),
   ]);
-  return {
-    tracks: tracks.results.map((r) => ({
+  const byLog = new Map<string, TripMusic>(logIds.map((id) => [id, { tracks: [], mood: [] }]));
+  for (const r of tracks.results) {
+    byLog.get(r.log_id)!.tracks.push({
       trackId: r.track_id,
       title: r.title,
       artist: r.artist,
       genre: r.genre,
       startedAtEpochMillis: r.started_at,
       endedAtEpochMillis: r.ended_at,
-    })),
-    mood: mood.results.map((r) => ({ atEpochMillis: r.at, speechRatio: r.speech_ratio })),
+    });
+  }
+  for (const r of mood.results) byLog.get(r.log_id)!.mood.push({ atEpochMillis: r.at, speechRatio: r.speech_ratio });
+  const clipped = logs.map((log) => musicInPeriod(byLog.get(log.id)!, trip.startedAtEpochMillis, trip.arrivedAtEpochMillis, log.ended_at));
+  const music = {
+    tracks: clipped.flatMap((log) => log.tracks).sort((a, b) => a.startedAtEpochMillis - b.startedAtEpochMillis),
+    mood: clipped.flatMap((log) => log.mood).sort((a, b) => a.atEpochMillis - b.atEpochMillis),
   };
+  return music.tracks.length || music.mood.length ? music : null;
 }
 
 export async function putPhoto(env: Env, id: string, body: ArrayBuffer, contentType: string): Promise<void> {

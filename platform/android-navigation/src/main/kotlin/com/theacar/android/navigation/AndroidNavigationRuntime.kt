@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.os.SystemClock
 import com.theacar.android.location.AndroidLocationSource
-import com.theacar.android.memory.TripMemoryStore
-import com.theacar.android.memory.TripRecorder
 import com.theacar.navigation.LocalNavigationEngine
 import com.theacar.navigation.NavigationSession
 import com.theacar.navigation.NavigationPhase
@@ -44,10 +42,11 @@ interface MiniPlayerSource {
 interface AndroidNavigationOwner : NavigationSessionOwner {
     val navigationRuntime: AndroidNavigationRuntime
     val miniPlayer: MiniPlayerSource? get() = null
+    val tripRecording: NavigationTripRecording? get() = null
     override val navigationSession get() = navigationRuntime.session
 }
 
-class AndroidNavigationRuntime(application: Application, memoryStore: TripMemoryStore) {
+class AndroidNavigationRuntime(application: Application) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     val configuration = NavigationConfiguration.read(application)
     private val client = routingHttpClient()
@@ -63,8 +62,6 @@ class AndroidNavigationRuntime(application: Application, memoryStore: TripMemory
     val session = NavigationSession(OsmDestinationSearch(
         configuration.geocodingUrl.ifBlank { configuration.routingUrl }, client,
         { if (configuration.geocodingUrl.isBlank()) routingToken.value else "" }), engine, scope)
-    // 到着したら旅の記録を保存する
-    val tripRecorder = TripRecorder(session, locations, memoryStore, scope)
     private val recentStore = RecentDestinationStore(application)
     private val mutableRecentDestinations = MutableStateFlow(recentStore.read())
     val recentDestinations = mutableRecentDestinations.asStateFlow()

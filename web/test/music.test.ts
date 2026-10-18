@@ -1,9 +1,44 @@
 import { describe, expect, it } from "vitest";
-import { genreShares, livelyRanking, parseTripMusic, trackEnd } from "../src/music";
+import { genreShares, livelyRanking, musicInPeriod, parseTripMusic, trackEnd } from "../src/music";
 import { ValidationError } from "../src/trip";
 import { sampleMusic, sampleTrip } from "./fixtures";
 
 const arrived = sampleTrip.arrivedAtEpochMillis;
+
+describe("musicInPeriod", () => {
+  const track = (id: string, start: number, end: number | null) => ({
+    trackId: id, title: id, artist: "Artist", genre: null, startedAtEpochMillis: start, endedAtEpochMillis: end,
+  });
+
+  it("期間外を除き、境界に重なる曲は再生時間を切り詰める", () => {
+    const source = { tracks: [track("before", 0, 100), track("enter", 50, 150), track("leave", 150, 250), track("after", 200, 300)],
+      mood: [99, 100, 150, 200, 201].map((atEpochMillis) => ({ atEpochMillis, speechRatio: .5 })) };
+    const snapshot = structuredClone(source);
+    const result = musicInPeriod(source, 100, 200);
+    expect(result.tracks.map((t) => [t.trackId, t.startedAtEpochMillis, t.endedAtEpochMillis])).toEqual([
+      ["enter", 100, 150], ["leave", 150, 200],
+    ]);
+    expect(result.mood.map((m) => m.atEpochMillis)).toEqual([100, 150]);
+    expect(source).toEqual(snapshot);
+  });
+
+  it("終了不明の曲は時刻順の次曲か期間末までとし、期間外の次曲も考慮する", () => {
+    const result = musicInPeriod({ tracks: [track("next", 250, null), track("first", 50, null), track("middle", 150, null)], mood: [] }, 100, 200);
+    expect(result.tracks.map((t) => [t.trackId, t.startedAtEpochMillis, t.endedAtEpochMillis])).toEqual([
+      ["first", 100, 150], ["middle", 150, 200],
+    ]);
+    expect(musicInPeriod({ tracks: [track("last", 50, null)], mood: [] }, 100, 200).tracks[0].endedAtEpochMillis).toBe(200);
+    expect(musicInPeriod({ tracks: [track("last", 50, null)], mood: [] }, 100, 200, 150).tracks[0].endedAtEpochMillis).toBe(150);
+    expect(musicInPeriod({ tracks: [track("first", 50, null), track("next", 150, 180)], mood: [] }, 100, 200, 120).tracks)
+      .toEqual([track("first", 100, 120)]);
+  });
+
+  it("長さ0の旅・再生区間は残さない", () => {
+    const source = { tracks: [track("zero", 150, 150)], mood: [{ atEpochMillis: 150, speechRatio: .5 }] };
+    expect(musicInPeriod(source, 100, 200).tracks).toEqual([]);
+    expect(musicInPeriod(source, 150, 150)).toEqual({ tracks: [], mood: [] });
+  });
+});
 
 describe("parseTripMusic", () => {
   it("曲と観測を時刻順に並べて受け付ける", () => {

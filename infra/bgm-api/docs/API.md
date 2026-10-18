@@ -156,6 +156,20 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 
 景観・車内の状態・履歴・プレイリストから、次の1曲を選びます。
 
+入力はDBへ問い合わせる前に検証します。不正な型・範囲・配列要素は`400 {"error":"invalid フィールド名"}`です。省略可能な値はフィールド自体を省略し、`null`は送らないでください（区間の`openness`・`recommended_rank`を除く）。
+
+| 項目 | 範囲・上限 |
+| --- | --- |
+| `members` | 1〜20名、idは重複不可。idは128文字、nameは200文字まで |
+| `pool` / `history` / `recent_track_ids` | 最大5,000曲 / 1,000件 / 5,000件。曲IDは500文字まで |
+| `pool[].owners` | 最大20名、membersに含まれるid |
+| `scene.features` / `previous_target` | 既定の特徴・6軸のみ。値と信頼度は0〜1 |
+| `scene.hour` / `top_k` / `seed` | 0〜23 / 整数1〜30 / 整数0〜4,294,967,295 |
+| `route.timeline` / `route.reveals` | それぞれ最大20,000件 |
+| 経路上の距離 / `next_duration_ms` | 0〜2,000,000m / 1〜3,600,000ms。区間の終点は始点より後 |
+
+`/annotate`も曲名・アーティスト名・曲ID（各500文字まで）と正の曲長を検査し、不正な入力は400を返します。`/link/spotify`の`track_ids`は空でない文字列の配列です。
+
 ### リクエスト
 
 ```json

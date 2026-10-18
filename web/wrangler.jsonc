@@ -17,7 +17,7 @@
   ],
   "vars": {
     // Android の MEMORY_WEB_URL と同じ公開先を設定する。空ならリクエストの origin を使う。
-    "PUBLIC_BASE_URL": "https://tabireco-web.miraidai.workers.dev"
+    "PUBLIC_BASE_URL": ""
   }
   // TRIP_UPLOAD_TOKEN は secret: wrangler secret put TRIP_UPLOAD_TOKEN（ローカルは .dev.vars）
 }

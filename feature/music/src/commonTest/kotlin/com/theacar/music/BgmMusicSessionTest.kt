@@ -253,7 +253,7 @@ class BgmMusicSessionTest {
         fixture.tick(playbackOf(firstUri, 200_000, 199_000))
         runCurrent()
         assertEquals(listOf(firstUri, secondUri), fixture.music.played)
-        // 切り替えの直後、再生先がまだ前の曲の終わりを返した（2026-10-18 に実機で確認）。利用者の操作とみなさない。
+        // 切り替え直後に前の曲の終了位置が届いても、利用者の操作とみなさない。
         fixture.time += 2_000
         fixture.recommendations.response = BgmRecommendation(first)
         fixture.tick(playbackOf(firstUri, 200_000, 199_500))

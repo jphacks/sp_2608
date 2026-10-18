@@ -81,6 +81,8 @@ internal fun NavigationControls(
     onStart: () -> Unit,
     onStop: () -> Unit,
     onCreateMemory: (() -> Unit)? = null,
+    memorySaveFailed: Boolean = false,
+    onRetryMemorySave: () -> Unit = {},
     onRequestPermissions: () -> Unit,
     onOpenLocationSettings: () -> Unit,
     onVoiceChanged: (Boolean) -> Unit,
@@ -401,6 +403,10 @@ internal fun NavigationControls(
                                 // 到着して記録が保存できたときだけ、ステッカー作りへ進むボタンを出す
                                 if (state.phase == NavigationPhase.ARRIVED && onCreateMemory != null) {
                                     Button(onClick = onCreateMemory, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("思い出をつくる") }
+                                }
+                                if (state.phase == NavigationPhase.ARRIVED && memorySaveFailed) {
+                                    Text("旅の記録を保存できませんでした。端末の空き容量を確認してください。", style = MaterialTheme.typography.bodySmall)
+                                    TextButton(onClick = onRetryMemorySave) { Text("記録の保存を再試行") }
                                 }
                                 if (panelExpanded || state.phase != NavigationPhase.PREVIEW) Row(Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {

@@ -11,7 +11,7 @@ val allowedModuleDependencies = mapOf(
     ":core:model" to emptySet(),
     ":core:location" to setOf(":core:model"),
     ":feature:navigation" to setOf(":feature:route", ":core:location"),
-    ":platform:android-navigation" to setOf(":feature:navigation", ":core:ui", ":data:valhalla", ":platform:android-security", ":platform:android-location", ":platform:android-memory"),
+    ":platform:android-navigation" to setOf(":feature:navigation", ":core:ui", ":data:valhalla", ":platform:android-security", ":platform:android-location"),
     ":platform:android-location" to setOf(":core:location"),
     ":platform:android-security" to emptySet(),
     ":platform:android-window" to setOf(":feature:cabin", ":core:ui"),

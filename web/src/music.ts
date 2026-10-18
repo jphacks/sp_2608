@@ -102,6 +102,18 @@ export function trackEnd(tracks: PlayedTrack[], index: number, arrivedAtEpochMil
   return Math.max(end, t.startedAtEpochMillis);
 }
 
+/** 出発を含み、到着を含まない期間へ切り詰める。元のログは変更しない。 */
+export function musicInPeriod(music: TripMusic, startedAt: number, arrivedAt: number, logEndedAt = arrivedAt): TripMusic {
+  const ordered = [...music.tracks].sort((a, b) => a.startedAtEpochMillis - b.startedAtEpochMillis);
+  const tracks = ordered.flatMap((track, index) => {
+    const start = Math.max(track.startedAtEpochMillis, startedAt);
+    const end = Math.min(trackEnd(ordered, index, logEndedAt), arrivedAt, logEndedAt);
+    return start < end ? [{ ...track, startedAtEpochMillis: start, endedAtEpochMillis: end }] : [];
+  });
+  const mood = music.mood.filter((sample) => sample.atEpochMillis >= startedAt && sample.atEpochMillis < arrivedAt);
+  return { tracks, mood };
+}
+
 export type GenreShare = { genre: string; minutes: number; share: number };
 
 /** ジャンルごとの再生時間（分）と割合。長い順。 */

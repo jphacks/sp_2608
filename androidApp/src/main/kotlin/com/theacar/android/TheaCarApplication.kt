@@ -3,8 +3,12 @@ package com.theacar.android
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.theacar.android.memory.AndroidMemoryOwner
 import com.theacar.android.memory.AndroidMemoryRuntime
+import com.theacar.android.memory.TripRecorder
+import com.theacar.android.memory.MemoryActivity
+import com.theacar.android.navigation.NavigationTripRecording
 import com.theacar.android.music.driveBgmLine
 import com.theacar.android.music.installId
 import com.theacar.android.music.perform
@@ -53,6 +57,8 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
     override lateinit var windowRuntime: AndroidWindowRuntime
         private set
     override lateinit var navigationRuntime: AndroidNavigationRuntime
+        private set
+    override lateinit var tripRecording: NavigationTripRecording
         private set
     lateinit var graph: AppGraph
         private set
@@ -104,7 +110,15 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         super.onCreate()
         graph = AppGraph.demo()
         memoryRuntime = AndroidMemoryRuntime(this, installId(this))
-        navigationRuntime = AndroidNavigationRuntime(this, memoryRuntime.store)
+        navigationRuntime = AndroidNavigationRuntime(this)
+        val recorder = TripRecorder(navigationRuntime.session.state, navigationRuntime.locations,
+            memoryRuntime.store::save, scope, onError = { Log.w("TripRecorder", "旅の記録を保存できませんでした", it) })
+        tripRecording = object : NavigationTripRecording {
+            override val lastSavedId = recorder.lastSavedId
+            override val saveFailed = recorder.saveFailed
+            override fun retry() = recorder.retry()
+            override fun open(context: Context, id: String) { context.startActivity(MemoryActivity.intent(context, id)) }
+        }
         val musicJourney = NavigationMusicJourney { navigationRuntime.session.state.value }
         val scenery = NavigationSceneryTimeline { navigationRuntime.session.state.value }
         // 景観BGMは経路 API と同じサーバー・同じトークンで呼ぶ（端末で保存したトークンがあればそれを使う）。

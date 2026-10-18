@@ -3,6 +3,7 @@ import { env } from "cloudflare:test";
 import worker from "../src/index";
 import type { Env } from "../src/store";
 import { sampleMusic, sampleTrip } from "./fixtures";
+import type { TripMusic } from "../src/music";
 
 // 本物の D1 / R2（テスト用の一時ストレージ）を使う。隔離はしないので、テストごとに空にする
 const fakeEnv = () => env;
@@ -34,6 +35,15 @@ async function call(env: Env, path: string, init?: RequestInit): Promise<Respons
 const auth = { authorization: "Bearer secret-token" };
 
 describe("POST /api/trips", () => {
+  it("公開URLが未指定ならローカルで受けたoriginを返す", async () => {
+    const local = { ...fakeEnv(), PUBLIC_BASE_URL: "" };
+    const body = JSON.stringify(sampleTrip);
+    const response = await worker.fetch(new Request("http://localhost:8787/api/trips", {
+      method: "POST", headers: { ...auth, "content-type": "application/json", "content-length": String(new TextEncoder().encode(body).length) }, body,
+    }), local);
+    expect(response.status).toBe(201);
+    expect((await response.json<{ url: string }>()).url).toBe(`http://localhost:8787/t/${sampleTrip.id}`);
+  });
   it("トークンが無ければ 401", async () => {
     const res = await call(fakeEnv(), "/api/trips", { method: "POST", body: "{}" });
     expect(res.status).toBe(401);
@@ -159,6 +169,68 @@ describe("音楽ログ", () => {
     tracks: sampleMusic.tracks,
     mood: sampleMusic.mood,
   };
+
+  it.each([false, true])("同梱・別送とも期間外の曲と発話を公開しない（同梱=%s）", async (inline) => {
+    const start = sampleTrip.startedAtEpochMillis;
+    const end = sampleTrip.arrivedAtEpochMillis;
+    const track = (title: string, from: number, to: number) => ({
+      ...sampleMusic.tracks[0], trackId: title, title, startedAtEpochMillis: from, endedAtEpochMillis: to,
+    });
+    const music = {
+      tracks: [track("期間前の曲", start - 120_000, start), track("開始をまたぐ曲", start - 60_000, start + 60_000),
+        track("到着をまたぐ曲", end - 60_000, end + 60_000), track("期間後の曲", end, end + 120_000)],
+      mood: [start - 1, start, end - 1, end, end + 1].map((atEpochMillis) => ({ atEpochMillis, speechRatio: .7 })),
+    };
+    if (!inline) {
+      expect((await call(env, "/api/music-logs", { method: "POST", headers: { ...auth, "content-type": "application/json" },
+        body: JSON.stringify({ ...log, ...music, startedAtEpochMillis: start - 120_000, endedAtEpochMillis: end + 120_000 }) })).status).toBe(201);
+    }
+    expect((await call(env, "/api/trips", { method: "POST", headers: { ...auth, "content-type": "application/json" },
+      body: JSON.stringify({ ...sampleTrip, deviceId, ...(inline ? { music } : {}) }) })).status).toBe(201);
+    const stored = await (await call(env, `/api/trips/${sampleTrip.id}`)).json<{ music: TripMusic }>();
+    expect(stored.music.tracks.map((t) => [t.title, t.startedAtEpochMillis, t.endedAtEpochMillis])).toEqual([
+      ["開始をまたぐ曲", start, start + 60_000], ["到着をまたぐ曲", end - 60_000, end],
+    ]);
+    expect(stored.music.mood.map((m) => m.atEpochMillis)).toEqual([start, end - 1]);
+    const page = await (await call(env, `/t/${sampleTrip.id}`)).text();
+    expect(page).not.toContain("期間前の曲");
+    expect(page).not.toContain("期間後の曲");
+    expect((await env.DB.prepare("SELECT count(*) AS n FROM music_tracks").first<{ n: number }>())?.n).toBe(4);
+    expect((await env.DB.prepare("SELECT count(*) AS n FROM music_mood").first<{ n: number }>())?.n).toBe(5);
+  });
+
+  it("次曲の時刻を別ログから借りず、各ログ内で終了時刻を推定する", async () => {
+    const start = sampleTrip.startedAtEpochMillis;
+    for (const [index, offset] of [0, 60_000].entries()) {
+      const packet = { ...log, id: index === 0 ? log.id : "d4e5f6a7-0000-4000-8000-000000000005",
+        startedAtEpochMillis: start, endedAtEpochMillis: sampleTrip.arrivedAtEpochMillis,
+        tracks: [{ ...sampleMusic.tracks[0], trackId: `track-${index}`, startedAtEpochMillis: start + offset, endedAtEpochMillis: null }], mood: [] };
+      expect((await call(env, "/api/music-logs", { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify(packet) })).status).toBe(201);
+    }
+    await call(env, "/api/trips", { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify({ ...sampleTrip, deviceId }) });
+    const result = await (await call(env, `/api/trips/${sampleTrip.id}`)).json<{ music: TripMusic }>();
+    expect(result.music.tracks.map((t) => t.endedAtEpochMillis)).toEqual([sampleTrip.arrivedAtEpochMillis, sampleTrip.arrivedAtEpochMillis]);
+  });
+
+  it("重なるログに期間内の曲・発話がなければmusicはnull", async () => {
+    const start = sampleTrip.startedAtEpochMillis;
+    await call(env, "/api/music-logs", { method: "POST", headers: { ...auth, "content-type": "application/json" },
+      body: JSON.stringify({ ...log, tracks: [{ ...sampleMusic.tracks[0], startedAtEpochMillis: start - 120_000, endedAtEpochMillis: start }],
+        mood: [{ atEpochMillis: start - 1, speechRatio: .5 }] }) });
+    await call(env, "/api/trips", { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify({ ...sampleTrip, deviceId }) });
+    expect((await (await call(env, `/api/trips/${sampleTrip.id}`)).json<{ music: unknown }>()).music).toBeNull();
+  });
+
+  it.each([0, 60_000])("終了不明の最後の曲も、ログの終了後へ延ばさない（終了offset=%s）", async (offset) => {
+    const start = sampleTrip.startedAtEpochMillis;
+    const packet = { ...log, startedAtEpochMillis: start - 60_000, endedAtEpochMillis: start + offset,
+      tracks: [{ ...sampleMusic.tracks[0], startedAtEpochMillis: start - 60_000, endedAtEpochMillis: null }], mood: [] };
+    expect((await call(env, "/api/music-logs", { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify(packet) })).status).toBe(201);
+    await call(env, "/api/trips", { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify({ ...sampleTrip, deviceId }) });
+    const result = await (await call(env, `/api/trips/${sampleTrip.id}`)).json<{ music: TripMusic | null }>();
+    if (offset === 0) expect(result.music).toBeNull();
+    else expect(result.music?.tracks[0]).toMatchObject({ startedAtEpochMillis: start, endedAtEpochMillis: start + offset });
+  });
 
   it("別送の音楽ログは、同じ端末で時間が重なる旅に結び付く", async () => {
     const env = fakeEnv();

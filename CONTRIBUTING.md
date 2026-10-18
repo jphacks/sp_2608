@@ -16,7 +16,7 @@
 | 機能間の連携 | `feature/drive` |
 | スマホ・車載UI | `platform/android-navigation`・`platform/android-auto`・`feature/dashboard` |
 | 窓の操作 | `feature/cabin`・`platform/android-window`・`hardware/window-ai` |
-| 旅の記録 | `feature/memory`・`platform/android-memory`・`web` |
+| 旅の記録 | `feature/memory`・`data/memory`・`platform/android-memory`・`web` |
 | 起動・依存注入 | `androidApp`・`shared`・`iosApp` |
 
 ## 依存と状態
