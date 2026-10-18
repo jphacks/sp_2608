@@ -85,7 +85,20 @@ Android Autoの車載画面とスマートフォンが同じ`NavigationSession`�
 
 </details>
 
-音楽は[景観BGMの推薦](docs/bgm-recommendation.md)に対応します。案内中の景観と車内の状態をもとに、次の1曲を選びます。音楽画面の「みんなのプレイリスト」で表示名とSpotifyプレイリストURLを入力し、「取り込む」を押すと選曲に好みを反映できます。「プレイリスト内だけ」を選べば、取り込んだ曲だけが候補になります。[設計の説明](docs/architecture.md) · [図をまとめたPDF](docs/media/architecture/theacar-architecture.pdf)
+### 景観に合わせた選曲
+
+これから通る景色と車内の会話に合わせて、Spotifyで流す次の1曲を選びます。海沿いでは明るく広がりのある曲、森林では落ち着いた曲を選びやすくします。
+
+```mermaid
+flowchart TD
+    A[これから通る景色・車内の状態] --> B[景色や会話に合う曲調を決める]
+    B --> C[好み・再生履歴も踏まえて選曲]
+    C --> D[Spotifyで次の1曲を再生]
+```
+
+好みを反映するには、音楽画面の「みんなのプレイリスト」で表示名とSpotifyプレイリストURLを入力し、「取り込む」を押します。「プレイリスト内だけ」を選ぶと、取り込んだ曲だけから選曲します。
+
+[使い方](docs/bgm-recommendation.md) · [推薦の仕組み・図解](docs/bgm-recommendation-design.md) · [全体の設計](docs/architecture.md)
 
 ## ドライブとの連携
 
