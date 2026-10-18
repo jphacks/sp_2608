@@ -153,6 +153,7 @@ export function renderTripPage(trip: StoredTrip, photoUrl: string | null): strin
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="/sticker-editor.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -257,6 +258,35 @@ footer a{color:inherit}
   </div>
 </article>
 
+<section class="sticker-editor" aria-labelledby="editor-title">
+  <p class="editor-kicker">MAKE IT YOURS</p>
+  <h2 id="editor-title">旅のステッカーを飾ろう</h2>
+  <p class="lead">好きなステッカーや写真を追加して、カードの上で自由に動かせます。</p>
+  <div class="sticker-palette" aria-label="ステッカーを追加">
+<button type="button" data-sticker-image="/stickers/tape-blue.png" aria-label="水色のマスキングテープを追加" title="水色のマスキングテープ" style="background:#f5f3ec"><img src="/stickers/tape-blue.png" alt="水色のマスキングテープ" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/tape-green.png" aria-label="緑のマスキングテープを追加" title="緑のマスキングテープ" style="background:#f5f3ec"><img src="/stickers/tape-green.png" alt="緑のマスキングテープ" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/travel-postmark-white.png" aria-label="白い旅の消印を追加" title="白い旅の消印" style="background:#4f6457"><img src="/stickers/travel-postmark-white.png" alt="白い旅の消印" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/travel-postmark-blue.png" aria-label="青い旅の消印を追加" title="青い旅の消印" style="background:#f5f3ec"><img src="/stickers/travel-postmark-blue.png" alt="青い旅の消印" width="44" height="44"></button>
+
+    <button type="button" data-sticker-image="/stickers/tabireco-postmark.png" aria-label="旅れこ消印を追加" title="旅れこ消印"><img src="/stickers/tabireco-postmark.png" alt="旅れこ消印" width="44" height="44"></button>
+    <button type="button" data-sticker="🚗" aria-label="車を追加">🚗</button>
+    <button type="button" data-sticker="🏕️" aria-label="キャンプを追加">🏕️</button>
+    <button type="button" data-sticker="🎵" aria-label="音符を追加">🎵</button>
+    <button type="button" data-sticker="☀️" aria-label="太陽を追加">☀️</button>
+    <button type="button" data-sticker="🌼" aria-label="花を追加">🌼</button>
+    <button type="button" data-sticker="❤️" aria-label="ハートを追加">❤️</button>
+  </div>
+  <label class="upload-button">＋ 写真・ステッカー画像を選ぶ<input id="sticker-upload" type="file" accept="image/png,image/jpeg,image/webp" aria-label="写真・ステッカー画像を選ぶ"></label>
+  <p class="lead">JPG・PNG・WebP（10 MBまで）。透過PNGも使えます。</p>
+  <div class="editor-controls" id="editor-controls" hidden>
+    <label>サイズ<input id="sticker-size" type="range" min="10" max="65" value="22"></label>
+    <label>回転<input id="sticker-angle" type="range" min="-180" max="180" value="0"></label>
+    <div class="editor-actions"><button type="button" id="sticker-front">最前面へ</button><button type="button" id="sticker-remove">選択中を削除</button><button type="button" id="sticker-done">配置を完了</button></div>
+  </div>
+  <p class="editor-status" id="editor-status" role="status" aria-live="polite">このブラウザに自動保存されます。写真はサーバーに送信されません。</p>
+</section>
+
+
 <section>
   <h2>Trip</h2>
   <dl>
@@ -348,6 +378,7 @@ ${musicSectionsHtml(trip.music, trip)}
   svg.addEventListener("touchend", hide);
 })();
 </script>
+<script src="/sticker-editor.js" defer></script>
 <script src="https://unpkg.com/maplibre-gl@${MAPLIBRE_VERSION}/dist/maplibre-gl.js"></script>
 <script>
 (function(){
