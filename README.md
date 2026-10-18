@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 旅れこ
 
 旅れこは、ドライブ中の景色や音楽を楽しみ、旅の記録を後から振り返るためのAndroid Auto対応ドライブアプリ（ナビ）です。
@@ -157,3 +158,41 @@ Android Auto向けに開発中です。iOSのナビは未対応です。
 - [Valhalla](https://valhalla.github.io/valhalla/) — 経路計算
 - [MapLibre Native](https://maplibre.org/maplibre-native/docs/book/) / [OpenFreeMap](https://openfreemap.org/) — 地図表示
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api) / [Android SDK](https://developer.spotify.com/documentation/android) — 音楽検索・再生
+=======
+# サンプル（プロダクト名）
+
+[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2026/07/IMG_5316.png)](https://www.youtube.com/watch?v=piaNsc6ilBI)
+
+## 製品概要
+### 背景(製品開発のきっかけ、課題等）
+### 製品説明（具体的な製品の説明）
+### 特長
+#### 1. 特長1
+#### 2. 特長2
+#### 3. 特長3
+
+### 解決出来ること
+### 今後の展望
+### 注力したこと（こだわり等）
+* 
+* 
+
+## 開発技術
+### 活用した技術
+#### API・データ
+* 
+* 
+
+#### フレームワーク・ライブラリ・モジュール
+* 
+* 
+
+#### デバイス
+* 
+* 
+
+### 独自技術
+#### ハッカソンで開発した独自機能・技術
+* 独自で開発したものの内容をこちらに記載してください
+* 特に力を入れた部分をファイルリンク、またはcommit_idを記載してください。
+>>>>>>> a13ebd72ca06dfbe90db9dca15b2b56f1fa017ea
