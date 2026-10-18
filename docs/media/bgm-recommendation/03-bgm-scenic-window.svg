@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="650" viewBox="0 0 1536 650" role="img" aria-labelledby="title desc">
+  <title id="title">これから通る景色を先読みする</title>
+  <desc id="desc">現在位置8.0kmから、速度40km/hで4分間に進む約2.67km先までを先読みする。森林1.0km、情報なし0.4km、海沿い約1.27kmの順に続く。景観情報のある区間では森林が約44%、海沿いが約56%を占める。</desc>
+  <rect width="1536" height="650" fill="#fff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#666"/></marker>
+    <pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M-3 3 L3 -3 M0 12 L12 0 M9 15 L15 9" stroke="#e4e4e4" stroke-width="1"/></pattern>
+  </defs>
+  <g font-family="'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif">
+    <text x="58" y="79" font-size="34" font-weight="700" fill="#222">これから通る景色を先読みする</text>
+    <text x="60" y="116" font-size="20" fill="#6e6e6e">現在位置・予測速度・曲の長さから、選曲に使う区間を求める</text>
+
+    <rect x="58" y="157" width="1420" height="70" fill="#fff" stroke="#b9b9b9" stroke-width="1.6"/>
+    <text x="83" y="201" font-size="22" font-weight="700" fill="#242424">予測速度 40km/h × 曲の長さ 4分 ＝ 先読みする距離 約2.67km</text>
+
+    <text x="108" y="279" font-size="22" font-weight="700" fill="#242424">現在位置 8.0km</text>
+    <text x="603" y="279" text-anchor="middle" font-size="18" fill="#777">9.0km</text>
+    <text x="801" y="279" text-anchor="middle" font-size="18" fill="#777">9.4km</text>
+    <text x="1428" y="279" text-anchor="end" font-size="22" font-weight="700" fill="#242424">約10.67km</text>
+    <g stroke="#b9b9b9" stroke-width="1.6">
+      <path d="M108 293 V314 M603 293 V314 M801 293 V314 M1428 293 V314"/>
+      <rect x="108" y="314" width="495" height="108" fill="#fff"/>
+      <rect x="603" y="314" width="198" height="108" fill="url(#hatch)"/>
+      <rect x="801" y="314" width="627" height="108" fill="#fff"/>
+    </g>
+    <g text-anchor="middle">
+      <text x="355.5" y="358" font-size="24" font-weight="700" fill="#242424">森林</text>
+      <text x="355.5" y="392" font-size="20" fill="#676767">1.0km</text>
+      <text x="702" y="358" font-size="22" font-weight="700" fill="#242424">情報なし</text>
+      <text x="702" y="392" font-size="20" fill="#676767">0.4km</text>
+      <text x="1114.5" y="358" font-size="24" font-weight="700" fill="#242424">海沿い</text>
+      <text x="1114.5" y="392" font-size="20" fill="#676767">約1.27km</text>
+    </g>
+    <path d="M108 436 V459 H1428 V436" fill="none" stroke="#666" stroke-width="1.6"/>
+    <text x="768" y="494" text-anchor="middle" font-size="22" font-weight="700" fill="#242424">先読みする区間：約2.67km</text>
+    <line x1="108" y1="529" x2="1428" y2="529" stroke="#cecece" stroke-width="1"/>
+    <text x="108" y="572" font-size="21" font-weight="700" fill="#292929">景観情報のある約2.27kmを集計</text>
+    <text x="108" y="608" font-size="20" fill="#676767">森林 約44% ＋ 海沿い 約56% → 区間全体の景色を選曲に反映</text>
+  </g>
+</svg>
