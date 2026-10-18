@@ -1,5 +1,10 @@
 # 旅れこ
 
+
+https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
+[デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)
+
+
 旅れこは、ドライブ中の景色や音楽を楽しみ、旅の記録を後から振り返るためのAndroid Auto対応ドライブアプリ（ナビ）です。
 許容できる寄り道の範囲で海沿い・森林・湖・川などを楽しめる道を提案し、選んだルートを車載画面で案内します。
 
