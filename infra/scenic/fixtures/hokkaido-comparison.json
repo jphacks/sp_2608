@@ -1,0 +1,16 @@
+[
+  {
+    "name": "sapporo-hakodate-six-comparisons",
+    "request": {
+      "origin": {"lat": 43.061, "lon": 141.354},
+      "destination": {"lat": 41.7687, "lon": 140.7288},
+      "mode": "point_to_point",
+      "departure_time": "2026-10-17T12:00:00+09:00",
+      "budget": {"max_extra_driving_seconds": 5400},
+      "preferences": {"sea": 1, "variety": 0.5},
+      "constraints": {"allow_tolls": true, "allow_highways": true, "allow_ferries": false, "allow_unpaved": true},
+      "max_routes": 6,
+      "seed": 0
+    }
+  }
+]

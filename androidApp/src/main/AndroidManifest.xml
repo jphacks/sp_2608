@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+
+    <application
+        android:name=".TheaCarApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.TheaCar">
+        <meta-data android:name="com.theacar.VALHALLA_URL" android:value="${VALHALLA_URL}" />
+        <meta-data android:name="com.theacar.MAP_STYLE_URL" android:value="${MAP_STYLE_URL}" />
+        <meta-data android:name="com.theacar.GEOCODING_URL" android:value="${GEOCODING_URL}" />
+        <meta-data android:name="com.theacar.SPOTIFY_CLIENT_ID" android:value="${SPOTIFY_CLIENT_ID}" />
+        <meta-data android:name="com.theacar.ROUTING_TOKEN" android:value="${ROUTING_TOKEN}" />
+        <meta-data android:name="com.theacar.MEMORY_WEB_URL" android:value="${MEMORY_WEB_URL}" />
+        <meta-data android:name="com.theacar.MEMORY_WEB_TOKEN" android:value="${MEMORY_WEB_TOKEN}" />
+
+        <!-- 起動画面はマップ。MainActivity は旅の記録・設定のタブ用 -->
+        <activity
+            android:name="com.theacar.android.navigation.NavigationActivity"
+            android:exported="true"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+    </application>
+</manifest>

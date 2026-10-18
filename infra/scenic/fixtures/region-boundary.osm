@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="theacar-test">
+  <node id="1" lat="43.0" lon="140.99" />
+  <node id="2" lat="43.0" lon="141.01" />
+  <node id="3" lat="43.001" lon="140.99" />
+  <node id="4" lat="43.001" lon="141.01" />
+  <node id="5" lat="42.999" lon="140.989" />
+  <node id="6" lat="42.999" lon="141.011" />
+  <node id="7" lat="43.001" lon="141.011" />
+  <node id="8" lat="43.001" lon="140.989" />
+  <way id="1"><nd ref="1"/><nd ref="2"/><tag k="highway" v="secondary"/></way>
+  <way id="2"><nd ref="3"/><nd ref="4"/><tag k="natural" v="coastline"/></way>
+  <way id="3"><nd ref="5"/><nd ref="6"/><nd ref="7"/><nd ref="8"/><nd ref="5"/><tag k="landuse" v="forest"/></way>
+</osm>

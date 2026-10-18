@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <queries>
+        <package android:name="com.spotify.music" />
+    </queries>
+    <application>
+        <service android:name="com.theacar.android.music.GuestRequestService" android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <activity android:name="com.theacar.android.music.SpotifyMusicActivity" android:exported="false" />
+        <service android:name="com.theacar.android.music.CabinListeningService" android:exported="false"
+            android:foregroundServiceType="microphone" />
+        <activity android:name="com.theacar.android.music.SpotifyCallbackActivity" android:exported="true" android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.theacar.android.spotify" android:host="oauth" android:path="/callback" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

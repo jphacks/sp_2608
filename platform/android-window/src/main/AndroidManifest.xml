@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 機器を BLE で探して繋ぐ。Android 12 以上はこの2つを実行時に求める。 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Android 11 以下はこちら。探索には位置情報の許可も要るが、アプリが地図のために宣言している。 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- BLE が無い端末でもインストールはできる。窓の画面だけが使えない。 -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <application>
+        <activity android:name="com.theacar.android.window.WindowActivity" android:exported="false" />
+    </application>
+</manifest>

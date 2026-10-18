@@ -1,0 +1,23 @@
+{
+  // 旅れこ「旅のステッカー」Web 版。ステッカーの QR から開く公開ページと、アプリからの登録 API。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tabireco-web",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "public" },
+  "d1_databases": [
+    // wrangler d1 create tabireco を実行して database_id を入れる。スキーマは migrations/ にあり、
+    // wrangler d1 migrations apply tabireco（ローカルは --local）で適用する。
+    { "binding": "DB", "database_name": "tabireco", "database_id": "ef2fd1d0-ef33-42ce-be43-8b2915405d94", "migrations_dir": "migrations" }
+  ],
+  "r2_buckets": [
+    // wrangler r2 bucket create tabireco-photos
+    { "binding": "PHOTOS", "bucket_name": "tabireco-photos" }
+  ],
+  "vars": {
+    // Android の MEMORY_WEB_URL と同じ公開先を設定する。空ならリクエストの origin を使う。
+    "PUBLIC_BASE_URL": "https://tabireco-web.miraidai.workers.dev"
+  }
+  // TRIP_UPLOAD_TOKEN は secret: wrangler secret put TRIP_UPLOAD_TOKEN（ローカルは .dev.vars）
+}

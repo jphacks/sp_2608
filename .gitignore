@@ -1,0 +1,34 @@
+.vscode
+.gradle/
+.gradle-local/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.iml
+.DS_Store
+xcuserdata/
+DerivedData/
+infra/valhalla/data/
+infra/valhalla/.secrets/
+infra/valhalla/cloudflared.local.yml
+infra/valhalla/.routing.json
+__pycache__/
+.venv-scenic/
+*.log
+
+# ローカルの計測・検索記録と、メディアの中間出力
+.local-artifacts/
+docs/media/**/trace.json.gz
+docs/media/**/factors.json.gz
+docs/media/**/basemap*.json.gz
+docs/media/**/edit.json
+docs/media/**/*.rendering.mp4
+docs/media/**/*.unbranded.*
+
+# ローカルの一時作業領域
+.claude/worktrees/
+
+# JVM クラッシュダンプ (ビルド時のメモリ不足などで生成される)
+hs_err_pid*.log
+replay_pid*.log

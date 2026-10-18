@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<rect width="1600" height="1000" fill="#ffffff"/>
+<text x="60" y="50" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">データ構築</text>
+<text x="60" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">矢印：情報・操作の流れ　　破線：実機・実モデルは未接続</text>
+<text x="1529.421875" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">4</text>
+<text x="68" y="158" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="600" fill="#666666">公開データ・紹介資料</text>
+<text x="588" y="158" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="600" fill="#666666">収集・検査・変換</text>
+<text x="1108" y="158" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="600" fill="#666666">検索で読む成果物</text>
+<rect x="60" y="210" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="234" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">OpenStreetMap</text>
+<text x="86" y="288" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">北海道 region.osm.pbf</text>
+<text x="86" y="320" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">道路・海岸・森林・水域・地名</text>
+<rect x="580" y="210" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="234" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">道路網と特徴を作る</text>
+<text x="606" y="288" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">道路タイルと小区間を生成</text>
+<text x="606" y="320" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">水域・道路属性・地名を抽出</text>
+<rect x="1100" y="210" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="234" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">経路 ＋ 地理 ＋ 場所</text>
+<text x="1126" y="288" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">Valhallaタイル ／ scenic DB</text>
+<text x="1126" y="320" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">landscapes ／ context ／ places</text>
+<polyline points="500,285 580,285" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="580,285 567.3937405670625,291.08951747755725 567.3937405670625,278.91048252244275" fill="#444444"/>
+<polyline points="1020,285 1100,285" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,285 1087.3937405670624,291.08951747755725 1087.3937405670624,278.91048252244275" fill="#444444"/>
+<rect x="60" y="385" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="409" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">国土地理院 DEM</text>
+<text x="86" y="463" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">地表の標高</text>
+<text x="86" y="495" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">周囲の地形・地平線の推定</text>
+<rect x="580" y="385" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="409" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">地形を道路へ対応付け</text>
+<text x="606" y="463" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">標高・谷・8方向の遮蔽を計算</text>
+<text x="606" y="495" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">見通しは地形による近似</text>
+<rect x="1100" y="385" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="409" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">terrain DB</text>
+<text x="1126" y="463" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">地表標高・開放性・谷の指標</text>
+<text x="1126" y="495" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">建物・植生・防潮堤は保証外</text>
+<polyline points="500,460 580,460" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="580,460 567.3937405670625,466.08951747755725 567.3937405670625,453.91048252244275" fill="#444444"/>
+<polyline points="1020,460 1100,460" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,460 1087.3937405670624,466.08951747755725 1087.3937405670624,453.91048252244275" fill="#444444"/>
+<rect x="60" y="560" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="584" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">ESA WorldCover</text>
+<text x="86" y="638" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">公開の土地被覆分類</text>
+<text x="86" y="670" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">観測年と取得年を区別</text>
+<rect x="580" y="560" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="584" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">道路周辺の被覆を集計</text>
+<text x="606" y="638" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">森林等の不足を補完</text>
+<text x="606" y="670" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">分類の出典・版・欠損を保持</text>
+<rect x="1100" y="560" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="584" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">landcover DB</text>
+<text x="1126" y="638" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">森林・農地等の被覆特徴</text>
+<text x="1126" y="670" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">現況や完全な分類精度ではない</text>
+<polyline points="500,635 580,635" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="580,635 567.3937405670625,641.0895174775573 567.3937405670625,628.9104825224427" fill="#444444"/>
+<polyline points="1020,635 1100,635" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,635 1087.3937405670624,641.0895174775573 1087.3937405670624,628.9104825224427" fill="#444444"/>
+<rect x="60" y="735" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="759" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">公式・自治体・観光団体</text>
+<text x="86" y="813" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">道路としての紹介が必須</text>
+<text x="86" y="845" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">名称・紹介区間・根拠を調査</text>
+<rect x="580" y="735" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="759" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">審査 ＋ OSM道路照合</text>
+<text x="606" y="813" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">連続した紹介道路として登録</text>
+<text x="606" y="845" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">形状不足・根拠不足は保留</text>
+<rect x="1100" y="735" width="440" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="759" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">名道の登録DB</text>
+<text x="1126" y="813" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">秀逸な道 ／ 絶景ロード</text>
+<text x="1126" y="845" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">おすすめロード ／ 景観ロード</text>
+<polyline points="500,810 580,810" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="580,810 567.3937405670625,816.0895174775573 567.3937405670625,803.9104825224427" fill="#444444"/>
+<polyline points="1020,810 1100,810" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,810 1087.3937405670624,816.0895174775573 1087.3937405670624,803.9104825224427" fill="#444444"/>
+<text x="60" y="910" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">公開前：元データの署名・地図版・スキーマを検査。不一致のDBは混ぜない。地形だけの道は本登録にしない。</text>
+</svg>

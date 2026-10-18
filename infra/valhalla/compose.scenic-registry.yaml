@@ -1,0 +1,6 @@
+services:
+  scenic:
+    environment:
+      SCENIC_RECOMMENDED_ROADS: /data/${SCENIC_REGISTRY_FILE:-road-recommendations-research-20261018-v7.sqlite}
+      SCENIC_LANDSCAPES: /data/${SCENIC_LANDSCAPE_FILE:-landscapes-hokkaido-v4.sqlite}
+      SCENIC_WEATHER: ${SCENIC_WEATHER:-true}

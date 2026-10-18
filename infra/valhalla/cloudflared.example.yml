@@ -1,0 +1,9 @@
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: /absolute/path/to/tunnel-credentials.json
+
+ingress:
+  - hostname: routing.example.com
+    service: http://127.0.0.1:8003
+    originRequest:
+      connectTimeout: 5s
+  - service: http_status:404

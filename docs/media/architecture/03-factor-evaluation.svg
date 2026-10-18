@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<rect width="1600" height="1000" fill="#ffffff"/>
+<text x="60" y="50" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">景観評価</text>
+<text x="60" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">矢印：情報・操作の流れ　　破線：実機・実モデルは未接続</text>
+<text x="1529.484375" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">3</text>
+<rect x="60" y="165" width="440" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="189" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">場所が持つ特徴</text>
+<text x="86" y="243" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">海・森・湖・川・谷</text>
+<text x="86" y="275" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">自然・田園・市街地の密度</text>
+<text x="86" y="307" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">水域の向き・地形の遮蔽</text>
+<text x="86" y="339" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">登録名道・トンネル等</text>
+<text x="86" y="375" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">store.py / terrain.py</text>
+<rect x="580" y="165" width="440" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="189" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">その場所を通る状況</text>
+<text x="606" y="243" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">経路から推定した通過時刻</text>
+<text x="606" y="275" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">日時と座標 → 太陽高度・方位</text>
+<text x="606" y="307" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">固定予報 → 視程・降水・雲</text>
+<text x="606" y="339" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">進行方向・助手席側の景色</text>
+<text x="606" y="375" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">environment.py / evaluator.py</text>
+<rect x="1100" y="165" width="440" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="189" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">ユーザーの好み</text>
+<text x="1126" y="243" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">海・森林など8種類の比重</text>
+<text x="1126" y="275" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">変化・名道・助手席の眺め</text>
+<text x="1126" y="307" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">寄り道上限・道路条件</text>
+<text x="1126" y="339" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">夜間補正のON / OFF</text>
+<text x="1126" y="375" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">models.py / feature:route</text>
+<polyline points="280,410 280,446 800,446 800,480" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="800,480 793.9104825224427,467.39374056706254 806.0895174775573,467.39374056706254" fill="#444444"/>
+<polyline points="800,410 800,446 800,446 800,480" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="800,480 793.9104825224427,467.39374056706254 806.0895174775573,467.39374056706254" fill="#444444"/>
+<polyline points="1320,410 1320,446 800,446 800,480" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="800,480 793.9104825224427,467.39374056706254 806.0895174775573,467.39374056706254" fill="#444444"/>
+<rect x="60" y="480" width="1480" height="150" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="504" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">区間の品質を補正する</text>
+<text x="86" y="558" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">海など：地理特徴 → 見え方 → 天気・明るさ → 条件が合えば水辺の朝夕加点</text>
+<text x="86" y="590" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">トンネルは景観0。森林・市街地には、水辺と同じ天気・昼夜補正を掛けない。</text>
+<polyline points="800,630 800,670" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="800,670 793.9104825224427,657.3937405670625 806.0895174775573,657.3937405670625" fill="#444444"/>
+<rect x="60" y="670" width="960" height="225" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="694" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">ルート全体の体験として評価</text>
+<text x="86" y="748" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">＋ 景観の質・連続性・変化・名道・立ち寄り</text>
+<text x="86" y="780" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">− 追加時間・運転負荷・同じ道の重複・未確認情報</text>
+<text x="86" y="812" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">満足の頭打ちと重複除外で、走るほど得にはしない</text>
+<text x="86" y="860" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">evaluator.py / experience.py</text>
+<rect x="1100" y="670" width="440" height="225" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="694" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">点数と表示は別の役割</text>
+<text x="1126" y="748" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">採点：各区間の品質を積分</text>
+<text x="1126" y="780" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">表示：主要景観を帯へ要約</text>
+<text x="1126" y="812" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">表示用の海の強調 ≠ 採点加点</text>
+<text x="1126" y="860" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">気温・風等は取得するが直接採点しない</text>
+<polyline points="1020,780 1100,780" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,780 1087.3937405670624,786.0895174775573 1087.3937405670624,773.9104825224427" fill="#444444"/>
+<text x="60" y="920" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">欠損は快晴・眺望保証に置き換えない。名道の登録と地理特徴による探索候補も区別する。</text>
+</svg>

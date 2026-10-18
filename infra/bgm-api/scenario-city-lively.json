@@ -1,0 +1,20 @@
+{
+  "members": [
+    { "id": "a", "name": "A" },
+    { "id": "b", "name": "B" },
+    { "id": "c", "name": "C" }
+  ],
+  "scene": {
+    "features": {
+      "urban": { "v": 0.85, "q": 1 }
+    },
+    "load": "high",
+    "hour": 17
+  },
+  "cabin": "lively",
+  "history": [
+    { "track_id": "local:アイドル|yoasobi", "owner_id": "a" },
+    { "track_id": "local:唱|ado", "owner_id": "a" }
+  ],
+  "seed": 1
+}

@@ -1,0 +1,6 @@
+services:
+  scenic:
+    environment:
+      SCENIC_TERRAIN: /data/${SCENIC_TERRAIN_FILE:-terrain-hokkaido-v1.sqlite}
+      SCENIC_CONTEXT: /data/${SCENIC_CONTEXT_FILE:-context-hokkaido-v1.sqlite}
+      SCENIC_LANDCOVER: /data/${SCENIC_LANDCOVER_FILE:-landcover-hokkaido-v3.sqlite}

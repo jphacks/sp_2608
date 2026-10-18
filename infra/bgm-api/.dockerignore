@@ -1,0 +1,9 @@
+node_modules
+.wrangler
+dist
+catalog/work
+catalog/out
+test
+test-node
+.dev.vars*
+*.md

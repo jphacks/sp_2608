@@ -1,0 +1,349 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>窓AI化 最終配線</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  /* Layout: 1カラムの技術資料。白地・黒文字、線の色だけで電気の種類を区別する */
+  :root {
+    --bg: #ffffff;
+    --fg: #111111;
+    --muted: #5b5f66;
+    --rule: #d9dce1;
+    --soft: #f4f5f7;
+    --v12: #d7332a;     /* 12V */
+    --v5: #e07800;      /* 5V */
+    --v33: #b8860b;     /* 3.3V */
+    --sig: #1f9d55;     /* 信号 */
+    --i2c: #7a4fc9;     /* I2C */
+    --wblue: #2f6fd6;   /* 車の青い線 */
+    --gnd: #111111;
+    --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    color-scheme: light;
+  }
+  html, body { background: var(--bg); color: var(--fg); }
+  body {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.75;
+    padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 48px; }
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+  h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.3; margin: 0; text-wrap: balance; }
+  h2 { font-size: 21px; margin: 0 0 4px; text-wrap: balance; }
+  h3 { font-size: 16px; margin: 0; }
+  p { margin: 0; max-width: 68ch; }
+  .lead { color: var(--fg); }
+  section { display: grid; gap: 16px; }
+  .fig { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+  .fig svg { display: block; min-width: 820px; width: 100%; height: auto; }
+  svg text { font-family: var(--font-body); fill: var(--fg); }
+  svg .t { font-size: 15px; font-weight: 700; }
+  svg .s { font-size: 12.5px; }
+  svg .m { font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+  svg .mu { fill: var(--muted); }
+  svg .box { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+  svg .boxs { fill: var(--soft); stroke: var(--fg); stroke-width: 1.2; }
+  svg .w12 { stroke: var(--v12); stroke-width: 3; fill: none; }
+  svg .w12h { stroke: var(--v12); stroke-width: 6; fill: none; }
+  svg .w5 { stroke: var(--v5); stroke-width: 3; fill: none; }
+  svg .wsig { stroke: var(--sig); stroke-width: 2.5; fill: none; }
+  svg .wi2c { stroke: var(--i2c); stroke-width: 2.5; fill: none; }
+  svg .wblue { stroke: var(--wblue); stroke-width: 6; fill: none; }
+  svg .wgnd { stroke: var(--gnd); stroke-width: 2.2; fill: none; stroke-dasharray: 6 4; }
+  svg .dot { fill: var(--fg); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend i { display: inline-block; width: 28px; height: 0; border-top: 4px solid; }
+  .points { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .point { border-top: 2px solid var(--fg); padding-top: 10px; display: grid; gap: 4px; min-width: 0; }
+  .point p { color: var(--muted); font-size: 14px; }
+  .tablebox { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
+  td.n { font-family: var(--font-mono); white-space: nowrap; }
+  tr.g td { background: var(--soft); font-weight: 700; font-size: 13px; }
+  code, .mono { font-family: var(--font-mono); font-size: .92em; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  .note { border-left: 3px solid var(--v12); padding: 4px 0 4px 14px; display: grid; gap: 6px; }
+  .note p { font-size: 14px; }
+  ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+  ul.plain li { max-width: 68ch; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 14px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; min-width: 0; }
+  @media (max-width: 560px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dd { margin-bottom: 8px; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">JPHACKS2026 ／ ホンダ ステップワゴン RG2 ／ 助手席パワーウィンドウ</div>
+    <h1>においで窓が開く車 ― 最終配線</h1>
+    <p class="lead">BME688がにおいを検知すると、ESP32がリレーを動かして助手席の窓を少し開けます。純正スイッチはそのまま使え、車の線はギボシでつないでいるので、ハッカソン後に元へ戻せます。</p>
+  </header>
+
+  <section>
+    <h2>全体の構成</h2>
+    <div class="fig">
+      <svg viewBox="0 0 1000 380" role="img" aria-labelledby="f1t f1d">
+        <title id="f1t">システム全体のブロック図</title>
+        <desc id="f1d">上段は信号の流れ。BME688からI2CでESP32、ESP32のGPIO25と26からリレーモジュール、リレーモジュールから車載リレーのコイル、車載リレーから窓モーター。下段は電源。キーONで12Vになるグレー線から端子台、端子台から車載リレーの87と純正スイッチ、ヒューズを通ってDC-DCで5Vに下げ、ESP32とリレーモジュールに配る。</desc>
+        <text class="s mu" x="20" y="26">信号の流れ</text>
+        <rect class="box" x="20" y="40" width="140" height="70" rx="6"/>
+        <text class="t" x="90" y="70" text-anchor="middle">BME688</text>
+        <text class="s mu" x="90" y="92" text-anchor="middle">においセンサー</text>
+        <rect class="box" x="220" y="40" width="140" height="70" rx="6"/>
+        <text class="t" x="290" y="70" text-anchor="middle">ESP32</text>
+        <text class="s mu" x="290" y="92" text-anchor="middle">判定・制御</text>
+        <rect class="box" x="440" y="40" width="140" height="70" rx="6"/>
+        <text class="t" x="510" y="68" text-anchor="middle">リレーモジュール</text>
+        <text class="s mu" x="510" y="92" text-anchor="middle">A：上げ ／ B：下げ</text>
+        <rect class="box" x="660" y="40" width="140" height="70" rx="6"/>
+        <text class="t" x="730" y="68" text-anchor="middle">車載リレー ×2</text>
+        <text class="s mu" x="730" y="92" text-anchor="middle">12V 40A</text>
+        <rect class="box" x="860" y="40" width="120" height="70" rx="6"/>
+        <text class="t" x="920" y="70" text-anchor="middle">窓モーター</text>
+        <text class="s mu" x="920" y="92" text-anchor="middle">助手席</text>
+
+        <path class="wi2c" d="M160 75 H212"/><path d="M212 69 L220 75 L212 81 Z" fill="var(--i2c)"/>
+        <text class="s" x="190" y="130" text-anchor="middle">I2C</text>
+        <path class="wsig" d="M360 75 H432"/><path d="M432 69 L440 75 L432 81 Z" fill="var(--sig)"/>
+        <text class="s" x="400" y="130" text-anchor="middle">GPIO 25 / 26</text>
+        <path class="w12" d="M580 75 H652"/><path d="M652 69 L660 75 L652 81 Z" fill="var(--v12)"/>
+        <text class="s" x="620" y="130" text-anchor="middle">コイルへ12V</text>
+        <path class="w12h" d="M800 75 H852"/><path d="M850 67 L860 75 L850 83 Z" fill="var(--v12)"/>
+        <text class="s" x="830" y="130" text-anchor="middle">モーター電流</text>
+
+        <text class="s mu" x="20" y="226">電源（キーONのときだけ12V）</text>
+        <rect class="box" x="20" y="240" width="140" height="70" rx="6"/>
+        <text class="t" x="90" y="268" text-anchor="middle">グレー線</text>
+        <text class="s mu" x="90" y="292" text-anchor="middle">IG 12V（車体側）</text>
+        <rect class="box" x="220" y="240" width="140" height="70" rx="6"/>
+        <text class="t" x="290" y="268" text-anchor="middle">DC-DC</text>
+        <text class="s mu" x="290" y="292" text-anchor="middle">12V → 5V</text>
+        <rect class="box" x="440" y="240" width="140" height="70" rx="6"/>
+        <text class="t" x="510" y="268" text-anchor="middle">管ヒューズ</text>
+        <text class="s mu" x="510" y="292" text-anchor="middle">2A</text>
+        <rect class="box" x="660" y="240" width="140" height="70" rx="6"/>
+        <text class="t" x="730" y="268" text-anchor="middle">端子台</text>
+        <text class="s mu" x="730" y="292" text-anchor="middle">12Vを分配</text>
+        <rect class="box" x="860" y="240" width="120" height="70" rx="6"/>
+        <text class="t" x="920" y="268" text-anchor="middle">純正スイッチ</text>
+        <text class="s mu" x="920" y="292" text-anchor="middle">今まで通り使える</text>
+
+        <path class="w12" d="M90 310 V350 H730 V318"/><path d="M724 320 L730 310 L736 320 Z" fill="var(--v12)"/>
+        <text class="s" x="410" y="370" text-anchor="middle">グレー線を切って端子台を挟む（ギボシ）</text>
+        <path class="w12" d="M800 275 H852"/><path d="M850 269 L860 275 L850 281 Z" fill="var(--v12)"/>
+        <path class="w12" d="M660 275 H588"/><path d="M590 269 L580 275 L590 281 Z" fill="var(--v12)"/>
+        <path class="w12" d="M440 275 H368"/><path d="M370 269 L360 275 L370 281 Z" fill="var(--v12)"/>
+        <path class="w12" d="M730 240 V118"/><path d="M724 120 L730 110 L736 120 Z" fill="var(--v12)"/>
+        <text class="s" x="740" y="200">87へ</text>
+        <path class="w12" d="M510 240 V118"/><path d="M504 120 L510 110 L516 120 Z" fill="var(--v12)"/>
+        <text class="s" x="520" y="190">COMへ</text>
+        <path class="w5" d="M290 240 V118"/><path d="M284 120 L290 110 L296 120 Z" fill="var(--v5)"/>
+        <text class="s" x="300" y="210">5V</text>
+        <path class="w5" d="M340 240 V170 H470 V118"/><path d="M464 120 L470 110 L476 120 Z" fill="var(--v5)"/>
+        <path class="wblue" d="M900 240 V170 H780 V118" style="stroke-width:3"/><path d="M774 120 L780 110 L786 120 Z" fill="var(--wblue)"/>
+        <text class="s" x="840" y="162" text-anchor="middle">87aへ</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="border-color:var(--v12)"></i>12V</span>
+      <span><i style="border-color:var(--v5)"></i>5V</span>
+      <span><i style="border-color:var(--sig)"></i>ESP32からの信号</span>
+      <span><i style="border-color:var(--i2c)"></i>I2C（センサー）</span>
+      <span><i style="border-color:var(--wblue)"></i>車のモーター線</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>リレー1個のつなぎ方（Aの例）</h2>
+    <p>モーター線（青・赤）を1本ずつ切り、その間に車載リレーを挟みます。リレーがOFFのときは <span class="mono">30–87a</span> がつながっていて、純正スイッチの配線がそのまま生きます。ONにすると <span class="mono">30–87</span> に切り替わり、モーター線に12Vが入って窓が動きます。</p>
+    <div class="fig">
+      <svg viewBox="0 0 1000 520" role="img" aria-labelledby="f2t f2d">
+        <title id="f2t">車載リレーAの配線</title>
+        <desc id="f2d">純正スイッチ側の青い線をリレーの87aへ、リレーの30からモーター側の青い線へ。87には端子台の極2から12V。コイルの86（プラス）にリレーモジュールAのNO、85（マイナス）をアースにつなぐ。モジュールAはCOMにヒューズ経由の12V、INにESP32のGPIO25。</desc>
+        <rect class="box" x="20" y="30" width="190" height="64" rx="6"/>
+        <text class="t" x="115" y="58" text-anchor="middle">純正スイッチ</text>
+        <text class="s mu" x="115" y="80" text-anchor="middle">青い線（スイッチ側）</text>
+        <rect class="box" x="470" y="30" width="190" height="64" rx="6"/>
+        <text class="t" x="565" y="58" text-anchor="middle">端子台 極2（下）</text>
+        <text class="s mu" x="565" y="80" text-anchor="middle">12V（キーON）</text>
+
+        <path class="wblue" d="M115 94 V140 H360 V176"/>
+        <text class="s" x="130" y="130">ギボシ（スイッチ側メス ＋ 87aオス）</text>
+        <path class="w12" d="M565 94 V176"/>
+        <text class="s" x="575" y="140">⑦ リレーA行き</text>
+
+        <rect class="box" x="300" y="176" width="320" height="200" rx="8"/>
+        <text class="t" x="460" y="200" text-anchor="middle">車載リレーA（Kiligen JD1914）</text>
+        <circle class="dot" cx="360" cy="176" r="5"/>
+        <text class="m" x="372" y="225">87a</text>
+        <circle class="dot" cx="565" cy="176" r="5"/>
+        <text class="m" x="530" y="225">87</text>
+        <circle cx="360" cy="230" r="5" fill="var(--bg)" stroke="var(--fg)" stroke-width="2"/>
+        <circle cx="520" cy="230" r="5" fill="var(--bg)" stroke="var(--fg)" stroke-width="2"/>
+        <path d="M360 181 V225 M565 181 V215 H525" fill="none" stroke="var(--fg)" stroke-width="1.6"/>
+        <path d="M360 330 L360 236" fill="none" stroke="var(--fg)" stroke-width="3"/>
+        <path d="M362 330 L516 236" fill="none" stroke="var(--fg)" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <text class="s" x="290" y="282" text-anchor="end">実線＝OFF：30–87a</text>
+        <text class="s" x="290" y="304" text-anchor="end">点線＝ON：30–87</text>
+        <rect x="470" y="280" width="70" height="44" fill="var(--soft)" stroke="var(--fg)" stroke-width="1.4"/>
+        <text class="s" x="505" y="306" text-anchor="middle">コイル</text>
+        <path d="M540 292 H620 M540 314 H620" fill="none" stroke="var(--fg)" stroke-width="1.4"/>
+        <circle class="dot" cx="620" cy="292" r="5"/>
+        <circle class="dot" cx="620" cy="314" r="5"/>
+        <text class="m" x="590" y="286">86+</text>
+        <text class="m" x="590" y="334">85−</text>
+        <circle class="dot" cx="360" cy="376" r="5"/>
+        <text class="m" x="372" y="364">30</text>
+
+        <path class="wblue" d="M360 381 V440"/>
+        <text class="s" x="372" y="420">ギボシ（30メス ＋ モーター側オス）</text>
+        <rect class="box" x="265" y="440" width="190" height="56" rx="6"/>
+        <text class="t" x="360" y="466" text-anchor="middle">窓モーター</text>
+        <text class="s mu" x="360" y="486" text-anchor="middle">青い線（モーター側）</text>
+
+        <path class="w12" d="M625 292 H720 V160 H748"/>
+        <text class="s" x="630" y="282">白（86）</text>
+        <text class="s" x="728" y="208">⑮</text>
+        <path class="wgnd" d="M625 314 H700 V418"/>
+        <text class="s" x="630" y="342">黒（85）</text>
+        <rect class="box" x="748" y="110" width="232" height="104" rx="6"/>
+        <text class="t" x="864" y="134" text-anchor="middle">リレーモジュールA</text>
+        <text class="s" x="762" y="158">NO → リレーの白（86）</text>
+        <text class="s" x="762" y="178">COM ← 12V（ヒューズ経由）</text>
+        <text class="s" x="762" y="198">IN ← ESP32 GPIO25</text>
+        <path d="M688 418 H712 M692 426 H708 M696 434 H704" stroke="var(--fg)" stroke-width="2"/>
+        <text class="s" x="724" y="422">アース</text>
+        <text class="s mu" x="724" y="442">ドアのハーネスの黒い線に分岐</text>
+        <text class="s mu" x="724" y="460">（85×2 と DC-DCのIN− をまとめて）</text>
+      </svg>
+    </div>
+    <p>リレーBも同じつなぎ方です。違うのは、モーター線が<b>赤</b>、87が<b>端子台の極3</b>、コイルが<b>モジュールB（GPIO26）</b>になるところだけです。</p>
+    <div class="note">
+      <h3>なぜ純正スイッチと両立できるのか</h3>
+      <p>純正スイッチは、押していないときに青・赤の両方をアースにつないでいます。リレーがOFFなら車の配線はいつも通り。片方のリレーだけONにすると、その線にだけ12Vが入り、もう片方はスイッチ経由でアースのままなので、モーターがその向きに回ります。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>12V側の接続一覧</h2>
+    <p>車の線を切ったのは、グレー（電源）・青・赤の3本だけ。すべてギボシでつないでいるので、差し戻せば元の配線に戻ります。</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>番号</th><th>どこから</th><th>どこへ</th><th>つなぎ方</th></tr></thead>
+        <tbody>
+          <tr class="g"><td colspan="4">電源と分配</td></tr>
+          <tr><td class="n">①</td><td>グレー線（車体側・メス）</td><td>端子台 極1 上</td><td>2sq中継線。車側にオスのギボシ、端子台側に丸端子</td></tr>
+          <tr><td class="n">②</td><td>端子台 極1 下</td><td>グレー線（スイッチ側・オス）</td><td>2sq中継線。端子台側に丸端子、反対側にメスのギボシ</td></tr>
+          <tr><td class="n">③</td><td>極1上 → 極2上 → 極3上 → 極4上</td><td></td><td>2sqの渡り線3本（両端に丸端子）</td></tr>
+          <tr><td class="n">④</td><td>端子台 極4 下</td><td>管ヒューズ 2A</td><td>ホルダーの線をネジに挟む</td></tr>
+          <tr><td class="n">⑤⑧</td><td>ヒューズ出口（メス）</td><td>DC-DC IN＋（赤）と ⑨</td><td>2本をまとめてオスのギボシ1個にかしめる</td></tr>
+          <tr><td class="n">⑨⑩</td><td>⑧から</td><td>モジュールB COM → モジュールA COM</td><td>ジャンパワイヤ。BのCOMに2本入る</td></tr>
+          <tr><td class="n">⑦</td><td>端子台 極2 下</td><td>リレーA 87（赤）</td><td>2sq。丸端子 ＋ メスのギボシ</td></tr>
+          <tr><td class="n">⑥</td><td>端子台 極3 下</td><td>リレーB 87（赤）</td><td>同上</td></tr>
+          <tr class="g"><td colspan="4">モーター線（切ってリレーを挟む）</td></tr>
+          <tr><td class="n">⑪⑫</td><td>青（スイッチ側・メス）／ 青（モーター側・オス）</td><td>リレーA 87a（黄）／ 30（青）</td><td>87aはオス、30はメスのギボシ</td></tr>
+          <tr><td class="n">⑬⑭</td><td>赤（スイッチ側）／ 赤（モーター側）</td><td>リレーB 87a ／ 30</td><td>同上</td></tr>
+          <tr class="g"><td colspan="4">リレーのコイルとアース</td></tr>
+          <tr><td class="n">⑮</td><td>モジュールA NO</td><td>リレーA 86（白）＋</td><td>モジュール側はネジ端子、白側はギボシ</td></tr>
+          <tr><td class="n">⑯</td><td>モジュールB NO</td><td>リレーB 86（白）＋</td><td>同上</td></tr>
+          <tr><td class="n">⑰⑱⑲</td><td>リレーA・Bの85（黒）− と DC-DC IN−（黒）</td><td>ドアのハーネスの黒い線（アース）</td><td>3本を0.5sqの延長線とねじってテープ。延長線は黒い線の途中の皮をむいて巻きつけ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>5V側の接続一覧</h2>
+    <p>ESP32（Freenove ESP32-WROVER）はブレッドボードに載せず、ピンにジャンパのメス側を刺しています。向きはUSB-Cが左。ブレッドボードは左の＋レールを5V、左の−レールをGNDにしています。</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>番号</th><th>どこから</th><th>どこへ</th><th>メモ</th></tr></thead>
+        <tbody>
+          <tr class="g"><td colspan="4">電源</td></tr>
+          <tr><td class="n">⑳</td><td>DC-DC OUT＋（白）</td><td>左の＋レール</td><td>5Vを確認してから。USB給電中はつながない</td></tr>
+          <tr><td class="n">㉑</td><td>DC-DC OUT−（黒）</td><td>左の−レール</td><td></td></tr>
+          <tr><td class="n">㉒</td><td>コンデンサ 1000µF</td><td>左の＋と−の間</td><td>長い足が＋。リレーが動く瞬間の電圧低下を防ぐ</td></tr>
+          <tr><td class="n">㉓㉔</td><td>ESP32 5V ／ GND（上の列）</td><td>左の＋ ／ −レール</td><td></td></tr>
+          <tr><td class="n">㉕〜㉘</td><td>モジュールA・BのDC+ ／ DC−</td><td>左の＋ ／ −レール</td><td>トリガーのジャンパはH側</td></tr>
+          <tr class="g"><td colspan="4">信号</td></tr>
+          <tr><td class="n">㉙</td><td>ESP32 GPIO25</td><td>モジュールA IN</td><td>HIGHでリレーA ON</td></tr>
+          <tr><td class="n">㉚</td><td>ESP32 GPIO26</td><td>モジュールB IN</td><td>HIGHでリレーB ON</td></tr>
+          <tr class="g"><td colspan="4">BME688（ブレッドボード20〜24行目）</td></tr>
+          <tr><td class="n">㉛</td><td>ESP32 3.3V（上の列）</td><td>b24</td><td>BME688の3.3V（a24）と同じ行</td></tr>
+          <tr><td class="n">㉜</td><td>ESP32 GND（下の列）</td><td>b23</td><td>BME688のGND（a23）と同じ行</td></tr>
+          <tr><td class="n">㉟</td><td>ESP32 GPIO21</td><td>b21</td><td>SDA（a21）</td></tr>
+          <tr><td class="n">㊱</td><td>ESP32 GPIO22</td><td>b20</td><td>SCL（a20）</td></tr>
+          <tr><td class="n">㊲㊳</td><td>4.7kΩ ×2</td><td>d21–d24 ／ e20–e24</td><td>SDA・SCLのプルアップ</td></tr>
+          <tr><td class="n">延長</td><td>a20・a21・a23・a24</td><td>BME688本体</td><td>オス‐メスのジャンパで延長し、内張りの穴から顔を出す。IO4は使わない</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>設計のポイント</h2>
+    <div class="points">
+      <div class="point"><h3>純正スイッチを残す</h3><p>リレーのOFF側（87a）を純正の配線に通しているので、改造後もスイッチで普通に開け閉めできます。</p></div>
+      <div class="point"><h3>元に戻せる</h3><p>切った車の線は3本だけ。両端にギボシを付けたので、差し戻せば純正の状態に戻ります。</p></div>
+      <div class="point"><h3>キーONのときだけ動く</h3><p>電源はIG線（グレー）から取っているので、キーを抜けばESP32もリレーも止まり、バッテリーも減りません。</p></div>
+      <div class="point"><h3>制御回路はヒューズで保護</h3><p>DC-DCとリレーのコイルへの12Vは、2Aの管ヒューズを通しています。</p></div>
+      <div class="point"><h3>自動で閉めない</h3><p>挟み込みを防ぐため、自動で動かすのは「少し開ける」だけ。閉めるのは純正スイッチで行います。</p></div>
+      <div class="point"><h3>ソフトでも安全側に</h3><p>上げと下げを同時にONにしない、1回のONは最大4秒まで、と決めてあります。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>プログラム（car_v1）の動き</h2>
+    <dl class="kv">
+      <dt>におい検知</dt><dd>BME688のガス抵抗が、普段の値より20%以上下がったら検知</dd>
+      <dt>暖機</dt><dd>起動から5分はセンサーが安定しないので判定しない</dd>
+      <dt>動作</dt><dd>下げリレーを1.5秒ONにして、窓を少し開ける</dd>
+      <dt>再検知まで</dt><dd>一度開けたら60秒は動かさない</dd>
+      <dt>手動操作</dt><dd>シリアルから <code>u</code>（上げ）／ <code>d</code>（下げ）／ <code>s</code>（停止）</dd>
+      <dt>上げ下げの入れ替え</dt><dd>青と赤のどちらが上げかで、<code>SWAP_UPDOWN</code> を切り替える</dd>
+    </dl>
+    <p class="mu" style="color:var(--muted);font-size:14px">机上テストでは、普段134kΩのガス抵抗がにおいを近づけると49.7kΩ（−61%）まで下がり、−20%を超えた時点でリレーが動きました。</p>
+  </section>
+
+  <section>
+    <h2>主な部品</h2>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>部品</th><th>型番など</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>マイコン</td><td>Freenove ESP32-WROVER</td><td>においの判定とリレーの制御</td></tr>
+          <tr><td>においセンサー</td><td>BME688（Conta、スイッチサイエンス）</td><td>ガス抵抗・温度・湿度・気圧</td></tr>
+          <tr><td>リレーモジュール ×2</td><td>1ch、SRD-05VDC</td><td>3.3Vの信号で12Vを入り切り</td></tr>
+          <tr><td>車載リレー ×2</td><td>Kiligen JD1914（12V 40A、ダイオード内蔵）</td><td>モーター電流の切り替え</td></tr>
+          <tr><td>DC-DC</td><td>Drok 12/24V → 5V 3A</td><td>ESP32とモジュールの電源</td></tr>
+          <tr><td>端子台</td><td>春日電機 T1006（6極）</td><td>12Vの分配</td></tr>
+          <tr><td>ヒューズ</td><td>管ヒューズ 2A ＋ ホルダー</td><td>制御回路の保護</td></tr>
+          <tr><td>その他</td><td>4.7kΩ ×2、1000µF、ギボシ（エーモン、3306）、丸端子</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>作業中につまずいたこと</h2>
+    <div class="note">
+      <h3>リレーの＋と−を逆につないでヒューズが飛んだ</h3>
+      <p>車載リレーのコイルにはダイオードが入っていて、85と86を逆につなぐと12Vがダイオードを通ってアースへ流れます。最初は販売ページの図に合わせて85を＋にしていましたが、本体の表示は <span class="mono">85(−) / 86(+)</span>。本体の表示に合わせてつなぎ直したら動きました。ヒューズを入れていたおかげで、リレーもESP32も無事でした。</p>
+    </div>
+    <div class="note">
+      <h3>ドアの中にアースを取る場所がなかった</h3>
+      <p>鉄板に直接留まっているボルトが見当たらなかったので、純正スイッチのアース（ドアのハーネスの黒い線）から分岐しました。リレーのコイルとDC-DCの分なので、流れる電流は1A未満です。</p>
+    </div>
+  </section>
+</div>
+</body></html>

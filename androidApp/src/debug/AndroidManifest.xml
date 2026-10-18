@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true">
+        <!--
+          机の上で走行を模擬するための口。Debug ビルドにしか入らない。
+          DUMP は adb shell が持ち、通常のアプリへは付与されない。現在地の差し替えを adb からだけに限る。
+        -->
+        <receiver android:name="com.theacar.android.debug.DemoDriveReceiver" android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.theacar.debug.DRIVE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

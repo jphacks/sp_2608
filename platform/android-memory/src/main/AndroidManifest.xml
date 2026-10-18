@@ -1,0 +1,20 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 写真の位置情報（EXIF の GPS）を読むため。API 29 以上で必要 -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <!-- Android 11 以上でネットワークプリントのアプリが入っているか調べるため -->
+    <queries>
+        <package android:name="jp.co.sharp.printsystem.networkprint" />
+        <package android:name="com.android.vending" />
+        <package android:name="jp.naver.line.android" />
+    </queries>
+    <application>
+        <activity android:name=".MemoryActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.memory.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/memory_paths" />
+        </provider>
+    </application>
+</manifest>

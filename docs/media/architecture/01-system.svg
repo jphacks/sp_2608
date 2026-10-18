@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<rect width="1600" height="1000" fill="#ffffff"/>
+<text x="60" y="50" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">Android Auto対応ナビの構成</text>
+<text x="60" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">矢印：情報・操作の流れ　　破線：実機・実モデルは未接続</text>
+<text x="1529.484375" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">1</text>
+<rect x="60" y="170" width="410" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="194" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">Android Auto 車載画面</text>
+<text x="86" y="248" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">車載地図・次の曲がり方</text>
+<text x="86" y="280" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">残り時間・距離・案内の終了</text>
+<text x="86" y="312" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">同乗者リクエストのQR表示</text>
+<text x="86" y="380" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">platform/android-auto / Car App Library</text>
+<rect x="585" y="170" width="400" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="621" y="194" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">ナビの共有セッション</text>
+<text x="611" y="248" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">選択ルート・現在地・進捗</text>
+<text x="611" y="280" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">スマホと車載で同じ案内状態</text>
+<text x="611" y="312" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">GPS・逸脱判定・音声案内</text>
+<text x="611" y="380" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">NavigationSession / KMP ＋ Android</text>
+<rect x="1100" y="170" width="440" height="245" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="194" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">景観推薦サービス</text>
+<text x="1126" y="248" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">どの道を組み合わせる？</text>
+<text x="1126" y="280" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">景観・時間・負荷を比較</text>
+<text x="1126" y="312" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">異なる候補を最大6案</text>
+<text x="1126" y="380" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">scenic :8004 / Python</text>
+<polyline points="470,280 585,280" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="585,280 572.3937405670625,286.08951747755725 572.3937405670625,273.91048252244275" fill="#444444"/>
+<text x="480" y="244" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="18" font-weight="400" fill="#444444">操作</text>
+<polyline points="585,345 470,345" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="470,345 482.60625943293746,338.91048252244275 482.60625943293746,351.08951747755725" fill="#444444"/>
+<text x="480" y="362" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="17" font-weight="400" fill="#444444">案内状態</text>
+<polyline points="985,280 1100,280" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,280 1087.3937405670624,286.08951747755725 1087.3937405670624,273.91048252244275" fill="#444444"/>
+<polyline points="1100,370 985,370" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="985,370 997.6062594329375,363.91048252244275 997.6062594329375,376.08951747755725" fill="#444444"/>
+<text x="999" y="325" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="17" font-weight="400" fill="#444444">候補</text>
+<rect x="60" y="530" width="410" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="554" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">スマートフォン</text>
+<text x="86" y="608" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">停車中に目的地・好みを設定</text>
+<text x="86" y="640" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">候補・景観・名道を比較</text>
+<text x="86" y="672" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">Spotify・BLE窓機器と連携</text>
+<text x="86" y="725" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">車載と同じNavigationSessionを参照</text>
+<rect x="585" y="530" width="400" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="621" y="554" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">経路計算エンジン</text>
+<text x="611" y="608" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">Valhalla ＋ OSM道路タイル</text>
+<text x="611" y="640" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">道路条件に合う経路・時間</text>
+<text x="611" y="672" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">通常ルート要求は直接こちらへ</text>
+<text x="611" y="725" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">valhalla :8002 / C++</text>
+<rect x="1100" y="530" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="554" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">探索の材料</text>
+<text x="1126" y="608" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">静的：道路・地形・名道のDB</text>
+<text x="1126" y="640" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">動的：Open-Meteoの予報</text>
+<text x="1126" y="672" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">日時・座標から太陽位置を計算</text>
+<text x="1126" y="725" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">同じ検索では予報・データ版を固定</text>
+<polyline points="470,600 535,600 535,390 585,390" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="585,390 572.3937405670625,396.08951747755725 572.3937405670625,383.91048252244275" fill="#444444"/>
+<polyline points="1210,415 1210,500 785,500 785,530" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="785,530 778.9104825224427,517.3937405670625 791.0895174775573,517.3937405670625" fill="#444444"/>
+<polyline points="785,530 785,500 1210,500 1210,415" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1210,415 1216.0895174775571,427.60625943293746 1203.9104825224429,427.60625943293746" fill="#444444"/>
+<text x="802" y="505" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="17" font-weight="400" fill="#444444">計算依頼・結果</text>
+<polyline points="1320,530 1320,415" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1320,415 1326.0895174775571,427.60625943293746 1313.9104825224429,427.60625943293746" fill="#444444"/>
+<text x="82" y="828" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#444444">スマホで選び、車載画面で案内する</text>
+<text x="82" y="864" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">選択した経路と案内状態を共有する。Android Autoは車載表示、経路探索は自前PCが担当。</text>
+<text x="82" y="896" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">通信はCloudflare Tunnelと認証付きNginxを経由。通常経路はValhalla、景観推薦はscenicへ。</text>
+</svg>

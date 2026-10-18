@@ -1,0 +1,131 @@
+name: theacar-routing
+
+services:
+  scenic:
+    profiles: [scenic]
+    init: true
+    image: python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+    volumes:
+      - ../scenic:/app:ro
+      - ${VALHALLA_DATA_DIR:-./data}:/data:ro
+      - ${VALHALLA_ROUTING_DIR:-${VALHALLA_DATA_DIR:-./data}}:/routing:ro
+      - scenic-state:/state
+    working_dir: /app
+    command: [python, -B, server.py]
+    environment:
+      SCENIC_BIND: 0.0.0.0
+      SCENIC_ROUTING_DIRECTORY: /routing
+      SCENIC_DATABASE: ${SCENIC_DATABASE:-/data/scenic-hokkaido.sqlite}
+      PLACES_DATABASE: ${PLACES_DATABASE:-/data/places.sqlite}
+      SCENIC_WEATHER: ${SCENIC_WEATHER:-false}
+      SCENIC_SEARCH_SECONDS: ${SCENIC_SEARCH_SECONDS:-90}
+      SCENIC_SUPPLEMENTS: ${SCENIC_SUPPLEMENTS:-}
+      SCENIC_RECOMMENDED_ROADS: ${SCENIC_RECOMMENDED_ROADS:-}
+      SCENIC_LANDSCAPES: ${SCENIC_LANDSCAPES:-}
+      SCENIC_TERRAIN: ${SCENIC_TERRAIN:-}
+      SCENIC_CONTEXT: ${SCENIC_CONTEXT:-}
+      SCENIC_LANDCOVER: ${SCENIC_LANDCOVER:-}
+    depends_on:
+      valhalla:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1g
+    cpus: 1
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python, -c, "import socket; socket.create_connection(('127.0.0.1',8004),2).close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+
+  bgm:
+    # 景観と車内の雰囲気からの選曲（infra/bgm-api）。経路 API と同じゲートウェイの /bgm/ から呼ぶ。
+    profiles: [scenic]
+    init: true
+    build: ../bgm-api
+    image: theacar-bgm:local
+    volumes:
+      # 注釈・Spotify 照合の結果を書き込むので、読み取り専用の /data ではなく状態ボリュームに置く。
+      - bgm-state:/state
+    environment:
+      BGM_BIND: 0.0.0.0
+      BGM_DATABASE: /state/bgm.sqlite
+      # ルート ID からタイムラインを取る。ゲートウェイを通らない内部接続なので認証は要らない。
+      SCENIC_INTERNAL_URL: http://scenic:8004
+    env_file:
+      - ${BGM_ENV_FILE:-./bgm.defaults.env}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8005/').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+
+  prepare:
+    image: ghcr.io/valhalla/valhalla:3.5.1@sha256:4ac3d13d1019f9a130e9e6b6924c16ea55da0fa51e3653039152e33ad4095661
+    profiles: [tools]
+    volumes:
+      - ${VALHALLA_ROUTING_DIR:-${VALHALLA_DATA_DIR:-./data}}:/data
+      - ./prepare.py:/opt/theacar/prepare.py:ro
+      - ./lua:/opt/theacar/lua:ro
+    entrypoint: [python3, /opt/theacar/prepare.py]
+    mem_limit: 4g
+    cpus: 2
+
+  valhalla:
+    image: ghcr.io/valhalla/valhalla:3.5.1@sha256:4ac3d13d1019f9a130e9e6b6924c16ea55da0fa51e3653039152e33ad4095661
+    volumes:
+      - ${VALHALLA_ROUTING_DIR:-${VALHALLA_DATA_DIR:-./data}}:/data:ro
+    entrypoint: [valhalla_service]
+    command: [/data/valhalla.json, "2"]
+    mem_limit: 2g
+    cpus: 2
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/status', timeout=2).read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+
+  public-gateway:
+    profiles: [public]
+    image: nginx:1.28.0-alpine
+    ports:
+      - "127.0.0.1:8003:8080"
+    volumes:
+      - ./nginx-public.conf:/etc/nginx/nginx.conf:ro
+      - ./.secrets/routing-auth.conf:/run/secrets/routing-auth.conf:ro
+    depends_on:
+      valhalla:
+        condition: service_healthy
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:1.28.0-alpine
+    ports:
+      - "127.0.0.1:8002:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      valhalla:
+        condition: service_healthy
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+
+volumes:
+  scenic-state:
+  bgm-state:

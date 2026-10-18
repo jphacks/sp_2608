@@ -1,0 +1,43 @@
+{
+  "id": "11111111-2222-4333-8444-555555555555",
+  "deviceId": "sample-device",
+  "startedAtEpochMillis": 1792191600000,
+  "arrivedAtEpochMillis": 1792207800000,
+  "timeZoneId": "Asia/Tokyo",
+  "distanceMeters": 358000,
+  "durationSeconds": 16200,
+  "destinationTitle": "八雲町役場",
+  "destinationCoordinate": {
+    "latitude": 42.2563,
+    "longitude": 140.2651
+  },
+  "placeName": "北海道 八雲町",
+  "geometry": [
+    {
+      "latitude": 43.0618,
+      "longitude": 141.3545
+    },
+    {
+      "latitude": 42.9,
+      "longitude": 141
+    },
+    {
+      "latitude": 42.5,
+      "longitude": 140.5
+    },
+    {
+      "latitude": 42.2563,
+      "longitude": 140.2651
+    }
+  ],
+  "members": [
+    "Honoka",
+    "Kokoro",
+    "Masa"
+  ],
+  "photoStyle": "WATERCOLOR",
+  "photoLocation": {
+    "latitude": 42.5,
+    "longitude": 140.5
+  }
+}

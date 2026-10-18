@@ -1,0 +1,2706 @@
+{
+  "reviewed_at": "2026-10-18",
+  "selection_policy": "review-v2",
+  "research_review_required_since": "2026-10-18",
+  "sources": [
+    {
+      "source_id": "hakobura-esan-drive",
+      "publisher": "函館市",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "kind": "primary",
+      "source_url": "https://www.hakobura.jp/features/122",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "国道278号の下海岸を走る取材記事。道道41号への寄り道・灯台公園の眺望は国道の評価から除外。2014年の記事なので現在の規制根拠にはしない。"
+    },
+    {
+      "source_id": "hakobura-yakumo-drive",
+      "publisher": "函館市",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "kind": "primary",
+      "source_url": "https://www.hakobura.jp/features/118",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "国道5号の森町以北の噴火湾沿岸の車窓を紹介。飲食・公園を含む旅行モデル全体を1本の道路とは扱わない。"
+    },
+    {
+      "source_id": "mashuko-autumn-drive",
+      "publisher": "摩周湖観光協会",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "kind": "primary",
+      "source_url": "https://prtimes.jp/main/html/rd/p/000000049.000107745.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "観光協会自身の2026年9月2日発表。国道391号から道道52号の硫黄山・川湯・屈斜路湖側を明示して推奨。同じ発表の転載サイトは別推薦に数えない。"
+    },
+    {
+      "source_id": "pressman-mashu-drive",
+      "publisher": "プレスマンユニオン",
+      "publisher_type": "editorial",
+      "subject": "road_introduction",
+      "kind": "editorial",
+      "source_url": "https://hokkaido-travel.com/akan-region/town-teshikaga/autumnleaves-masyu/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "道道52号の紅葉ドライブの独立した編集記事。湖が車窓から常に見えるわけではないことと摩周湖側の冬季閉鎖に注意。"
+    },
+    {
+      "source_id": "michinoeki-maoi-drive",
+      "publisher": "北海道地区「道の駅」連絡会",
+      "publisher_type": "road_operator",
+      "subject": "road_introduction",
+      "kind": "primary",
+      "source_url": "https://www.hokkaido-michinoeki.jp/michinoeki/906/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "道の駅紹介内で国道274号の長沼の水田・牧場を抜けるドライブを明示。道の駅施設自体の人気を道路評価に転用しない。"
+    },
+    {
+      "source_id": "love-drive-roads",
+      "publisher": "北海道観光機構",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.visit-hokkaido.jp/feature/ipponmichi",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "道路別の本文を確認。二十間道路のドライブ紹介、オロロンラインの道道106号の説明を採用。モデルコース全体を道路IDにしない。"
+    },
+    {
+      "source_id": "hokkaido-nijukken",
+      "publisher": "北海道",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "source_url": "https://www.pref.hokkaido.lg.jp/kn/tkn/hana/place/c029.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "二十間道路の約7kmの並木を紹介。桜の開花や当日の交通規制を保証する資料ではない。"
+    },
+    {
+      "source_id": "urakawa-sakura",
+      "publisher": "浦河観光協会",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.urakawa-tabi.com/tree/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "優駿さくらロードの見出しで約3kmの桜並木を確認。古いライトアップ予定は現行のイベント情報として取り込まない。"
+    },
+    {
+      "source_id": "hokkaido-urakawa-sakura",
+      "publisher": "北海道",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "source_url": "https://www.pref.hokkaido.lg.jp/kn/tkn/hana/place/c026.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "町道西舎振別線からJRA日高育成牧場までの並木を紹介。場内の一般車アクセスは別途確認が必要。"
+    },
+    {
+      "source_id": "niikappu-ginza",
+      "publisher": "新冠町商工会 / 新冠町観光協会",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://niikappu.info/life/%E3%82%B5%E3%83%A9%E3%83%96%E3%83%AC%E3%83%83%E3%83%88%E9%8A%80%E5%BA%A7/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "道路として約8kmの牧場風景とドライブを紹介。牧場への無断立入やわき見運転をしないよう明示。"
+    },
+    {
+      "source_id": "love-ginza",
+      "publisher": "北海道観光機構",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_10439.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "牧場ロードとして道路沿いの景観を紹介。入口の駐車公園だけを本線の眺望と混同しない。"
+    },
+    {
+      "source_id": "love-shirakaba",
+      "publisher": "北海道観光機構",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_10359.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "白金ビルケから白金温泉方向の道道966号の約4kmの白樺並木を紹介。車道と並行する遊歩道を区別。"
+    },
+    {
+      "source_id": "yakumo-museum-road",
+      "publisher": "八雲町郷土資料館 / 道南ブロック博物館施設等連絡協議会",
+      "publisher_type": "public_institution",
+      "subject": "road_introduction",
+      "source_url": "https://donan-museums.jp/archives/3921",
+      "license": "CC-BY-2.1-JP; road facts edited by 旅れこ; no images",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "公園側から国道5号へ向かう白樺並木の一般道を紹介。公園や高速道路のPAの形状とは分ける。"
+    },
+    {
+      "source_id": "urakawa-tenma",
+      "publisher": "浦河観光協会",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.urakawa-tabi.com/miru/813/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "天馬街道の山岳・渓谷のドライブと広尾町豊似〜浦河町西幌別の所在を紹介。給油間隔への注意も確認。"
+    },
+    {
+      "source_id": "love-tenma",
+      "publisher": "北海道観光機構",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_13075.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "野塚トンネルを越える国道236号の山岳ドライブを紹介。国道の帯広までの全線を推薦区間にしない。"
+    },
+    {
+      "source_id": "env-daisetsu-roads",
+      "publisher": "環境省北海道地方環境事務所",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "source_url": "https://hokkaido.env.go.jp/content/000151166.pdf",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "本文65〜66頁の車道の説明を確認。層雲峡・愛山渓・銀泉台・天人峡の沿道景観の記述のみを推薦根拠にする。将来の整備方針だけの路線は採らない。銀泉台のマイカー規制も確認。"
+    },
+    {
+      "source_id": "north-westcoast-drive",
+      "publisher": "きた・北海道DMO",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "source_url": "https://www.north-hokkaido.com/itineraries/detail_10.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "宗谷サンセットロードの見出しで稚咲内〜こうほねの家の道道106号沿道のドライブ景観を確認。1日周遊コースそのものは登録しない。"
+    },
+    {
+      "source_id": "hkd-saru-drive",
+      "publisher": "国土交通省北海道開発局",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "source_url": "https://www.hkd.mlit.go.jp/mr/tiiki_sinkou/c5b1ee000000cviy.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "2018年10月の観光体験記。国道237号の日高町・平取町間を紅葉ドライブとして紹介。現在の通行可能性の根拠にはしない。"
+    },
+    {
+      "source_id": "hkd-saru-extent",
+      "publisher": "国土交通省北海道開発局",
+      "publisher_type": "public_authority",
+      "subject": "road_introduction",
+      "source_url": "https://www.hkd.mlit.go.jp/mr/douro_keikaku/tn6s9g0000002qrj.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-18",
+      "acquired_at": "2026-10-18",
+      "checked_on": "2026-10-18",
+      "review_note": "沙流ユーカラ街道の愛称対象を富川の国道235号交差点〜平取〜宮下の国道274号交差点と説明。同一発行主体なので独立した推薦2件とは数えない。"
+    },
+    {
+      "source_id": "osm",
+      "publisher": "OpenStreetMap contributors",
+      "source_url": "https://www.openstreetmap.org/copyright",
+      "license": "ODbL-1.0",
+      "version": "local-pbf",
+      "acquired_at": "2026-10-17T00:00:00Z"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "hkd-selected",
+      "publisher": "国土交通省北海道開発局",
+      "source_url": "https://www.hkd.mlit.go.jp/ky/kn/dou_kei/slo5pa0000009at1.html",
+      "license": "PDL-1.0 (third-party material excluded)",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "公式の選定15区間と候補4区間を区別して確認。形状は札幌市公開線形を採用。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "hkd-furano",
+      "publisher": "国土交通省北海道開発局",
+      "source_url": "https://www.hkd.mlit.go.jp/ky/kn/dou_kei/slo5pa0000009at1-att/slo5pa0000009biq.pdf",
+      "license": "PDL-1.0 (facts only; maps/photos excluded)",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "hkd-jozankei",
+      "publisher": "国土交通省北海道開発局",
+      "source_url": "https://www.hkd.mlit.go.jp/ky/kn/dou_kei/slo5pa0000009at1-att/slo5pa0000009bg0.pdf",
+      "license": "PDL-1.0 (facts only; maps/photos excluded)",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z"
+    },
+    {
+      "subject": "background",
+      "publisher_type": "public_authority",
+      "source_id": "hokkaido-niseko",
+      "publisher": "北海道",
+      "source_url": "https://www.pref.hokkaido.lg.jp/ks/skn/environ/parks/niseko-quasi-nationalpark.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "道路紹介の本登録根拠としては不採用。公園全体・周辺スポット・管理概要などの参考資料。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "rankoshi-niseko",
+      "publisher": "蘭越町",
+      "source_url": "https://www.town.rankoshi.hokkaido.jp/administration/town/detail.html?content=310",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "町のアクセス紹介内でパノラマラインの道路体験を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "love-shiretoko",
+      "publisher": "北海道観光機構",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_10406.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "公式観光サイトの一覧で知床横断道路を確認。個別ページ本文は再取得できず、索引確認として記録。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "love-sky",
+      "publisher": "北海道観光機構",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_10527.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "国道244号から334号へ続く28.1kmの直線道路を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "japan47-esanuka",
+      "publisher": "日本観光振興協会",
+      "source_url": "https://www.japan47go.travel/ja/detail/9beb564c-5e14-4c76-888e-7d803d11ac8b",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "エサヌカ線を道路として紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_institution",
+      "source_id": "jaea-ororon",
+      "publisher": "日本原子力研究開発機構",
+      "source_url": "https://www.jaea.go.jp/04/horonobe/yumechisoukan/sightseeing.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "観光MAPのオロロンラインの項で日本海・利尻山のドライブを紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "wakkanai-white",
+      "publisher": "稚内市",
+      "source_url": "https://www.city.wakkanai.hokkaido.jp/sangyo/kanko/wfc/location.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "市の白い道の項で道の性質と約3kmの延長を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "background",
+      "publisher_type": "tourism_organization",
+      "source_id": "nemuro-seaside",
+      "publisher": "根室市観光協会",
+      "source_url": "https://www.nemuro-kankou.com/access/spotmap-ochiishi/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "道路紹介の本登録根拠としては不採用。公園全体・周辺スポット・管理概要などの参考資料。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "hakobura-shirotai",
+      "publisher": "七飯町",
+      "source_url": "https://www.town.nanae.hokkaido.jp/hotnews/detail/00000229.html",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "城岱スカイラインの路線・約14kmの延長・景観・季節規制を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "geopark-jet",
+      "publisher": "十勝岳ジオパーク推進協議会",
+      "source_url": "https://tokachidake-geopark.jp/geoname/1816/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17T00:00:00Z",
+      "review_note": "公式ページに道路名と写真を確認。全線延長の裏づけとは分ける。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "source_id": "jalan-jet",
+      "publisher": "リクルート / じゃらんnet",
+      "kind": "reviews",
+      "source_url": "https://www.jalan.net/kankou/spt_guide000000185359/",
+      "license": "aggregate-facts-only; no review text/photos",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "jalan-sky",
+      "publisher": "リクルート / じゃらんnet",
+      "kind": "reviews",
+      "source_url": "https://www.jalan.net/kankou/spt_guide000000184930/kuchikomi/",
+      "license": "aggregate-facts-only; no review text/photos",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "jalan-orofure",
+      "publisher": "リクルート / じゃらんnet",
+      "kind": "reviews",
+      "source_url": "https://www.jalan.net/kankou/spt_guide000000154488/kuchikomi/",
+      "license": "aggregate-facts-only; no review text/photos",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "motospot-esanuka",
+      "publisher": "モトスポット",
+      "kind": "reviews",
+      "source_url": "https://motospot.jp/spot/897/",
+      "license": "aggregate-facts-only; no review text/photos",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "yahoo-naitai",
+      "publisher": "LINEヤフー / Yahoo!マップ",
+      "kind": "reviews",
+      "source_url": "https://map.yahoo.co.jp/v3/place/Gj5TfAPPPfg/review",
+      "license": "aggregate-facts-only; no review text/photos",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "nissan-esanuka",
+      "publisher": "日産自動車",
+      "kind": "editorial",
+      "source_url": "https://n-link.nissan.co.jp/NOM/CARWINDOW/12/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "navitime-roads",
+      "publisher": "ナビタイムジャパン",
+      "kind": "editorial",
+      "source_url": "https://web.moto.touring.navitime.jp/touring-roads/areas/hokkaido/",
+      "license": "reference-facts-only; no article/map redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "labo-roads",
+      "publisher": "北海道ラボ / オンライントラベル",
+      "kind": "editorial",
+      "source_url": "https://hokkaido-labo.com/area/all/scenic-routes-to-drive",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "levolant-golden",
+      "publisher": "芸文社 / LE VOLANT",
+      "kind": "editorial",
+      "source_url": "https://levolant.jp/2018/12/07/62103/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "levolant-nissho",
+      "publisher": "芸文社 / LE VOLANT",
+      "kind": "editorial",
+      "source_url": "https://levolant.jp/2019/04/01/97181/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "source_id": "levolant-akan",
+      "publisher": "芸文社 / LE VOLANT",
+      "kind": "editorial",
+      "source_url": "https://levolant.jp/2018/11/14/62093/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "kamishihoro-naitai",
+      "publisher": "上士幌町観光協会",
+      "kind": "primary",
+      "source_url": "https://www.kamishihoro.jp/sp/naitai/00000150",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "牧場入口ゲート〜テラスの約6kmのアクセス道路とゲート時間を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "biei-tokachi",
+      "publisher": "かみふらの十勝岳観光協会",
+      "kind": "primary",
+      "source_url": "https://www.kamifurano.jp/outdoor/cycling/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "十勝岳スカイラインを道路として紹介。コース全体を登録区間とは扱わない。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "sobetsu-orofure",
+      "publisher": "そうべつ観光協会",
+      "kind": "primary",
+      "source_url": "https://sobetsu-kanko.com/spot/orofuretoge",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "現道トンネルと旧道展望所を区別した道道2号の紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "background",
+      "publisher_type": "public_authority",
+      "source_id": "rinya-koshimizu",
+      "publisher": "林野庁北海道森林管理局",
+      "kind": "primary",
+      "source_url": "https://www.rinya.maff.go.jp/hokkaido/introduction/gaiyou_syo/abasirinanbu/pdf/abasirinanbu_1412.pdf",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "道路紹介の本登録根拠としては不採用。公園全体・周辺スポット・管理概要などの参考資料。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "hkd-shakotan",
+      "publisher": "国土交通省北海道開発局",
+      "kind": "primary",
+      "source_url": "https://www.hkd.mlit.go.jp/ot/koumu/vu2tjq00000004as.html",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "国道229号の道路管理資料で現道のトンネルと道路の対応を確認。推薦記事とは区別。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "background",
+      "publisher_type": "tourism_organization",
+      "source_id": "japan47-raiden",
+      "publisher": "日本観光振興協会",
+      "kind": "primary",
+      "source_url": "https://www.japan47go.travel/ja/detail/6696da15-421d-49ec-91fd-2ffc4329035c",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "道路紹介の本登録根拠としては不採用。公園全体・周辺スポット・管理概要などの参考資料。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "love-golden",
+      "publisher": "広尾町観光協会",
+      "kind": "primary",
+      "source_url": "https://hiroo-kanko.jp/spot/%E9%BB%84%E9%87%91%E9%81%93%E8%B7%AF/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "広尾〜えりも町庶野の国道336号を黄金道路として紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "shintoku-karikachi",
+      "publisher": "新得町観光協会",
+      "kind": "primary",
+      "source_url": "https://shintoku-town.net/spot/karikachi-toge/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "狩勝峠と国道38号の景観を紹介。展望台の眺望は走行中の眺望と分ける。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "love-nissho",
+      "publisher": "北海道観光機構",
+      "kind": "primary",
+      "source_url": "https://www.visit-hokkaido.jp/spot/detail_13073.html",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "日勝峠の道路沿線と展望を紹介。国道274号全線の推薦にはしない。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "jtb-notsuke",
+      "publisher": "公益財団法人日本交通公社",
+      "kind": "primary",
+      "source_url": "https://tabi.jtb.or.jp/res/010151-/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "みどころ欄で道道野付風蓮公園線（フラワーロード）のドライブを明示。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "akan-tourism",
+      "publisher": "北海道",
+      "kind": "primary",
+      "source_url": "https://www.pref.hokkaido.lg.jp/ks/skn/sizenhome/100p/E25p.html",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "76 阿寒湖の阿寒横断道路、78 藻琴山の道道網走川湯線の車窓、99 釧路湿原の道道クチョロ原野塘路線の沿道を本文で確認。展望台・登山道の紹介とは区別。自治体名等が旧表記の資料であり、最新の規制資料ではない。",
+      "checked_on": "2026-10-18"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "shikaribetsu-center",
+      "publisher": "鹿追町観光協会",
+      "kind": "primary",
+      "source_url": "https://www.shikaoi.net/shikaoigraphics/contents/feature5/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "然別湖方面へ向かう道道85号沿線の景観を紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "nanae-onuma",
+      "publisher": "七飯町",
+      "kind": "primary",
+      "source_url": "https://www.town.nanae.hokkaido.jp/hotnews/files/00002500/00002573/20210115132936.pdf",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "町の公表する湖畔地図を参照。周遊全線と道道338号部分は区別。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "tourism_organization",
+      "source_id": "kamifurano-ebana",
+      "publisher": "かみふらの十勝岳観光協会",
+      "kind": "primary",
+      "source_url": "https://www.kamifurano.jp/archives/17635/",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "約5kmの道として紹介。現状の名前一致部分だけでは全線対応としない。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "subject": "road_introduction",
+      "publisher_type": "public_authority",
+      "source_id": "sapporo-lake",
+      "publisher": "林野庁北海道森林管理局",
+      "kind": "primary",
+      "source_url": "https://www.rinya.maff.go.jp/hokkaido/policy/system/rekumori/huukeirin/006-otarunai.html",
+      "license": "reference-facts-only",
+      "version": "checked-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "review_note": "さっぽろ湖畔の道道1号ドライブを紹介。",
+      "checked_on": "2026-10-17"
+    },
+    {
+      "source_id": "niseko-ta-panorama",
+      "publisher": "ニセコリゾート観光協会",
+      "publisher_type": "tourism_organization",
+      "subject": "road_introduction",
+      "kind": "primary",
+      "source_url": "https://www.niseko-ta.jp/news/article/panorama-line-reopened-26/",
+      "license": "reference-facts-only; no article/image redistribution",
+      "version": "reviewed-2026-10-17",
+      "acquired_at": "2026-10-17",
+      "checked_on": "2026-10-17",
+      "review_note": "道道66号の通称と対象ゲート区間を確認。過去の解除案内を現在の通行保証には使わない。"
+    }
+  ],
+  "roads": [
+    {
+      "id": "hakodate-esan-coast",
+      "name": "下海岸・函館〜恵山（国道278号）",
+      "rank": "recommended",
+      "source_ids": [
+        "hakobura-esan-drive"
+      ],
+      "road_introduction_source_ids": [
+        "hakobura-esan-drive"
+      ],
+      "osm_names": [
+        "国道278号",
+        "戸井バイパス",
+        "釜谷バイパス"
+      ],
+      "bounds": [
+        140.77,
+        41.7,
+        141.15,
+        41.83
+      ],
+      "max_meters": 55000,
+      "extent": {
+        "kind": "named_section",
+        "description": "函館湯川側から恵山地区の国道278号本線。函館新外環状道路・道道41号旧道・椴法華港線は含めない。",
+        "minimum_meters": 35000
+      },
+      "scope_note": "トンネル内から海は見えない。日浦洞門の旧道や恵山岬公園の眺望を本線の連続車窓とみなさない。記事当時の営業・通行情報は現況保証に使わない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "函館市の取材記事が国道278号の海岸線ドライブを明示して推奨。",
+        "section_reason": "函館湯川側から恵山地区の国道278号本線。函館新外環状道路・道道41号旧道・椴法華港線は含めない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "トンネル内から海は見えない。日浦洞門の旧道や恵山岬公園の眺望を本線の連続車窓とみなさない。記事当時の営業・通行情報は現況保証に使わない。",
+        "findings": [
+          {
+            "source_id": "hakobura-esan-drive",
+            "locator": "国道278号線、景勝ポイントを楽しみながら「下海岸」を東へ",
+            "fact": "津軽海峡を右手に走る国道278号のドライブを紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "mori-yakumo-coast",
+      "name": "噴火湾沿岸・森〜八雲（国道5号）",
+      "rank": "recommended",
+      "source_ids": [
+        "hakobura-yakumo-drive"
+      ],
+      "road_introduction_source_ids": [
+        "hakobura-yakumo-drive"
+      ],
+      "osm_names": [
+        "国道5号",
+        "森バイパス",
+        "八雲バイパス"
+      ],
+      "bounds": [
+        140.24,
+        42.09,
+        140.62,
+        42.28
+      ],
+      "max_meters": 48000,
+      "extent": {
+        "kind": "named_section",
+        "description": "森町から八雲町の国道5号の連続区間。函館新道・道央道・公園内道路は含めない。",
+        "minimum_meters": 30000
+      },
+      "scope_note": "公園・駐車場からの眺望と走行中の車窓を区別。沿岸全区間で海が見えることや記事の所要時間は保証しない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "函館市のドライブ紹介で、森町の先の海岸沿いの道路と湾越しの駒ヶ岳を説明。",
+        "section_reason": "森町から八雲町の国道5号の連続区間。函館新道・道央道・公園内道路は含めない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "公園・駐車場からの眺望と走行中の車窓を区別。沿岸全区間で海が見えることや記事の所要時間は保証しない。",
+        "findings": [
+          {
+            "source_id": "hakobura-yakumo-drive",
+            "locator": "雄大な駒ヶ岳と海を眺めながら、八雲まで2時間のドライブ",
+            "fact": "森町以北の海岸沿いの道路で噴火湾の形を感じながら走れると紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "kussharo-iou-road",
+      "name": "屈斜路湖〜川湯・硫黄山（道道52号）",
+      "rank": "panorama",
+      "source_ids": [
+        "mashuko-autumn-drive",
+        "pressman-mashu-drive"
+      ],
+      "road_introduction_source_ids": [
+        "mashuko-autumn-drive"
+      ],
+      "osm_names": [
+        "屈斜路摩周湖畔線"
+      ],
+      "bounds": [
+        144.28,
+        43.54,
+        144.4541,
+        43.66
+      ],
+      "max_meters": 23000,
+      "extent": {
+        "kind": "named_section",
+        "description": "道道52号の屈斜路湖側〜川湯温泉〜硫黄山〜国道391号交点の連続した西側区間。摩周湖側の離れた区間を線でつながない。",
+        "minimum_meters": 15000
+      },
+      "scope_note": "車窓から湖が常に見えるわけではない。紅葉の発生・時期を実測として加点しない。摩周湖側の冬季閉鎖区間は本登録の範囲外。最新の道路規制は別途確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "観光協会の具体的なドライブ推薦と、独立した編集部の道道52号紹介を確認。",
+        "section_reason": "道道52号の屈斜路湖側〜川湯温泉〜硫黄山〜国道391号交点の連続した西側区間。摩周湖側の離れた区間を線でつながない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "車窓から湖が常に見えるわけではない。紅葉の発生・時期を実測として加点しない。摩周湖側の冬季閉鎖区間は本登録の範囲外。最新の道路規制は別途確認。",
+        "findings": [
+          {
+            "source_id": "mashuko-autumn-drive",
+            "locator": "絶景のグラデーションに出会う「紅葉ドライブ」",
+            "fact": "国道391号から硫黄山へ向かい、川湯温泉から屈斜路湖沿いへ続く道道52号を推奨。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "naganuma-jukai-road",
+      "name": "長沼の田園ロード（国道274号）",
+      "rank": "recommended",
+      "source_ids": [
+        "michinoeki-maoi-drive"
+      ],
+      "road_introduction_source_ids": [
+        "michinoeki-maoi-drive"
+      ],
+      "osm_names": [
+        "国道274号"
+      ],
+      "bounds": [
+        141.64,
+        42.92,
+        141.82,
+        43.02
+      ],
+      "max_meters": 20000,
+      "extent": {
+        "kind": "named_section",
+        "description": "国道274号の長沼町マオイの丘付近の田園区間。樹海ロード全線・日勝峠への推薦拡張はしない。",
+        "minimum_meters": 12000
+      },
+      "scope_note": "水田・牧場は私有地。開花・稲作の状態・施設展望台からの夕景を本線全体の車窓に置き換えない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "道路管理関係団体の紹介で長沼の田園を抜ける爽快なドライブを明示。",
+        "section_reason": "国道274号の長沼町マオイの丘付近の田園区間。樹海ロード全線・日勝峠への推薦拡張はしない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "水田・牧場は私有地。開花・稲作の状態・施設展望台からの夕景を本線全体の車窓に置き換えない。",
+        "findings": [
+          {
+            "source_id": "michinoeki-maoi-drive",
+            "locator": "道の駅の紹介・冒頭",
+            "fact": "長沼の国道274号について水田や牧場を通るドライブの景観を説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "abashiri-tanno-hills",
+      "name": "二見ヶ岡〜嘉多山の丘陵ロード（道道104号）",
+      "rank": "scenic",
+      "source_ids": [
+        "akan-tourism"
+      ],
+      "road_introduction_source_ids": [
+        "akan-tourism"
+      ],
+      "osm_names": [
+        "網走端野線"
+      ],
+      "bounds": [
+        144.12,
+        43.94,
+        144.25,
+        44.03
+      ],
+      "max_meters": 18000,
+      "extent": {
+        "kind": "named_section",
+        "description": "道道網走端野線の二見ヶ岡〜嘉多山周辺の丘陵部。網走端野線全線や網走湖周遊モデルには広げない。",
+        "minimum_meters": 3000
+      },
+      "scope_note": "湖畔の遊歩道・キャンプ場の景色は車道からの眺望とは区別。資料の旧町名・電話番号・施設状況は現行データとして取り込まない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道の自然観察資料が、道路沿いの丘陵と農村風景を具体的に説明。",
+        "section_reason": "道道網走端野線の二見ヶ岡〜嘉多山周辺の丘陵部。網走端野線全線や網走湖周遊モデルには広げない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "湖畔の遊歩道・キャンプ場の景色は車道からの眺望とは区別。資料の旧町名・電話番号・施設状況は現行データとして取り込まない。",
+        "findings": [
+          {
+            "source_id": "akan-tourism",
+            "locator": "86 網走湖とその周辺・周辺地",
+            "fact": "道道網走端野線の二見ヶ岡〜嘉多山沿いに、うねる丘陵の農村風景が広がると紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "koshimizu-coastal-flowers",
+      "name": "小清水原生花園ロード（国道244号）",
+      "rank": "scenic",
+      "source_ids": [
+        "akan-tourism"
+      ],
+      "road_introduction_source_ids": [
+        "akan-tourism"
+      ],
+      "osm_names": [
+        "国道244号"
+      ],
+      "bounds": [
+        144.373,
+        43.925,
+        144.454,
+        43.965
+      ],
+      "max_meters": 10000,
+      "extent": {
+        "kind": "named_section",
+        "description": "涛沸湖口側〜浜小清水の原生花園沿いの国道244号本線。浜小清水より東の海岸全線には拡張しない。",
+        "minimum_meters": 6000
+      },
+      "scope_note": "花期・野鳥・流氷を保証しない。歩道や展望台への立寄りと走行中の眺望を区別し、植生への立入や路上駐停車を推奨しない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道の資料が国道沿いの原生花園と道路から観察できる範囲を具体的に区別して紹介。",
+        "section_reason": "涛沸湖口側〜浜小清水の原生花園沿いの国道244号本線。浜小清水より東の海岸全線には拡張しない。",
+        "duplicate_check": "既存台帳を照合。同じ国道の別地域を全線推薦に拡張せず、同一区間の重複加点は最高ランクのみ。撮影スポットごとの分割登録はしない。",
+        "cautions": "花期・野鳥・流氷を保証しない。歩道や展望台への立寄りと走行中の眺望を区別し、植生への立入や路上駐停車を推奨しない。",
+        "findings": [
+          {
+            "source_id": "akan-tourism",
+            "locator": "87 小清水原生花園・涛沸湖",
+            "fact": "湖口〜浜小清水の約7kmの原生花園で、国道が砂丘草原と湿原の境となることを説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "nijukken-sakura-road",
+      "name": "静内二十間道路桜並木",
+      "rank": "panorama",
+      "source_ids": [
+        "love-drive-roads",
+        "hokkaido-nijukken"
+      ],
+      "road_introduction_source_ids": [
+        "love-drive-roads",
+        "hokkaido-nijukken"
+      ],
+      "osm_names": [
+        "二十間道路",
+        "桜並木通線",
+        "町道桜並木通線"
+      ],
+      "bounds": [
+        142.38,
+        42.35,
+        142.5,
+        42.44
+      ],
+      "max_meters": 8500,
+      "extent": {
+        "kind": "named_section",
+        "description": "静内田原〜御園の約7kmの直線並木道。並行する道道71号・111号を代用しない。",
+        "minimum_meters": 6000
+      },
+      "scope_note": "花期以外も道路は存在するが満開を保証しない。祭りの駐停車・交通規制を確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "ドライブ特集で道路として推奨され、北海道の花の名所でも独立して紹介。",
+        "section_reason": "静内田原〜御園の約7kmの直線並木道。並行する道道71号・111号を代用しない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "花期以外も道路は存在するが満開を保証しない。祭りの駐停車・交通規制を確認。",
+        "findings": [
+          {
+            "source_id": "love-drive-roads",
+            "locator": "静内二十間道路の見出し",
+            "fact": "約7kmの直線の桜並木をドライブ対象として紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "registration_hold_reasons": [
+        "町道の起終点とOSMの無名道路の対応を確認するまで保留。"
+      ]
+    },
+    {
+      "id": "yushun-sakura-road",
+      "name": "優駿さくらロード・西舎桜並木",
+      "rank": "scenic",
+      "source_ids": [
+        "urakawa-sakura",
+        "hokkaido-urakawa-sakura"
+      ],
+      "road_introduction_source_ids": [
+        "urakawa-sakura",
+        "hokkaido-urakawa-sakura"
+      ],
+      "osm_names": [
+        "西舎振別線",
+        "優駿さくらロード",
+        "西舎桜並木"
+      ],
+      "bounds": [
+        142.86,
+        42.17,
+        142.96,
+        42.24
+      ],
+      "max_meters": 3800,
+      "extent": {
+        "kind": "named_section",
+        "description": "町道西舎振別線〜JRA日高育成牧場方面の約3kmの並木道。周辺の道道746号・233号を代用しない。",
+        "minimum_meters": 2550
+      },
+      "scope_note": "花期・ライトアップは毎年確認。牧場の場内通行と公道を区別する。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "観光協会と北海道が道路両側の桜を紹介。",
+        "section_reason": "町道西舎振別線〜JRA日高育成牧場方面の約3kmの並木道。周辺の道道746号・233号を代用しない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "花期・ライトアップは毎年確認。牧場の場内通行と公道を区別する。",
+        "findings": [
+          {
+            "source_id": "urakawa-sakura",
+            "locator": "優駿さくらロード（桜並木、夜桜）",
+            "fact": "約3kmの桜のトンネルを紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "registration_hold_reasons": [
+        "無名道路の照合範囲と一般車の通行区間の確認待ち。"
+      ]
+    },
+    {
+      "id": "thoroughbred-ginza",
+      "name": "サラブレッド銀座・道道209号",
+      "rank": "panorama",
+      "source_ids": [
+        "niikappu-ginza",
+        "love-ginza"
+      ],
+      "road_introduction_source_ids": [
+        "niikappu-ginza",
+        "love-ginza"
+      ],
+      "osm_names": [
+        "滑若新冠停車場線"
+      ],
+      "bounds": [
+        142.308,
+        42.372,
+        142.391,
+        42.407
+      ],
+      "max_meters": 9500,
+      "extent": {
+        "kind": "named_section",
+        "description": "国道235号側の入口駐車公園から山側へ続く約8kmの道道209号の牧場沿道。新冠停車場への南側接続部や道道1026号へ延伸しない。",
+        "minimum_meters": 6800
+      },
+      "scope_note": "私有牧場への無断立入、馬への接近・大声、わき見運転を勧めない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "地域観光協会の道路ドライブ紹介と北海道観光機構の牧場ロード紹介で裏づけ。",
+        "section_reason": "国道235号側の入口駐車公園から山側へ続く約8kmの道道209号の牧場沿道。新冠停車場への南側接続部や道道1026号へ延伸しない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "私有牧場への無断立入、馬への接近・大声、わき見運転を勧めない。",
+        "findings": [
+          {
+            "source_id": "niikappu-ginza",
+            "locator": "サラブレット銀座・ドライブと注意事項の段落",
+            "fact": "約8kmに連なる牧場を公道から楽しめると説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "209"
+      ]
+    },
+    {
+      "id": "biei-shirakaba-road",
+      "name": "白樺街道・白金ビルケ〜白金温泉",
+      "rank": "scenic",
+      "source_ids": [
+        "love-shirakaba"
+      ],
+      "road_introduction_source_ids": [
+        "love-shirakaba"
+      ],
+      "osm_names": [
+        "十勝岳温泉美瑛線"
+      ],
+      "bounds": [
+        142.594,
+        43.4738,
+        142.641,
+        43.5054
+      ],
+      "max_meters": 5500,
+      "extent": {
+        "kind": "named_section",
+        "description": "白金ビルケから白金温泉方面へ続く約4kmの道道966号の並木区間。美瑛市街からの全線や遊歩道は含めない。",
+        "minimum_meters": 3400
+      },
+      "scope_note": "青い池の駐車場・遊歩道を本線と混同しない。積雪・混雑・眺望は別途確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "観光機構が道路番号と約4kmの白樺並木の範囲を説明。",
+        "section_reason": "白金ビルケから白金温泉方面へ続く約4kmの道道966号の並木区間。美瑛市街からの全線や遊歩道は含めない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "青い池の駐車場・遊歩道を本線と混同しない。積雪・混雑・眺望は別途確認。",
+        "findings": [
+          {
+            "source_id": "love-shirakaba",
+            "locator": "白樺街道・冒頭",
+            "fact": "白金ビルケから白金温泉方向の道道966号の並木を紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "966"
+      ]
+    },
+    {
+      "id": "yakumo-panorama-road",
+      "name": "八雲パノラマロード",
+      "rank": "scenic",
+      "source_ids": [
+        "yakumo-museum-road"
+      ],
+      "road_introduction_source_ids": [
+        "yakumo-museum-road"
+      ],
+      "osm_names": [
+        "噴火湾パノラマロード",
+        "パノラマロード"
+      ],
+      "bounds": [
+        140.25,
+        42.2,
+        140.3,
+        42.24
+      ],
+      "max_meters": 1800,
+      "extent": {
+        "kind": "named_section",
+        "description": "噴火湾パノラマパーク側〜国道5号の白樺並木の一般道。高速道路のPAや公園内部の道路ではない。",
+        "minimum_meters": 800
+      },
+      "scope_note": "当日の通行と見通しは未保証。資料を旅れこが要約・編集したものであり、協議会の認定ではない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "公的博物館のデータベースが車道と海の眺望を紹介。",
+        "section_reason": "噴火湾パノラマパーク側〜国道5号の白樺並木の一般道。高速道路のPAや公園内部の道路ではない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "当日の通行と見通しは未保証。資料を旅れこが要約・編集したものであり、協議会の認定ではない。",
+        "findings": [
+          {
+            "source_id": "yakumo-museum-road",
+            "locator": "パノラマロード・解説",
+            "fact": "国道5号へ向かう白樺並木道を説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "registration_hold_reasons": [
+        "無名の車道を公園の内部道路と区別して照合する必要があるため保留。"
+      ]
+    },
+    {
+      "id": "tenma-road",
+      "name": "天馬街道・野塚トンネル越え",
+      "rank": "panorama",
+      "source_ids": [
+        "urakawa-tenma",
+        "love-tenma"
+      ],
+      "road_introduction_source_ids": [
+        "urakawa-tenma",
+        "love-tenma"
+      ],
+      "osm_names": [
+        "国道236号"
+      ],
+      "bounds": [
+        142.88,
+        42.18,
+        143.32,
+        42.53
+      ],
+      "max_meters": 80000,
+      "extent": {
+        "kind": "named_section",
+        "description": "浦河町西幌別〜広尾町豊似方面の国道236号の山越え区間。帯広方面までの国道全線ではない。",
+        "minimum_meters": 55000
+      },
+      "scope_note": "長いトンネル内に景観はない。燃料・天候・通行規制を確認し、橋上撮影や路上駐車をしない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "地域観光協会と観光機構が、道路の渓谷・山岳ドライブをそれぞれ紹介。",
+        "section_reason": "浦河町西幌別〜広尾町豊似方面の国道236号の山越え区間。帯広方面までの国道全線ではない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "長いトンネル内に景観はない。燃料・天候・通行規制を確認し、橋上撮影や路上駐車をしない。",
+        "findings": [
+          {
+            "source_id": "urakawa-tenma",
+            "locator": "天馬街道・ドライバーズ情報",
+            "fact": "山岳景観と渓谷美、長い給油間隔の注意を紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "236"
+      ]
+    },
+    {
+      "id": "sounkyo-gorge-road",
+      "name": "層雲峡・国道39号の峡谷区間",
+      "rank": "scenic",
+      "source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "road_introduction_source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "osm_names": [
+        "国道39号"
+      ],
+      "bounds": [
+        142.9,
+        43.65,
+        143.14,
+        43.77
+      ],
+      "max_meters": 33000,
+      "extent": {
+        "kind": "named_section",
+        "description": "層雲峡温泉・大函周辺の国道39号本線の連続区間。小函・大函の閉鎖された旧道や自転車道は含めない。",
+        "minimum_meters": 20000
+      },
+      "scope_note": "トンネル・覆道で視界が途切れる。落石・洪水・積雪の規制は別途確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "環境省が車道の沿線と車窓の峡谷景観を具体的に説明。",
+        "section_reason": "層雲峡温泉・大函周辺の国道39号本線の連続区間。小函・大函の閉鎖された旧道や自転車道は含めない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "トンネル・覆道で視界が途切れる。落石・洪水・積雪の規制は別途確認。",
+        "findings": [
+          {
+            "source_id": "env-daisetsu-roads",
+            "locator": "本文65頁・4)道路 ア 車道・層雲峡ルベシベ線",
+            "fact": "国道39号の車窓から見える峡谷岩壁を紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "39"
+      ]
+    },
+    {
+      "id": "aizankei-forest-road",
+      "name": "愛山渓上川線・安足間〜愛山渓温泉",
+      "rank": "scenic",
+      "source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "road_introduction_source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "osm_names": [
+        "愛山渓上川線"
+      ],
+      "bounds": [
+        142.63,
+        43.7,
+        142.84,
+        43.84204
+      ],
+      "max_meters": 26000,
+      "extent": {
+        "kind": "named_section",
+        "description": "国道39号の安足間側〜愛山渓温泉の道道223号。温泉から先の登山道を含めない。",
+        "minimum_meters": 16000
+      },
+      "scope_note": "狭路・冬季閉鎖に注意。温泉の営業と道路の通行は別情報として確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "環境省の車道紹介が沿道の森林景観を明記。",
+        "section_reason": "国道39号の安足間側〜愛山渓温泉の道道223号。温泉から先の登山道を含めない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "狭路・冬季閉鎖に注意。温泉の営業と道路の通行は別情報として確認。",
+        "findings": [
+          {
+            "source_id": "env-daisetsu-roads",
+            "locator": "本文65頁・4)道路 ア 車道・愛山渓線",
+            "fact": "安足間から温泉へ至る車道の森林景観を説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "223"
+      ]
+    },
+    {
+      "id": "tenninkyo-gorge-road",
+      "name": "天人峡美瑛線・天人峡の峡谷区間",
+      "rank": "scenic",
+      "source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "road_introduction_source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "osm_names": [
+        "天人峡美瑛線"
+      ],
+      "bounds": [
+        142.7,
+        43.57,
+        142.8,
+        43.64
+      ],
+      "max_meters": 11000,
+      "extent": {
+        "kind": "named_section",
+        "description": "天人峡温泉へ至る道道213号の峡谷側の連続車道区間。美瑛方面の全線、羽衣の滝歩道、温泉奥の町道は対象外。",
+        "minimum_meters": 4500
+      },
+      "scope_note": "覆道・トンネルでは眺望がない。落石・雪崩・洪水の規制は別途確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "環境省が道道の車窓の柱状節理景観を紹介。",
+        "section_reason": "天人峡温泉へ至る道道213号の峡谷側の連続車道区間。美瑛方面の全線、羽衣の滝歩道、温泉奥の町道は対象外。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "覆道・トンネルでは眺望がない。落石・雪崩・洪水の規制は別途確認。",
+        "findings": [
+          {
+            "source_id": "env-daisetsu-roads",
+            "locator": "本文66頁・4)道路 ア 車道・天人峡線（道道区間）",
+            "fact": "両側の柱状節理の岸壁を車窓景観として説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "213"
+      ]
+    },
+    {
+      "id": "ginzendai-mountain-road",
+      "name": "大雪観光道路・銀泉台線",
+      "rank": "scenic",
+      "source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "road_introduction_source_ids": [
+        "env-daisetsu-roads"
+      ],
+      "osm_names": [
+        "大雪山観光道路",
+        "銀泉台線"
+      ],
+      "bounds": [
+        142.88,
+        43.63,
+        143.05,
+        43.73
+      ],
+      "max_meters": 18000,
+      "extent": {
+        "kind": "named_section",
+        "description": "国道273号の湖畔橋側〜銀泉台の道道1162号。赤岳の登山道を含めない。",
+        "minimum_meters": 12000
+      },
+      "scope_note": "未舗装・冬季閉鎖・紅葉期の一般車規制あり。規制を無視した案内をしない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "環境省が車道沿いの山並景観を明記。",
+        "section_reason": "国道273号の湖畔橋側〜銀泉台の道道1162号。赤岳の登山道を含めない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "未舗装・冬季閉鎖・紅葉期の一般車規制あり。規制を無視した案内をしない。",
+        "findings": [
+          {
+            "source_id": "env-daisetsu-roads",
+            "locator": "本文65頁・4)道路 ア 車道・銀泉台線",
+            "fact": "車道からの山並景観と冬季閉鎖・秋季マイカー規制を説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "1162"
+      ],
+      "registration_hold_reasons": [
+        "一般車の季節規制を探索時に確実に反映する仕組みと全線照合の確認待ち。"
+      ]
+    },
+    {
+      "id": "shiranuka-charo-road",
+      "name": "白糠・茶路川沿いの国道392号",
+      "rank": "scenic",
+      "source_ids": [
+        "akan-tourism"
+      ],
+      "road_introduction_source_ids": [
+        "akan-tourism"
+      ],
+      "osm_names": [
+        "国道392号",
+        "白糠国道"
+      ],
+      "bounds": [
+        143.84,
+        42.94,
+        144.1,
+        43.25
+      ],
+      "max_meters": 65000,
+      "extent": {
+        "kind": "named_section",
+        "description": "白糠市街〜上茶路方面で茶路川をさかのぼる国道392号の単独区間。国道38号・274号との重複区間を国道全線として広げない。",
+        "minimum_meters": 30000
+      },
+      "scope_note": "野生動物の出現を保証しない。エゾシカとの衝突に注意し、観察のため停車しない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道の自然紹介が川沿いの牧場から森林へ変わる道路景観を説明。",
+        "section_reason": "白糠市街〜上茶路方面の単独区間に限定する。資料に延長の数値はないため、最低30kmは編集上の過少照合検査値。国道38号・274号との重複区間を含む全線対応とはしない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "野生動物の出現を保証しない。エゾシカとの衝突に注意し、観察のため停車しない。",
+        "findings": [
+          {
+            "source_id": "akan-tourism",
+            "locator": "100 白糠町〜本別町（国道392号）",
+            "fact": "茶路川沿いの牧場地帯と針葉樹林を沿道景観として紹介。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "akkeshi-kiritappu-coast",
+      "name": "北太平洋シーサイドライン・厚岸〜霧多布方面",
+      "rank": "scenic",
+      "source_ids": [
+        "akan-tourism"
+      ],
+      "road_introduction_source_ids": [
+        "akan-tourism"
+      ],
+      "osm_names": [
+        "別海厚岸線"
+      ],
+      "bounds": [
+        144.82,
+        42.98,
+        145.15,
+        43.17
+      ],
+      "max_meters": 60000,
+      "extent": {
+        "kind": "named_section",
+        "description": "厚岸大橋側から霧多布方面へ続く道道123号の沿岸区間。別海までの路線全線ではない。認定された秀逸な道の区間外へ認定を拡張しない。",
+        "minimum_meters": 40000
+      },
+      "scope_note": "霧・野生動物・強風に注意。認定区間との重複は最高ランクのみ加点。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道が道道名と走行方向を示して森と太平洋の沿道景観を紹介。",
+        "section_reason": "厚岸大橋側から霧多布方面へ続く道道123号の沿岸区間。別海までの路線全線ではない。認定された秀逸な道の区間外へ認定を拡張しない。",
+        "duplicate_check": "既存台帳と照合。観光スポットや撮影地点ごとの分割IDを作らない。同一道路との重複は最高ランクのみを加点。",
+        "cautions": "霧・野生動物・強風に注意。認定区間との重複は最高ランクのみ加点。",
+        "findings": [
+          {
+            "source_id": "akan-tourism",
+            "locator": "97 厚岸湖・厚岸大橋を渡った後の道道の段落",
+            "fact": "道道123号沿いの森の切れ間から太平洋を眺められると説明。"
+          }
+        ]
+      },
+      "reviewed_at": "2026-10-18",
+      "osm_refs": [
+        "123"
+      ]
+    },
+    {
+      "id": "selected-01",
+      "name": "支笏湖・国道453号",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "認定9.0km。KP38.0–47.0。指定端点の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-02",
+      "name": "洞爺湖・国道230号",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "認定13.9km。KP87.3–101.2。指定端点の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-03",
+      "name": "羊蹄山・国道276号",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "認定22.0km。KP27.1–49.1。指定端点の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-04",
+      "name": "上富良野の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected",
+        "hkd-furano"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected",
+        "hkd-furano"
+      ],
+      "review_required": true,
+      "scope_note": "国道237号11.9kmと町道西11線2.5km。愛称の全長と指定区間が異なるため全線へ認定を転用しない。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-05",
+      "name": "斜里・ウトロ海岸の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道334号18.8km。KP26.0–44.8。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-06",
+      "name": "稚内・利尻山眺望の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道238号8.0km。KP306.0–314.0。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-07",
+      "name": "宗谷丘陵の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "一覧と個別PDFの延長が異なるため指定範囲確認待ち。白い道全線を認定扱いにしない。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-08",
+      "name": "美幌峠・屈斜路側の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道243号18.1km。KP26.3–44.4。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-09",
+      "name": "中標津ミルクロードの認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "町道武佐北19号・開陽台観光道路7.8km。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-10",
+      "name": "三国峠の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道273号13.0km。KP42.0–55.0。全区間の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-11",
+      "name": "定山渓・中山峠の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道230号10.0km。KP35.6–45.6。全区間の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-12",
+      "name": "幌加内・そば畑の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道275号と町道計4.6km。指定が国道全区間ではないため道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-13",
+      "name": "美幌・並木の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道243号23.4km。KP2.8–26.2。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-14",
+      "name": "松前海岸の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "国道228号18.9km。KP82.7–101.6。道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "selected-15",
+      "name": "厚岸・浜中の認定区間",
+      "road_introduction_source_ids": [
+        "hkd-selected"
+      ],
+      "rank": "signature",
+      "designation": "selected",
+      "source_ids": [
+        "hkd-selected"
+      ],
+      "review_required": true,
+      "scope_note": "道道123号16.1km。指定端点の道路照合待ち。",
+      "extent": {
+        "kind": "official_sections",
+        "description": "札幌市公開の認定区間線形。離れた指定区間は接続を捏造せず別の形状部分として保持。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "niseko-panorama",
+      "name": "ニセコパノラマライン・ニセコ〜岩内方面区間",
+      "road_introduction_source_ids": [
+        "rankoshi-niseko",
+        "niseko-ta-panorama"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "hokkaido-niseko",
+        "rankoshi-niseko",
+        "niseko-ta-panorama"
+      ],
+      "osm_names": [
+        "ニセコパノラマライン",
+        "パノラマライン",
+        "岩内洞爺線"
+      ],
+      "bounds": [
+        140.45,
+        42.7,
+        140.8,
+        43.1
+      ],
+      "max_meters": 70000,
+      "scope_note": "愛称と道道岩内洞爺線の対応を出典で確認し、ニセコ周辺のOSM車道へ対応づけ。景観の強さが全区間同一とは限らない。季節通行止めあり。",
+      "extent": {
+        "kind": "named_section",
+        "description": "愛称と道道岩内洞爺線の対応を出典で確認し、ニセコ周辺のOSM車道へ対応づけ。景観の強さが全区間同一とは限らない。季節通行止めあり。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "shiretoko-crossing",
+      "name": "知床横断道路",
+      "road_introduction_source_ids": [
+        "love-shiretoko"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "love-shiretoko",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "知床横断道路"
+      ],
+      "bounds": [
+        144.9,
+        43.9,
+        145.25,
+        44.2
+      ],
+      "max_meters": 40000,
+      "scope_note": "OSMで道路名が一致する部分。冬季・夜間等の規制は別途確認が必要。",
+      "extent": {
+        "kind": "named_section",
+        "description": "OSMで道路名が一致する部分。冬季・夜間等の規制は別途確認が必要。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "esanuka",
+      "name": "エサヌカ線",
+      "road_introduction_source_ids": [
+        "japan47-esanuka"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "japan47-esanuka",
+        "nissan-esanuka",
+        "motospot-esanuka"
+      ],
+      "review_observations": [
+        {
+          "source_id": "motospot-esanuka",
+          "subject": "road",
+          "rating": 5.0,
+          "count": 3,
+          "checked_on": "2026-10-17",
+          "observation_method": "search_index"
+        }
+      ],
+      "osm_names": [
+        "エサヌカ線",
+        "村道 エサヌカ線"
+      ],
+      "bounds": [
+        142.0,
+        45.0,
+        142.35,
+        45.35
+      ],
+      "max_meters": 24000,
+      "scope_note": "OSMで道路名が一致する部分。全長約16kmのうち名前付き部分のみ。口コミ3件は昇格の根拠にせず、一次資料と日産の道路紹介を採用。農業車両を優先。冬季閉鎖あり。",
+      "extent": {
+        "kind": "named_section",
+        "description": "OSMで道路名が一致する部分。全長約16kmのうち名前付き部分のみ。口コミ3件は昇格の根拠にせず、一次資料と日産の道路紹介を採用。農業車両を優先。冬季閉鎖あり。",
+        "minimum_meters": 12000
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "ororon",
+      "name": "オロロンライン・天塩〜稚内の道道106号",
+      "road_introduction_source_ids": [
+        "jaea-ororon", "love-drive-roads", "north-westcoast-drive"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "jaea-ororon", "love-drive-roads", "north-westcoast-drive"
+      ],
+      "osm_names": [
+        "稚内天塩線"
+      ],
+      "osm_refs": ["106"],
+      "bounds": [
+        141.56,
+        44.85,
+        141.80,
+        45.42
+      ],
+      "max_meters": 90000,
+      "scope_note": "天塩〜幌延〜稚内方面の道道106号を対象とする。小樽・石狩からのオロロンライン全域ではない。強風、飛砂、エゾシカに注意。利尻山の見通しは天候による。",
+      "extent": {
+        "kind": "named_section",
+        "description": "天塩〜幌延〜稚内方面の道道106号の海岸沿いの連続区間。愛称が欠けた部分も道路番号で照合し、小樽・石狩側の国道へは拡張しない。",
+        "minimum_meters": 60000
+      },
+      "research_review": {
+        "method": "source-research-v1", "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "北海道観光機構と地域DMOが道道106号の海岸ドライブを紹介しており、独立した裏づけを追加。",
+        "section_reason": "既存の幌延周辺23kmから、紹介される天塩〜稚内方面の道道106号へ拡張。愛称全域380kmを登録したとは扱わない。",
+        "duplicate_check": "既存ororonのIDを維持。宗谷サンセットロードを別IDにして件数を増やさない。秀逸な道と重なる場合は最高ランクのみ加点。",
+        "cautions": "強風、飛砂、野生動物、通行規制を確認。風車や利尻山の現在の見え方を保証しない。",
+        "findings": [
+          {"source_id": "love-drive-roads", "locator": "風と共に走る オロロンライン", "fact": "道道106号沿いの海と利尻山のドライブ景観を紹介。"},
+          {"source_id": "north-westcoast-drive", "locator": "宗谷サンセットロードの見出し", "fact": "稚咲内〜こうほねの家の沿道を絶景ドライブとして紹介。"}
+        ]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "road-to-sky",
+      "name": "天に続く道",
+      "road_introduction_source_ids": [
+        "love-sky"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "love-sky",
+        "jalan-sky"
+      ],
+      "review_observations": [
+        {
+          "source_id": "jalan-sky",
+          "subject": "road",
+          "rating": 4.1,
+          "count": 56,
+          "checked_on": "2026-10-17",
+          "observation_method": "search_index"
+        }
+      ],
+      "osm_names": [
+        "天に続く道"
+      ],
+      "bounds": [
+        144.4,
+        43.85,
+        144.82,
+        43.95
+      ],
+      "max_meters": 30000,
+      "straight_trace": {
+        "origin": [
+          144.798706,
+          43.90677
+        ],
+        "heading": 266.4,
+        "meters": 28100
+      },
+      "scope_note": "公開モデルコースの地点と観光資料の28.1km直線という情報を起点に、OSMの接続した直線車道を追跡した推定範囲。展望台・農地を車道としない。口コミは道の観光体験の評価で全区間の見通しを保証しない。冬季規制は別途確認。",
+      "extent": {
+        "kind": "named_section",
+        "description": "公開モデルコースの地点と観光資料の28.1km直線という情報を起点に、OSMの接続した直線車道を追跡した推定範囲。展望台・農地を車道としない。口コミは道の観光体験の評価で全区間の見通しを保証しない。冬季規制は別途確認。",
+        "minimum_meters": 26700
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "white-road",
+      "name": "白い道",
+      "road_introduction_source_ids": [
+        "wakkanai-white"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "wakkanai-white"
+      ],
+      "osm_names": [
+        "白い道（白い貝殻の道）"
+      ],
+      "bounds": [
+        141.8,
+        45.4,
+        142.05,
+        45.55
+      ],
+      "max_meters": 6000,
+      "scope_note": "一般のおすすめ区間として登録。秀逸な道の指定範囲と同一とは認定していない。狭路・未舗装・季節規制あり。",
+      "extent": {
+        "kind": "named_section",
+        "description": "一般のおすすめ区間として登録。秀逸な道の指定範囲と同一とは認定していない。狭路・未舗装・季節規制あり。",
+        "minimum_meters": 2550
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "nemuro-seaside",
+      "name": "北太平洋シーサイドライン・落石周辺",
+      "road_introduction_source_ids": [],
+      "rank": "recommended",
+      "source_ids": [
+        "nemuro-seaside"
+      ],
+      "osm_names": [
+        "北太平洋シーサイドライン",
+        "根室浜中釧路線"
+      ],
+      "bounds": [
+        145.48,
+        43.12,
+        145.72,
+        43.27
+      ],
+      "max_meters": 35000,
+      "scope_note": "出典が紹介する落石〜浜松海岸周辺で、愛称または道道142号の路線名に対応した部分。道道142号全線には拡張しない。",
+      "extent": {
+        "kind": "named_section",
+        "description": "出典が紹介する落石〜浜松海岸周辺で、愛称または道道142号の路線名に対応した部分。道道142号全線には拡張しない。"
+      },
+      "osm_refs": [
+        "142"
+      ],
+      "registration_hold_reasons": [
+        "旧出典は現在落石岬の紹介へ転送される。落石〜浜松の道路紹介資料を再確定するまで保留。"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "shirotai",
+      "name": "城岱スカイライン",
+      "road_introduction_source_ids": [
+        "hakobura-shirotai"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "hakobura-shirotai"
+      ],
+      "osm_names": [
+        "城岱スカイライン"
+      ],
+      "bounds": [
+        140.65,
+        41.88,
+        140.85,
+        42.02
+      ],
+      "max_meters": 25000,
+      "scope_note": "OSM愛称一致部分。冬季閉鎖あり。展望台の営業や当日の通行を保証しない。",
+      "extent": {
+        "kind": "named_section",
+        "description": "OSM愛称一致部分。冬季閉鎖あり。展望台の営業や当日の通行を保証しない。"
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "jet-coaster",
+      "name": "ジェットコースターの路",
+      "road_introduction_source_ids": [
+        "geopark-jet"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "geopark-jet",
+        "jalan-jet"
+      ],
+      "review_observations": [
+        {
+          "source_id": "jalan-jet",
+          "subject": "road",
+          "rating": 4.0,
+          "count": 196,
+          "checked_on": "2026-10-17",
+          "observation_method": "search_index"
+        }
+      ],
+      "osm_names": [
+        "西１１線道路（ジェットコースターの路）"
+      ],
+      "bounds": [
+        142.3,
+        43.45,
+        142.5,
+        43.6
+      ],
+      "max_meters": 10000,
+      "scope_note": "町道の愛称範囲と秀逸な道指定2.5kmは同一扱いしない。重複部分は秀逸を優先。農作業車と交差点の優先関係に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "町道の愛称範囲と秀逸な道指定2.5kmは同一扱いしない。重複部分は秀逸を優先。農作業車と交差点の優先関係に注意。",
+        "minimum_meters": 3800
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "naitai",
+      "name": "ナイタイ高原道路・入口ゲート〜テラス区間",
+      "road_introduction_source_ids": [
+        "kamishihoro-naitai"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "kamishihoro-naitai",
+        "labo-roads",
+        "yahoo-naitai"
+      ],
+      "review_observations": [
+        {
+          "source_id": "yahoo-naitai",
+          "subject": "attraction",
+          "rating": 4.55,
+          "count": 27,
+          "checked_on": "2026-10-17",
+          "observation_method": "search_index"
+        }
+      ],
+      "osm_names": [
+        "町道ナイタイ高原線"
+      ],
+      "bounds": [
+        143.18,
+        43.27,
+        143.25,
+        43.3
+      ],
+      "max_meters": 10000,
+      "scope_note": "町道名一致の車道部分のみ。牧場全体の口コミは参考情報で道路の評点に転用しない。一般推薦の根拠は観光協会と独立した道路紹介。ゲート開放時間・冬季閉鎖あり。",
+      "extent": {
+        "kind": "named_section",
+        "description": "町道名一致の車道部分のみ。牧場全体の口コミは参考情報で道路の評点に転用しない。一般推薦の根拠は観光協会と独立した道路紹介。ゲート開放時間・冬季閉鎖あり。",
+        "minimum_meters": 5100
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "tokachidake-skyline",
+      "name": "十勝岳スカイライン・望岳台〜十勝岳温泉周辺区間",
+      "road_introduction_source_ids": [
+        "biei-tokachi"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "biei-tokachi",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "十勝岳温泉美瑛線",
+        "十勝岳温泉美瑛線 (Tokachidake-onsen Biei Line)"
+      ],
+      "bounds": [
+        142.6,
+        43.4,
+        142.72,
+        43.49
+      ],
+      "max_meters": 20000,
+      "scope_note": "道道966号の望岳台〜十勝岳温泉側に限定した名前一致部分。市街地までの全線には拡張しない。冬季閉鎖・降雪規制あり。過去の閉鎖記事は当日の規制情報ではない。",
+      "extent": {
+        "kind": "named_section",
+        "description": "道道966号の望岳台〜十勝岳温泉側に限定した名前一致部分。市街地までの全線には拡張しない。冬季閉鎖・降雪規制あり。過去の閉鎖記事は当日の規制情報ではない。"
+      },
+      "osm_refs": [
+        "966"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "orofure",
+      "name": "オロフレ峠・道道2号",
+      "road_introduction_source_ids": [
+        "sobetsu-orofure"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "sobetsu-orofure",
+        "jalan-orofure"
+      ],
+      "review_observations": [
+        {
+          "source_id": "jalan-orofure",
+          "subject": "pass",
+          "rating": 4.0,
+          "count": 106,
+          "checked_on": "2026-10-17",
+          "observation_method": "search_index"
+        }
+      ],
+      "osm_names": [
+        "洞爺湖登別線"
+      ],
+      "bounds": [
+        141.01,
+        42.49,
+        141.17,
+        42.64
+      ],
+      "max_meters": 30000,
+      "scope_note": "峠周辺の現道部分。展望台・旧道の口コミを現道全線の評価には使わない。現道はトンネル経由で、展望台の眺望には別の立ち寄りが必要。旧道は通り抜けできず季節閉鎖あり。",
+      "extent": {
+        "kind": "named_section",
+        "description": "峠周辺の現道部分。展望台・旧道の口コミを現道全線の評価には使わない。現道はトンネル経由で、展望台の眺望には別の立ち寄りが必要。旧道は通り抜けできず季節閉鎖あり。"
+      },
+      "osm_refs": [
+        "2"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "koshimizu-pass",
+      "name": "屈斜路スカイライン・小清水峠",
+      "road_introduction_source_ids": ["akan-tourism"],
+      "rank": "scenic",
+      "source_ids": [
+        "akan-tourism",
+        "rinya-koshimizu",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "網走川湯線"
+      ],
+      "bounds": [
+        144.25,
+        43.6,
+        144.4,
+        43.79
+      ],
+      "max_meters": 30000,
+      "scope_note": "道道102号の小清水峠・藻琴山周辺に限定した車道部分。遊歩道や登山道は含めない。霧・凍結・季節規制を別途確認。",
+      "extent": {
+        "kind": "named_section",
+        "description": "道道102号の小清水峠・藻琴山周辺に限定した車道部分。遊歩道や登山道は含めない。霧・凍結・季節規制を別途確認。"
+      },
+      "osm_refs": [
+        "102"
+      ],
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道の本文が道道の車窓から見える森林帯の変化を説明している。独立した推薦の確認なしに絶景ロードへ上げない。",
+        "section_reason": "既存の小清水峠・藻琴山周辺の道道102号の連続区間を使用し、山頂への登山道を含めない。",
+        "duplicate_check": "既存koshimizu-passの根拠更新。別IDを作って件数を増やさない。",
+        "cautions": "古い自然観察資料。霧、凍結、季節規制は別途確認。雲海や眺望は保証しない。",
+        "findings": [{"source_id": "akan-tourism", "locator": "78 藻琴山・道道網走川湯線についての段落", "fact": "車窓から森林帯の移行を観察できる車道として説明されている。"}]
+      },
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "shakotan-coast",
+      "name": "積丹半島・国道229号",
+      "road_introduction_source_ids": [
+        "hkd-shakotan"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "hkd-shakotan",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "国道229号"
+      ],
+      "bounds": [
+        140.25,
+        43.12,
+        140.82,
+        43.39
+      ],
+      "max_meters": 130000,
+      "scope_note": "積丹半島沿岸周辺の国道229号部分。国道全線の指定ではない。長いトンネル・内陸区間もあり、全線で海が見えるとは限らない。岬の展望台へは別途立ち寄りが必要。",
+      "extent": {
+        "kind": "named_section",
+        "description": "積丹半島沿岸周辺の国道229号部分。国道全線の指定ではない。長いトンネル・内陸区間もあり、全線で海が見えるとは限らない。岬の展望台へは別途立ち寄りが必要。"
+      },
+      "osm_refs": [
+        "229"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "raiden-coast",
+      "name": "雷電海岸・国道229号",
+      "road_introduction_source_ids": [],
+      "rank": "recommended",
+      "source_ids": [
+        "japan47-raiden"
+      ],
+      "osm_names": [
+        "国道229号"
+      ],
+      "bounds": [
+        140.37,
+        42.79,
+        140.55,
+        42.96
+      ],
+      "max_meters": 40000,
+      "scope_note": "雷電海岸周辺の現道部分のみ。トンネル内の見通しを評価しない。海岸スポットの紹介で、道路全体の口コミ評価ではない。",
+      "extent": {
+        "kind": "named_section",
+        "description": "雷電海岸周辺の現道部分のみ。トンネル内の見通しを評価しない。海岸スポットの紹介で、道路全体の口コミ評価ではない。"
+      },
+      "osm_refs": [
+        "229"
+      ],
+      "registration_hold_reasons": [
+        "海岸の観光紹介だけでは道路紹介の条件を満たさないため保留。"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "golden-road",
+      "name": "黄金道路",
+      "road_introduction_source_ids": [
+        "love-golden"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "love-golden",
+        "levolant-golden"
+      ],
+      "osm_names": [
+        "国道336号"
+      ],
+      "bounds": [
+        143.27,
+        42.06,
+        143.36,
+        42.31
+      ],
+      "max_meters": 40000,
+      "scope_note": "えりも町庶野〜広尾周辺の国道336号部分。長大トンネルを含む現道で、海岸が連続して見える保証はない。高波・強風・通行規制を確認。",
+      "extent": {
+        "kind": "named_section",
+        "description": "えりも町庶野〜広尾周辺の国道336号部分。長大トンネルを含む現道で、海岸が連続して見える保証はない。高波・強風・通行規制を確認。"
+      },
+      "osm_refs": [
+        "336"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "karikachi-pass",
+      "name": "狩勝峠・国道38号",
+      "road_introduction_source_ids": [
+        "shintoku-karikachi"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "shintoku-karikachi"
+      ],
+      "osm_names": [
+        "国道38号"
+      ],
+      "bounds": [
+        142.68,
+        43.06,
+        142.88,
+        43.2
+      ],
+      "max_meters": 35000,
+      "scope_note": "南富良野〜新得の峠周辺の国道38号部分。展望台の評価と走行区間の見通しは別。霧・強風・冬季路面に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "南富良野〜新得の峠周辺の国道38号部分。展望台の評価と走行区間の見通しは別。霧・強風・冬季路面に注意。"
+      },
+      "osm_refs": [
+        "38"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "nissho-pass",
+      "name": "日勝峠・国道274号",
+      "road_introduction_source_ids": [
+        "love-nissho"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "love-nissho",
+        "levolant-nissho"
+      ],
+      "osm_names": [
+        "国道274号"
+      ],
+      "bounds": [
+        142.58,
+        42.92,
+        142.94,
+        43.07
+      ],
+      "max_meters": 50000,
+      "scope_note": "日勝峠周辺の国道274号部分のみ。展望台の眺望は停車して楽しむもの。霧・凍結・大型車・急な天候変化に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "日勝峠周辺の国道274号部分のみ。展望台の眺望は停車して楽しむもの。霧・凍結・大型車・急な天候変化に注意。"
+      },
+      "osm_refs": [
+        "274"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "notsuke-flower-road",
+      "name": "野付半島フラワーロード",
+      "road_introduction_source_ids": [
+        "jtb-notsuke"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "jtb-notsuke"
+      ],
+      "osm_names": [
+        "野付風蓮公園線"
+      ],
+      "bounds": [
+        145.14,
+        43.55,
+        145.36,
+        43.69
+      ],
+      "max_meters": 22000,
+      "scope_note": "道道950号の名前が一致する車道部分。自然保護区域・遊歩道には進入しない。通り抜けではなく往復を要するため重複報酬を与えない。",
+      "extent": {
+        "kind": "named_section",
+        "description": "道道950号の名前が一致する車道部分。自然保護区域・遊歩道には進入しない。通り抜けではなく往復を要するため重複報酬を与えない。"
+      },
+      "osm_refs": [
+        "950"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "akan-crossing",
+      "name": "阿寒横断道路",
+      "road_introduction_source_ids": [
+        "akan-tourism"
+      ],
+      "rank": "panorama",
+      "source_ids": [
+        "akan-tourism",
+        "levolant-akan"
+      ],
+      "osm_names": [
+        "国道241号"
+      ],
+      "bounds": [
+        143.77,
+        43.25,
+        144.46,
+        43.51
+      ],
+      "max_meters": 90000,
+      "scope_note": "上足寄〜阿寒湖温泉〜弟子屈周辺の国道241号車道部分。国道全線ではない。森林・山岳の道で、双湖台等の展望には停車が必要。冬季の凍結と野生動物に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "上足寄〜阿寒湖温泉〜弟子屈周辺の国道241号車道部分。国道全線ではない。森林・山岳の道で、双湖台等の展望には停車が必要。冬季の凍結と野生動物に注意。"
+      },
+      "osm_refs": [
+        "241"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "shikaribetsu-road",
+      "name": "然別湖周辺・道道85号区間",
+      "road_introduction_source_ids": [
+        "shikaribetsu-center"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "shikaribetsu-center",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "鹿追糠平線"
+      ],
+      "bounds": [
+        143.0,
+        43.18,
+        143.17,
+        43.37
+      ],
+      "max_meters": 35000,
+      "scope_note": "然別湖付近の道道85号車道部分のみ。湖沿いの全てが開けた眺望ではない。湖の北側は冬季閉鎖・狭路あり。当日の開通確認が必要。",
+      "extent": {
+        "kind": "named_section",
+        "description": "然別湖付近の道道85号車道部分のみ。湖沿いの全てが開けた眺望ではない。湖の北側は冬季閉鎖・狭路あり。当日の開通確認が必要。"
+      },
+      "osm_refs": [
+        "85"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "onuma-lakeside",
+      "name": "大沼湖畔・周遊道路の道道338号区間",
+      "road_introduction_source_ids": [
+        "nanae-onuma"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "nanae-onuma"
+      ],
+      "osm_names": [
+        "大沼公園線"
+      ],
+      "bounds": [
+        140.69,
+        41.995,
+        140.725,
+        42.015
+      ],
+      "max_meters": 10000,
+      "scope_note": "大沼東側の湖畔周遊道路のうち道道名を照合できた部分のみ。鹿部方面への接続路・南側の取付道路を含めず、一周約14kmの全線を対応済みとはしない。イベント交通規制・歩行者・自転車に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "大沼東側の湖畔周遊道路のうち道道名を照合できた部分のみ。鹿部方面への接続路・南側の取付道路を含めず、一周約14kmの全線を対応済みとはしない。イベント交通規制・歩行者・自転車に注意。"
+      },
+      "osm_refs": [
+        "338"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "ebana-panorama",
+      "name": "パノラマロード江花",
+      "road_introduction_source_ids": [
+        "kamifurano-ebana"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "kamifurano-ebana"
+      ],
+      "osm_names": [
+        "北２１号道路（江花パノラマロード）"
+      ],
+      "bounds": [
+        142.42,
+        43.44,
+        142.46,
+        43.46
+      ],
+      "max_meters": 8000,
+      "scope_note": "OSM愛称一致部分のみ。観光紹介の約5km全長への照合は保証しない。農道への立ち入りや路上駐車を避け、交差点と農業車両に注意。",
+      "extent": {
+        "kind": "named_section",
+        "description": "OSM愛称一致部分のみ。観光紹介の約5km全長への照合は保証しない。農道への立ち入りや路上駐車を避け、交差点と農業車両に注意。",
+        "minimum_meters": 4250
+      },
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "sapporo-lake-road",
+      "name": "定山渓レイクライン・さっぽろ湖周辺区間",
+      "road_introduction_source_ids": [
+        "sapporo-lake"
+      ],
+      "rank": "recommended",
+      "source_ids": [
+        "sapporo-lake",
+        "navitime-roads"
+      ],
+      "osm_names": [
+        "小樽定山渓線"
+      ],
+      "bounds": [
+        141.08,
+        42.97,
+        141.18,
+        43.07
+      ],
+      "max_meters": 22000,
+      "scope_note": "さっぽろ湖・定山渓ダム周辺の道道1号部分のみ。湖の眺望には展望所での停車が必要な区間がある。朝里峠全線の認定ではない。夜間・冬季規制を確認。",
+      "extent": {
+        "kind": "named_section",
+        "description": "さっぽろ湖・定山渓ダム周辺の道道1号部分のみ。湖の眺望には展望所での停車が必要な区間がある。朝里峠全線の認定ではない。夜間・冬季規制を確認。"
+      },
+      "osm_refs": [
+        "1"
+      ],
+      "reviewed_at": "2026-10-17"
+    },
+    {
+      "id": "saru-yukara-road",
+      "name": "沙流ユーカラ街道・国道237号",
+      "rank": "recommended",
+      "source_ids": ["hkd-saru-drive", "hkd-saru-extent"],
+      "road_introduction_source_ids": ["hkd-saru-drive", "hkd-saru-extent"],
+      "osm_names": ["国道237号"],
+      "bounds": [142.02, 42.51, 142.46, 42.885],
+      "max_meters": 80000,
+      "extent": {
+        "kind": "named_section",
+        "description": "沙流ユーカラ街道として紹介される富川〜平取〜日高町宮下の国道237号の車道。国道235号・274号の重複延伸や道道847号の撮影地点を含めない。照合範囲と正式な交差点端点の一致は別途確認。",
+        "minimum_meters": 50000
+      },
+      "scope_note": "沙流川渓谷の紅葉ドライブという一次紹介から選定。市街地も車道の一部として保持。大型車が多く路上駐車・橋上撮影を勧めない。2018年の記事の通行記述を現在の開通保証に使わない。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "explicit_recommendation",
+        "selection_reason": "道路管理者の観光体験記が、国道237号の日高・平取間を紅葉ドライブとして具体的に紹介。",
+        "section_reason": "同局の愛称紹介で富川R235交差点〜宮下R274交差点という道路の範囲を確認。範囲内のR237本線を照合する。",
+        "duplicate_check": "上富良野の認定区間と同じ国道番号だが対象地域は別。観光体験記の各撮影地点を別道路として登録しない。",
+        "cautions": "路上駐車禁止。紅葉時期・見え方・当日の規制は未保証。",
+        "findings": [
+          {"source_id": "hkd-saru-drive", "locator": "(3) 沙流川渓谷編・冒頭と走行時の注意", "fact": "日高町・平取町間の国道237号を紅葉ドライブとして紹介し、大型車と路上駐車に注意を促している。"},
+          {"source_id": "hkd-saru-extent", "locator": "沙流ユーカラ街道・愛称の対象区間", "fact": "愛称の対象は富川から平取経由で宮下まで。同局の2記事であり独立した推薦2件ではない。"}
+        ]
+      },
+      "registration_hold_reasons": ["公式紹介の起終点交差点と照合端点の一致を確認するまで保留。"],
+      "reviewed_at": "2026-10-18"
+    },
+    {
+      "id": "kuchoro-toro-road",
+      "name": "釧路湿原横断・道道1060号クチョロ原野塘路線",
+      "rank": "scenic",
+      "source_ids": ["akan-tourism"],
+      "road_introduction_source_ids": ["akan-tourism"],
+      "osm_names": ["クチョロ原野塘路線"],
+      "osm_refs": ["1060"],
+      "bounds": [144.43, 43.15, 144.51, 43.24],
+      "max_meters": 12000,
+      "extent": {
+        "kind": "named_section",
+        "description": "塘路側の国道391号接続部〜クチョロ原野側の道道243号接続部の道道1060号。湿原内部や展望台への歩道は含めない。",
+        "minimum_meters": 9000
+      },
+      "scope_note": "ヨシ原・河川の自然堤防が沿道に広がると北海道が説明する車道。砂利道・狭路を含み得るため、舗装路や走りやすさを保証しない。湿原への車両侵入や野生動物への接近は勧めない。最新の通行規制は別途確認。",
+      "research_review": {
+        "method": "source-research-v1",
+        "checked_on": "2026-10-18",
+        "driving_evidence": "described_road_landscape",
+        "selection_reason": "北海道の自然観察資料が、道路名を挙げて沿道の湿原景観を説明。展望台だけの紹介ではない。",
+        "section_reason": "道路番号・名称で同定できる約10kmの連続した車道。見晴らしの良い断片だけ切り出さず路線を保持。",
+        "duplicate_check": "既存台帳に同道路の登録なし。周辺の展望台を道路件数へ加算しない。",
+        "cautions": "未舗装・狭路・季節規制に注意。古い紹介資料を現在の安全性や通行保証に使わない。",
+        "findings": [{"source_id": "akan-tourism", "locator": "99 釧路湿原・塘路から湿原を横断する道道の段落", "fact": "クチョロ原野塘路線の沿道にヨシ原と自然堤防が広がると説明。"}]
+      },
+      "reviewed_at": "2026-10-18"
+    }
+  ]
+}

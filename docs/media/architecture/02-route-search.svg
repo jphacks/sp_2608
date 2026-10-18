@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<rect width="1600" height="1000" fill="#ffffff"/>
+<text x="60" y="50" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">経路探索</text>
+<text x="60" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">矢印：情報・操作の流れ　　破線：実機・実モデルは未接続</text>
+<text x="1529.484375" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">2</text>
+<rect x="60" y="175" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">1  基準を決める</text>
+<text x="86" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">同じ道路条件の通常経路</text>
+<text x="86" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">基準時間 T0 を取得</text>
+<text x="86" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">走行上限 ＝ T0 ＋ 寄り道</text>
+<text x="86" y="370" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">models.py / routing.py</text>
+<rect x="580" y="175" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">2  広く候補を集める</text>
+<text x="606" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">海・森・水辺・名道の区間</text>
+<text x="606" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">地域を分散して候補抽出</text>
+<text x="606" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">広域回廊で日本海側等も試す</text>
+<text x="606" y="370" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">store.py / candidate_area.py / corridors.py</text>
+<rect x="1100" y="175" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">3  つないで実経路にする</text>
+<text x="1126" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">候補区間と通過点を並べる</text>
+<text x="1126" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">Valhallaで道路をつなぐ</text>
+<text x="1126" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">時間・方向・対象区間を検査</text>
+<text x="1126" y="370" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">search.py / routing.py</text>
+<rect x="1100" y="460" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1136" y="484" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">4  複数案を残して改善</text>
+<text x="1126" y="538" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">ビーム：有望な案を複数保持</text>
+<text x="1126" y="570" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">ALNS：区間を外して再挿入</text>
+<text x="1126" y="602" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">評価・制約検査を繰り返す</text>
+<text x="1126" y="655" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">search.py / evaluator.py</text>
+<rect x="580" y="460" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="616" y="484" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">5  違う体験の案を選ぶ</text>
+<text x="606" y="538" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">時間と景観の劣る案を整理</text>
+<text x="606" y="570" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">同じ道ばかりの候補を抑制</text>
+<text x="606" y="602" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">特徴の異なる最大6案へ</text>
+<text x="606" y="655" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">portfolio.py</text>
+<rect x="60" y="460" width="440" height="230" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="484" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">6  比較できる形で返す</text>
+<text x="86" y="538" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">推薦理由・基準経路との差</text>
+<text x="86" y="570" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">景観・名道・天気の時系列</text>
+<text x="86" y="602" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="400" fill="#666666">採用と案内に同じ経路形状</text>
+<text x="86" y="655" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">evidence.py / route_environment.py</text>
+<polyline points="500,290 580,290" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="580,290 567.3937405670625,296.08951747755725 567.3937405670625,283.91048252244275" fill="#666666"/>
+<polyline points="1020,290 1100,290" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,290 1087.3937405670624,296.08951747755725 1087.3937405670624,283.91048252244275" fill="#666666"/>
+<polyline points="1320,405 1320,460" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1320,460 1313.9104825224429,447.39374056706254 1326.0895174775571,447.39374056706254" fill="#666666"/>
+<polyline points="1100,575 1020,575" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1020,575 1032.6062594329376,568.9104825224427 1032.6062594329376,581.0895174775573" fill="#666666"/>
+<polyline points="580,575 500,575" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="500,575 512.6062594329375,568.9104825224427 512.6062594329375,581.0895174775573" fill="#666666"/>
+<rect x="60" y="730" width="1480" height="75" rx="2" fill="white" stroke="none" stroke-width="2"/>
+<text x="85" y="751" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="25" font-weight="600" fill="#444444">Valhallaは 1・3・4 で利用。同じ条件の再計算や道路照合はキャッシュで削減。</text>
+<text x="82" y="848" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#444444">先に出して、裏で続ける</text>
+<text x="82" y="884" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">有効な候補を途中公開 → アプリがrevisionを取得 → 改善後の候補を更新。</text>
+<text x="82" y="916" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">計算時間・回数には上限がある近似探索。limitedでも有効候補を返せる。厳密最適解の保証ではない。</text>
+</svg>

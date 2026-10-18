@@ -1,0 +1,15 @@
+[
+  {
+    "name": "sapporo-otaru-sea-daytime",
+    "request": {
+      "origin": {"lat": 43.061, "lon": 141.354},
+      "destination": {"lat": 43.196, "lon": 140.994},
+      "mode": "point_to_point",
+      "departure_time": "2026-10-17T12:00:00+09:00",
+      "budget": {"max_extra_driving_seconds": 900, "max_total_seconds": 7200},
+      "preferences": {"sea": 0.8, "forest": 0.2, "variety": 0.6},
+      "constraints": {"allow_tolls": false, "allow_highways": false, "allow_ferries": false, "allow_unpaved": true},
+      "seed": 42
+    }
+  }
+]

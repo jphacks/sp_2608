@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
+    <!-- 車載画面へ地図を描画するために NavigationCarScreen が SurfaceCallback を登録する。 -->
+    <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
+    <application>
+        <service
+            android:name="com.theacar.auto.TheaCarService"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+        <meta-data android:name="androidx.car.app.minCarApiLevel" android:value="1" />
+        <meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+    </application>
+</manifest>

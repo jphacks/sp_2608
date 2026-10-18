@@ -1,0 +1,3 @@
+-r requirements.txt
+Pillow==12.0.0
+rasterio==1.5.2

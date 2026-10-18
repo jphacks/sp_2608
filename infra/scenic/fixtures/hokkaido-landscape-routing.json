@@ -1,0 +1,32 @@
+[
+  {
+    "name": "sapporo-hakodate-all-landscapes",
+    "expect_features": ["river", "farmland", "valley"],
+    "request": {
+      "origin": {"lat": 43.061, "lon": 141.354},
+      "destination": {"lat": 41.7687, "lon": 140.7288},
+      "mode": "point_to_point",
+      "departure_time": "2026-10-17T12:00:00+09:00",
+      "budget": {"max_extra_driving_seconds": 5400},
+      "preferences": {"sea": 0.25, "forest": 0.25, "lake": 0.15, "river": 0.1, "valley": 0.1, "open_nature": 0.1, "farmland": 0.05, "variety": 0.5},
+      "constraints": {"allow_tolls": true, "allow_highways": true, "allow_ferries": false, "allow_unpaved": true},
+      "max_routes": 6,
+      "seed": 0
+    }
+  },
+  {
+    "name": "sapporo-tomakomai-water",
+    "expect_features": ["lake", "river"],
+    "request": {
+      "origin": {"lat": 43.061, "lon": 141.354},
+      "destination": {"lat": 42.6343, "lon": 141.6055},
+      "mode": "point_to_point",
+      "departure_time": "2026-10-17T12:00:00+09:00",
+      "budget": {"max_extra_driving_seconds": 5400},
+      "preferences": {"lake": 0.5, "river": 0.4, "valley": 0.1, "variety": 0.5},
+      "constraints": {"allow_tolls": true, "allow_highways": true, "allow_ferries": false, "allow_unpaved": true},
+      "max_routes": 6,
+      "seed": 0
+    }
+  }
+]

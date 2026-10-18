@@ -1,0 +1,414 @@
+{
+  "_comment": "全曲カタログの集め先。groups の quota が上限。artists（Deezer のアーティストID）の人気曲 artist_top 曲を先に入れ、残りを playlists から1曲ずつ順番に取る（年代やジャンルが偏らないように）。足し引きはこのファイルだけで行う。require_isrc_country：ISRC の先頭2文字で絞る（JP＝日本、TC＝TuneCore Japan。artists で指定した曲には適用しない）。include_if：ISRC の国コード・指定したプレイリストに載っているアーティスト・artist_names のどれかに当てはまる曲だけ採る。lang：Deezer から取得する表記の言語",
+  "groups": {
+    "jp": {
+      "label": "邦楽（J-POP・ロック・シティポップなど）",
+      "quota": 1400,
+      "max_per_artist": 10,
+      "require_isrc_country": [
+        "JP",
+        "TC"
+      ],
+      "artist_top": 10,
+      "artists": [
+        {
+          "id": 77044772,
+          "name": "Saucy Dog"
+        },
+        {
+          "id": 120366332,
+          "name": "あの（ano）"
+        },
+        {
+          "id": 93293992,
+          "name": "SixTONES"
+        },
+        {
+          "id": 300587011,
+          "name": "HANA"
+        },
+        {
+          "id": 174061317,
+          "name": "XG"
+        },
+        {
+          "id": 258556532,
+          "name": "ME:I"
+        },
+        {
+          "id": 4898648,
+          "name": "TOMOO"
+        },
+        {
+          "id": 469713,
+          "name": "ONE OK ROCK"
+        },
+        {
+          "id": 8002134,
+          "name": "乃木坂46"
+        },
+        {
+          "id": 114616972,
+          "name": "櫻坂46"
+        },
+        {
+          "id": 61293062,
+          "name": "日向坂46"
+        },
+        {
+          "id": 61882482,
+          "name": "Hump Back"
+        },
+        {
+          "id": 7922870,
+          "name": "アイナ・ジ・エンド"
+        },
+        {
+          "id": 106606492,
+          "name": "幾田りら"
+        }
+      ],
+      "playlists": [
+        {
+          "id": 3884441062,
+          "name": "J-Pop Essentials"
+        },
+        {
+          "id": 6049895724,
+          "name": "Top J-Pop"
+        },
+        {
+          "id": 9016959882,
+          "name": "Deezer Hits JP"
+        },
+        {
+          "id": 11911631301,
+          "name": "2023 Japan Hits"
+        },
+        {
+          "id": 10796661282,
+          "name": "Hits Rewind Japan 2022"
+        },
+        {
+          "id": 10796660582,
+          "name": "J-Pop Rewind 2022"
+        },
+        {
+          "id": 9017121422,
+          "name": "Japan Hits 2021"
+        },
+        {
+          "id": 3884381442,
+          "name": "10s Japan Hits"
+        },
+        {
+          "id": 6125733744,
+          "name": "90s Japan Hits"
+        },
+        {
+          "id": 5206933664,
+          "name": "80s Japan Hits"
+        },
+        {
+          "id": 3881057902,
+          "name": "70s Japan Hits"
+        },
+        {
+          "id": 3884384422,
+          "name": "City Pop"
+        },
+        {
+          "id": 6055749804,
+          "name": "Top J-Rock"
+        },
+        {
+          "id": 6050091524,
+          "name": "J-Pop Rising"
+        },
+        {
+          "id": 6094801344,
+          "name": "Japan Summer Hits"
+        },
+        {
+          "id": 4748218644,
+          "name": "Women of Japan"
+        },
+        {
+          "id": 5206929684,
+          "name": "Anime Hits アニメ・ヒッツ"
+        },
+        {
+          "id": 9016993522,
+          "name": "Anime Essentials 定番アニメ"
+        },
+        {
+          "id": 11225266244,
+          "name": "10s Anime"
+        },
+        {
+          "id": 11225268324,
+          "name": "20s Anime"
+        },
+        {
+          "id": 3884286762,
+          "name": "Japanese hip hop"
+        },
+        {
+          "id": 13238096463,
+          "name": "2024 J-Pop"
+        },
+        {
+          "id": 11997674841,
+          "name": "Top Japan 2023"
+        },
+        {
+          "id": 11911629401,
+          "name": "2023 J-pop"
+        },
+        {
+          "id": 9016981222,
+          "name": "Best of J-Pop 2021"
+        },
+        {
+          "id": 9016975702,
+          "name": "Top Japan 2021"
+        },
+        {
+          "id": 6125730684,
+          "name": "Japan Love Songs"
+        },
+        {
+          "id": 9017010102,
+          "name": "Acoustic Japan"
+        },
+        {
+          "id": 3884437122,
+          "name": "Japan Cherry Blossom"
+        },
+        {
+          "id": 6976246704,
+          "name": "年の瀬ポップ"
+        },
+        {
+          "id": 4864894664,
+          "name": "New from Japan"
+        }
+      ]
+    },
+    "inst": {
+      "label": "インスト・lo-fi・サントラ（運転負荷が高い区間・休息中のため）",
+      "quota": 300,
+      "max_per_artist": 6,
+      "playlists": [
+        {
+          "id": 11611176564,
+          "name": "Ghibli Instrumental"
+        },
+        {
+          "id": 8317937782,
+          "name": "Ghibli Chill ジブリ・チル"
+        },
+        {
+          "id": 3884439882,
+          "name": "Lofi Japan"
+        },
+        {
+          "id": 10586960562,
+          "name": "Anime Chill アニメ・チル"
+        },
+        {
+          "id": 1306085715,
+          "name": "lofi hip-hop"
+        },
+        {
+          "id": 3338949242,
+          "name": "chill lofi"
+        },
+        {
+          "id": 1807219322,
+          "name": "lofi jazz"
+        },
+        {
+          "id": 5997103544,
+          "name": "Jazz Fusion"
+        },
+        {
+          "id": 3884249382,
+          "name": "Japanese Jazz"
+        },
+        {
+          "id": 4590807924,
+          "name": "Calm Piano"
+        },
+        {
+          "id": 11207146624,
+          "name": "Piano Films"
+        },
+        {
+          "id": 1351825185,
+          "name": "Soundtrack Classics"
+        },
+        {
+          "id": 10578775602,
+          "name": "Instrumental Rock"
+        }
+      ]
+    },
+    "western": {
+      "label": "洋楽の定番",
+      "quota": 500,
+      "max_per_artist": 4,
+      "lang": "en",
+      "playlists": [
+        {
+          "id": 867825522,
+          "name": "80s Hits"
+        },
+        {
+          "id": 878989033,
+          "name": "90s Hits"
+        },
+        {
+          "id": 8326097522,
+          "name": "00s Pop"
+        },
+        {
+          "id": 1036183001,
+          "name": "Pop Essentials"
+        },
+        {
+          "id": 5922972724,
+          "name": "10s Summer Hits"
+        },
+        {
+          "id": 13681195421,
+          "name": "20s Summer Hits"
+        },
+        {
+          "id": 1976454162,
+          "name": "Chill Hits"
+        },
+        {
+          "id": 2251726662,
+          "name": "roadtrip radio"
+        },
+        {
+          "id": 3126664682,
+          "name": "Rock Road Trip"
+        },
+        {
+          "id": 8873759502,
+          "name": "California Dream"
+        },
+        {
+          "id": 9346933942,
+          "name": "Acoustic Hits"
+        },
+        {
+          "id": 8403350722,
+          "name": "90s Ballads"
+        },
+        {
+          "id": 9340615062,
+          "name": "Feel Good Commute"
+        }
+      ]
+    },
+    "kpop": {
+      "label": "日本で流行った K-POP（日本のチャートと Japanese K-Pop から）",
+      "quota": 80,
+      "max_per_artist": 4,
+      "include_if": {
+        "isrc_country": [
+          "KR"
+        ],
+        "artists_from_playlists": [
+          5547518302
+        ],
+        "artist_names": [
+          "NewJeans",
+          "BTS (防弾少年団)",
+          "JUNG KOOK",
+          "V",
+          "LE SSERAFIM",
+          "TWICE",
+          "IVE",
+          "ENHYPEN",
+          "Stray Kids",
+          "SEVENTEEN",
+          "TOMORROW X TOGETHER",
+          "NAYEON",
+          "aespa",
+          "BLACKPINK",
+          "ILLIT",
+          "BABYMONSTER",
+          "JENNIE",
+          "ROSÉ",
+          "&TEAM",
+          "NiziU"
+        ]
+      },
+      "playlists": [
+        {
+          "id": 5547518302,
+          "name": "Japanese K-Pop"
+        },
+        {
+          "id": 11997674841,
+          "name": "Top Japan 2023"
+        },
+        {
+          "id": 11911631301,
+          "name": "2023 Japan Hits"
+        },
+        {
+          "id": 10796661282,
+          "name": "Hits Rewind Japan 2022"
+        },
+        {
+          "id": 9017121422,
+          "name": "Japan Hits 2021"
+        },
+        {
+          "id": 9016975702,
+          "name": "Top Japan 2021"
+        },
+        {
+          "id": 9016959882,
+          "name": "Deezer Hits JP"
+        },
+        {
+          "id": 6094801344,
+          "name": "Japan Summer Hits"
+        }
+      ]
+    }
+  },
+  "exclude_title_patterns": [
+    "karaoke",
+    "カラオケ",
+    "原曲歌手",
+    "off vocal",
+    "オフボーカル",
+    "\\blive\\b",
+    "ライブ",
+    "remix",
+    "リミックス",
+    "tv ?size",
+    "tv ?ver",
+    "short ver",
+    "sped up",
+    "slowed",
+    "nightcore",
+    "8-bit",
+    "music box",
+    "オルゴール",
+    "first take"
+  ],
+  "exclude_title_patterns_vocal_groups": [
+    "instrumental",
+    "インスト",
+    "\\binst\\b"
+  ],
+  "min_duration_sec": 90
+}
