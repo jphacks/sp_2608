@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/d369d183-662d-444d-a41c-212840d7ada8
+
 # 旅れこ
 
 旅れこは、ドライブ中の景色や音楽を楽しみ、旅の記録を後から振り返るためのAndroid Auto対応ドライブアプリ（ナビ）です。
@@ -29,6 +33,12 @@ DHU（Desktop Head Unit）とAndroid Auto対応ナビでの起動確認、未確
 https://github.com/user-attachments/assets/fa10d015-ab63-4840-a11f-f551fcdd936f
 
 約2分・音声なし。実際の探索結果を可視化した動画で、車載画面の録画ではありません。[動画の条件と出典](TheaCar/docs/demo.md) · [MP4ファイル](docs/media/sapporo-hakodate-factors/sapporo-hakodate-factors.mp4)
+
+
+
+https://github.com/user-attachments/assets/97b6570c-895f-4d1a-a275-d2e734a2b781
+
+
 
 ## 車載ナビを支える仕組み
 
