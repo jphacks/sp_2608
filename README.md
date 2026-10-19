@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/9631b037-caa3-4c26-81a4-13110f755266
+
 # 旅れこ
 
 <img width="631" height="391" alt="hero" src="https://github.com/user-attachments/assets/581926a3-aee8-4b92-b3e2-25d2370b79ca" />
@@ -40,6 +44,10 @@ https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
 
 寄り道してもいい時間を決めると、その範囲で海・森・湖など好みの景色を長く楽しめる道を探します。景色の移り変わりや、各地の名道を通るかどうかも比べて、雰囲気の違う複数のルートを提案します。
 候補を比べ、選んだルートを車載画面で案内します。
+
+
+https://github.com/user-attachments/assets/168be06e-36c6-4a6e-b22d-7fb8c4ce6859
+
 
 操作は[ナビの操作](docs/navigation.md)、探索と評価の仕組みは[経路探索アルゴリズム](docs/route-algorithm.md)を参照してください。
 
