@@ -167,7 +167,8 @@ class MemoryActivity : ComponentActivity() {
                                 .padding(horizontal = 20.dp, vertical = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(CardGap),
                         ) {
-                            MemoryForm(current)
+                            // 入力中の文字も引数で渡す。memory だけだと、打った文字で描き直されず入力欄が戻ってしまう
+                            MemoryForm(current, edit.placeInput, edit.memberInput)
                         }
                     }
                 }
@@ -237,7 +238,7 @@ class MemoryActivity : ComponentActivity() {
 
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
-    private fun MemoryForm(current: TripMemory) {
+    private fun MemoryForm(current: TripMemory, placeText: String, memberText: String) {
         val scope = rememberCoroutineScope()
         Text("写真", style = MaterialTheme.typography.titleLarge)
         OutlinedButton(onClick = { pickPhoto.launch(arrayOf("image/*")) }) {
@@ -253,7 +254,7 @@ class MemoryActivity : ComponentActivity() {
         Text("地名", style = MaterialTheme.typography.titleLarge)
         val commitPlace = { scope.launch { commitInput(); refreshPreview() } }
         OutlinedTextField(
-            value = placeInput,
+            value = placeText,
             onValueChange = { text -> if (text.contains('\n')) { placeInput = text.replace("\n", ""); commitPlace() } else placeInput = text },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -271,7 +272,7 @@ class MemoryActivity : ComponentActivity() {
         }
         val commitMember = { scope.launch { commitInput(); refreshPreview() } }
         OutlinedTextField(
-            value = memberInput,
+            value = memberText,
             onValueChange = { text -> if (text.contains('\n')) { memberInput = text.replace("\n", ""); commitMember() } else memberInput = text },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
