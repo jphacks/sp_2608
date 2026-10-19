@@ -4,6 +4,7 @@ import com.theacar.model.Coordinate
 
 class RouteGeometryIndex(private val route: RoutePlan) {
     private val timing = RouteTiming(route)
+    val totalDistanceMeters: Double get() = timing.totalDistanceMeters
 
     fun slice(range: ScenicRange): List<Coordinate> {
         val start = range.startMeters.coerceAtMost(timing.totalDistanceMeters)
