@@ -1,7 +1,3 @@
-
-
-https://github.com/user-attachments/assets/9631b037-caa3-4c26-81a4-13110f755266
-
 # 旅れこ
 
 <img width="631" height="391" alt="hero" src="https://github.com/user-attachments/assets/581926a3-aee8-4b92-b3e2-25d2370b79ca" />
