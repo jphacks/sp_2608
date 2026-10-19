@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/54f053a4-6567-4c07-b462-cc3ff3e8f046
 ## PV2
 https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
 
-[デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)<img width="631" height="391" alt="hero" src="https://github.com/user-attachments/assets/a35f0576-9629-4989-bf20-e5b156617877" />
+[デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)
 
 
 ## 旅れこの特徴
