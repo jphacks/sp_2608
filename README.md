@@ -1,13 +1,6 @@
 # 旅れこ
 
-## PV1
-https://github.com/user-attachments/assets/54f053a4-6567-4c07-b462-cc3ff3e8f046
-
-## PV2
-https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
-
-[デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)
-
+<img width="631" height="391" alt="hero" src="https://github.com/user-attachments/assets/581926a3-aee8-4b92-b3e2-25d2370b79ca" />
 
 旅れこは、移動そのものを楽しむためのAndroid Auto対応ナビです。
 海・森・湖・川、天気や太陽の位置をもとに、許容できる寄り道の範囲で走って気持ちいい道を探します。
@@ -32,6 +25,15 @@ https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
 5. 旅の思い出にひたる
    - [特徴④](#特徴④-走った道と思い出の写真をステッカーとwebサイトに保存)：走った道、思い出の写真をステッカーとWebサイトに保存
 6. また旅に出る
+
+## PV1
+https://github.com/user-attachments/assets/54f053a4-6567-4c07-b462-cc3ff3e8f046
+
+## PV2
+https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
+
+[デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)<img width="631" height="391" alt="hero" src="https://github.com/user-attachments/assets/a35f0576-9629-4989-bf20-e5b156617877" />
+
 
 ## 旅れこの特徴
 ### 特徴① 最短・最速ではなく楽しい道を選ぶ
