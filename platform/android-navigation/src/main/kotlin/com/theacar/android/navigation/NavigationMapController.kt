@@ -4,9 +4,11 @@ import android.content.Context
 import com.theacar.model.Coordinate
 import com.theacar.location.LocationStatus
 import com.theacar.navigation.NavigationPhase
+import com.theacar.navigation.NavigationState
 import com.theacar.route.Destination
 import com.theacar.route.ScenicRange
 import com.theacar.route.RouteGeometryIndex
+import com.theacar.route.RoutePlan
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -40,6 +42,11 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private var styleLoaded = false
     private var map: MapLibreMap? = null
     private var routeLine: Polyline? = null
+    private var routeCasing: Polyline? = null
+    private var traveledLine: Polyline? = null
+    private var traveledKey: String? = null
+    private var indexedRoute: RoutePlan? = null
+    private var routeIndex: RouteGeometryIndex? = null
     private val alternativeLines = mutableListOf<Polyline>()
     private val evidenceLines = mutableListOf<Polyline>()
     private val sceneryLines = mutableListOf<Polyline>()
@@ -63,14 +70,17 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private val staleLocationIcon = locationIcon(context, android.graphics.Color.rgb(120, 130, 140))
 
     private fun locationIcon(context: Context, color: Int): org.maplibre.android.annotations.Icon {
-        val size = (24 * context.resources.displayMetrics.density).toInt().coerceAtLeast(24)
+        val size = (36 * context.resources.displayMetrics.density).toInt().coerceAtLeast(36)
         val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bitmap)
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        // 地図上で見失わないよう、外側に半透明のハローを付ける
+        paint.color = android.graphics.Color.argb(70, android.graphics.Color.red(color), android.graphics.Color.green(color), android.graphics.Color.blue(color))
+        canvas.drawCircle(size / 2f, size / 2f, size * .5f, paint)
         paint.color = android.graphics.Color.WHITE
-        canvas.drawCircle(size / 2f, size / 2f, size * .48f, paint)
+        canvas.drawCircle(size / 2f, size / 2f, size * .30f, paint)
         paint.color = color
-        canvas.drawCircle(size / 2f, size / 2f, size * .33f, paint)
+        canvas.drawCircle(size / 2f, size / 2f, size * .22f, paint)
         return IconFactory.getInstance(context).fromBitmap(bitmap)
     }
     private val observation: Job
@@ -119,6 +129,9 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val target = map ?: return
         evidenceMarker?.let(target::removeMarker)
         evidenceMarker = null
+        routeCasing?.let(target::removePolyline)
+        routeCasing = null
+        clearTraveled(target)
         routeLine?.let(target::removePolyline)
         alternativeLines.forEach(target::removePolyline)
         alternativeLines.clear()
@@ -308,13 +321,49 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         sceneryLines.forEach(target::removePolyline)
         sceneryLines.clear()
         if (route == null || route.geometry.size < 2 || sceneryRequest.isEmpty()) return
-        val index = RouteGeometryIndex(route)
+        val index = geometryIndex(route)
         sceneryRequest.forEach { (range, color) ->
             val points = index.slice(range)
             if (points.size < 2) return@forEach
             sceneryLines += target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-                .color(color).width(6f))
+                .color(color).width(10f))
         }
+        // 後から引いた線が上に乗るので、通過済みの線は塗り分けの後に引き直す
+        clearTraveled(target)
+        drawTraveled(target, state)
+    }
+
+    private fun geometryIndex(route: RoutePlan): RouteGeometryIndex {
+        if (indexedRoute !== route) { indexedRoute = route; routeIndex = RouteGeometryIndex(route) }
+        return routeIndex!!
+    }
+
+    private fun clearTraveled(target: MapLibreMap) {
+        traveledLine?.let(target::removePolyline)
+        traveledLine = null
+        traveledKey = null
+    }
+
+    /** 通過済み区間はグレーにして、これから走る区間と区別する。25m ごとに引き直す。 */
+    private fun drawTraveled(target: MapLibreMap, state: NavigationState) {
+        val progress = state.progress
+        val route = state.route
+        if (state.phase != NavigationPhase.GUIDING || progress == null || route == null || route.geometry.size < 2) {
+            clearTraveled(target)
+            return
+        }
+        val index = geometryIndex(route)
+        // 残り距離は経路の座標列の長さから数えているので、同じ長さを基準にする
+        val traveled = (index.totalDistanceMeters - progress.remainingMeters).coerceIn(0.0, index.totalDistanceMeters)
+        val key = "$routeKey:${(traveled / 25).toLong()}"
+        if (key == traveledKey) return
+        clearTraveled(target)
+        traveledKey = key
+        if (traveled < 25) return
+        val points = index.slice(ScenicRange(0.0, traveled))
+        if (points.size < 2) return
+        traveledLine = target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
+            .color(android.graphics.Color.rgb(165, 170, 166)).width(10f))
     }
 
     private fun render() {
@@ -345,10 +394,15 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             sceneryLines.clear()
             sceneryKey = null
             sceneryRequest = emptyList()
+            routeCasing?.let(target::removePolyline)
             routeLine?.let(target::removePolyline)
-            routeLine = route?.takeIf { it.geometry.size >= 2 }?.let {
-                target.addPolyline(PolylineOptions().addAll(it.geometry.map { coordinate -> LatLng(coordinate.latitude, coordinate.longitude) })
-                    .color(android.graphics.Color.rgb(79, 100, 87)).width(6f))
+            clearTraveled(target)
+            val routePoints = route?.takeIf { it.geometry.size >= 2 }?.geometry?.map { coordinate -> LatLng(coordinate.latitude, coordinate.longitude) }
+            routeCasing = routePoints?.let {
+                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(14f))
+            }
+            routeLine = routePoints?.let {
+                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.rgb(46, 140, 170)).width(10f))
             }
             routeKey = key
             if (route != null && state.phase == NavigationPhase.PREVIEW) {
@@ -357,6 +411,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             }
         }
         applyScenery()
+        drawTraveled(target, state)
         val location = runtime.locations.location.value
         val fix = location.fix
         if (fix == null || location.status in setOf(LocationStatus.PERMISSION_REQUIRED, LocationStatus.DISABLED)) {
