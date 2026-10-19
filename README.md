@@ -114,14 +114,14 @@ Android Autoの車載画面とスマートフォンが同じ`NavigationSession`�
 
 ![場所・通過時刻・好みによる景観評価](docs/media/architecture/03-factor-evaluation.png)
 
-<details>
-<summary>データ構築・アプリの分担・入力と推論・窓操作の機器</summary>
-
 ### データ構築
 
 公開データから道路の特徴を事前に計算し、検索時は地図版の一致したDBを参照します。
 
 ![公開データから道路・地形・名道のDBを構築する流れ](docs/media/architecture/04-data-pipeline.png)
+
+<details>
+<summary>アプリの分担・入力と推論・窓操作の機器</summary>
 
 ### アプリの分担
 
