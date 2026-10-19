@@ -1,6 +1,7 @@
 package com.theacar.android.navigation
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -117,6 +118,15 @@ class NavigationActivity : ComponentActivity() {
                         routingTokenError = tokenError,
                         routingTokenFromBuild = tokenFromBuild,
                         onRoutingTokenChanged = runtime::setRoutingToken,
+                        onRoutingUrlChanged = { url ->
+                            NavigationConfiguration.saveRoutingUrl(this@NavigationActivity, url).also { saved ->
+                                // 接続先はアプリの起動時に組み立てるので、プロセスごと起動し直して反映する
+                                if (saved) {
+                                    startActivity(Intent.makeRestartActivityTask(ComponentName(this@NavigationActivity, NavigationActivity::class.java)))
+                                    Runtime.getRuntime().exit(0)
+                                }
+                            }
+                        },
                         onSearch = runtime.session::search,
                         onPreview = { destination, options ->
                             runtime.session.preview(destination, options.copy(viaPoints = viaPoints.toList()))
