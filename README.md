@@ -1,6 +1,9 @@
 # 旅れこ
 
+## PV1
+https://github.com/user-attachments/assets/54f053a4-6567-4c07-b462-cc3ff3e8f046
 
+## PV2
 https://github.com/user-attachments/assets/210fd430-2355-444c-afe4-2f15dc2d6831
 
 [デモ動画(Youtube)](https://youtu.be/KT4o08DKyFY)
