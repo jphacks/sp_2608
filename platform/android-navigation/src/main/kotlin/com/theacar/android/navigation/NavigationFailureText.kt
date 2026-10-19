@@ -18,4 +18,5 @@ fun NavigationFailure.message(): String = when (this) {
     NavigationFailure.START -> "案内を開始できませんでした。"
     NavigationFailure.STOP -> "案内を終了できませんでした。"
     NavigationFailure.LIMIT_REACHED -> "検索回数の上限です。時間を空けて再試行してください。"
+    NavigationFailure.AWAY_FROM_ROUTE -> "ルートから離れています。「経路を変更」から今いる場所で探し直してください。"
 }

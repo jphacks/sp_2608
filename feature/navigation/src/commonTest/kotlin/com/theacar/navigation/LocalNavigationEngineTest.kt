@@ -62,6 +62,34 @@ class LocalNavigationEngineTest {
         }
     }
 
+    @Test fun startsFromWherePassengerAlreadyIsWhenMovingAlongRoute() = runTest {
+        // 約4.4km の直線。検索してから約2.8km 進んだところで案内を始める（追跡の先読み1.5kmより先）
+        val points = (0..40).map { Coordinate(35.0 + it * 0.001, 139.0) }
+        val positions = Positions().apply { emit(points.first(), 1_000) }
+        var time = 1_000L
+        val engine = LocalNavigationEngine(object : RouteCalculator {
+            override suspend fun calculate(query: RouteQuery) = route(points, Destination("end", "到着地点", points.last()))
+        }, positions, backgroundScope, { time })
+        val plan = engine.preview(destination, RouteOptions())
+        positions.emit(Coordinate(35.0253, 139.0002), ++time)
+        engine.start(plan, 1)
+        runCurrent()
+        assertEquals(EnginePhase.GUIDING, engine.state.value.phase)
+        val remaining = assertNotNull(engine.state.value.progress).remainingMeters
+        assertTrue(remaining in 1_500..1_800, "remaining=$remaining")
+        engine.stop()
+    }
+
+    @Test fun refusesToStartAwayFromRoute() = runTest {
+        val positions = Positions().apply { emit(origin, 1_000) }
+        val engine = LocalNavigationEngine(object : RouteCalculator {
+            override suspend fun calculate(query: RouteQuery) = route()
+        }, positions, backgroundScope, { 1_000 })
+        val plan = engine.preview(destination, RouteOptions())
+        positions.emit(Coordinate(35.001, 139.01), 1_000)
+        assertEquals(NavigationFailure.AWAY_FROM_ROUTE, assertFailsWith<NavigationException> { engine.start(plan, 1) }.failure)
+    }
+
     @Test fun budgetResetsOnlyAfterWindow() {
         var time = 0L
         val budget = RoutingBudget({ time }, 2, 1_000)

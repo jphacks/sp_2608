@@ -106,12 +106,12 @@ class LocalNavigationEngine(
         if (options.scenic != null && nowMillis() - preparedAtMillis > 120_000) {
             throw NavigationException(NavigationFailure.PREVIEW_EXPIRED)
         }
-        val fix = currentFix()
-        if (distanceMeters(fix.coordinate, plan.geometry.first()) > 150) throw NavigationException(NavigationFailure.LOCATION)
+        val joined = RouteTracker(plan)
+        if (!joined.join(currentFix().coordinate, 150.0)) throw NavigationException(NavigationFailure.AWAY_FROM_ROUTE)
         observation?.cancel()
         rerouteJob?.cancel()
         generation++
-        tracker = RouteTracker(plan)
+        tracker = joined
         lastFixMillis = -1
         offRouteCount = 0
         arrivalCount = 0
@@ -188,10 +188,9 @@ class LocalNavigationEngine(
                     calculator.calculate(RouteQuery(fix.coordinate, route.destination, options.copy(viaPoints = remaining)))
                 }
                 if (generation != expected || state.value.phase != EnginePhase.GUIDING) return@launch
-                if (distanceMeters(currentFix().coordinate, replacement.geometry.first()) > 150) {
-                    throw NavigationException(NavigationFailure.LOCATION)
-                }
-                tracker = RouteTracker(replacement)
+                val joined = RouteTracker(replacement)
+                if (!joined.join(currentFix().coordinate, 150.0)) throw NavigationException(NavigationFailure.AWAY_FROM_ROUTE)
+                tracker = joined
                 prepared = replacement
                 offRouteCount = 0
                 arrivalCount = 0
