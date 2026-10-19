@@ -3,54 +3,54 @@
 <text x="60" y="50" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="34" font-weight="600" fill="#222222">入力と推論</text>
 <text x="60" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">矢印：情報・操作の流れ　　破線：実機・実モデルは未接続</text>
 <text x="1529.484375" y="960" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#666666">6</text>
-<rect x="60" y="175" width="410" height="210" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="96" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">1  共有入力の機器取得</text>
-<text x="86" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">マイク ／ カメラ</text>
-<text x="86" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">権限・頻度・バッファ解放</text>
-<text x="86" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="23" font-weight="400" fill="#666666">共有アダプターは未接続</text>
-<text x="86" y="350" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">予定：platform/*-input</text>
+<rect x="60" y="175" width="410" height="210" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="96" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">1  マイクから取得</text>
+<text x="86" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">AndroidのAudioRecordで収音</text>
+<text x="86" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">権限・録音開始・機器解放</text>
+<text x="86" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">AudioFrameとして提供</text>
+<text x="86" y="350" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">AndroidMicrophone / android-music</text>
 <rect x="595" y="175" width="410" height="210" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
 <text x="631" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">2  同じフレームを共有</text>
-<text x="621" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">不変のAudioFrame / CameraFrame</text>
+<text x="621" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">アプリ全体で一つの入力を共有</text>
 <text x="621" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">複数の利用先でも取得は一回</text>
 <text x="621" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">最後の購読終了で機器を解放</text>
 <text x="621" y="350" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">core/sensing / SharedSensorFeed</text>
-<rect x="1130" y="175" width="410" height="210" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="1166" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">3  型付きの認識結果へ</text>
-<text x="1156" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">会話量・景色・特殊音イベント</text>
-<text x="1156" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">信頼度・鮮度・処理期限を管理</text>
-<text x="1156" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">実AIモデルは未接続</text>
-<text x="1156" y="350" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">core/inference ＋ feature/perception</text>
-<polyline points="470,280 595,280" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round" stroke-dasharray="9 7"/>
+<rect x="1130" y="175" width="410" height="210" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
+<text x="1166" y="199" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">3  発話・車内の状態</text>
+<text x="1156" y="253" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">発話の有無・声と雑音のレベル</text>
+<text x="1156" y="285" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">会話の継続・無音の長さを集計</text>
+<text x="1156" y="317" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">端末内の信号処理で判定</text>
+<text x="1156" y="350" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">CabinSpeechMonitor / feature/music</text>
+<polyline points="470,280 595,280" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
 <polygon points="595,280 582.3937405670625,286.08951747755725 582.3937405670625,273.91048252244275" fill="#444444"/>
 <polyline points="1005,280 1130,280" fill="none" stroke="#444444" stroke-width="3" stroke-linejoin="round"/>
 <polygon points="1130,280 1117.3937405670624,286.08951747755725 1117.3937405670624,273.91048252244275" fill="#444444"/>
-<rect x="60" y="485" width="410" height="215" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
-<text x="96" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">6  明示した操作を実行</text>
-<text x="86" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">PlaybackGateway等の契約</text>
-<text x="86" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">再生・音量・案内などへ反映</text>
-<text x="86" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">窓提案からの自動開閉は未接続</text>
-<text x="86" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">実機の成功応答と表示状態を区別</text>
+<rect x="60" y="485" width="410" height="215" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="96" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">拡張用の推論経路</text>
+<text x="86" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">未接続：カメラ・実AIモデル</text>
+<text x="86" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">認識結果の信頼度・鮮度を管理</text>
+<text x="86" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">推論結果をDriveContextへ統合</text>
+<text x="86" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">core/inference / feature/perception</text>
 <rect x="595" y="485" width="410" height="215" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
-<text x="631" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">5  各機能が判断</text>
-<text x="621" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">選曲 ／ 目標音量 ／ 窓の提案</text>
-<text x="621" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">feature/driveで操作を連携</text>
-<text x="621" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">推論モデルは機器を直接操作しない</text>
-<text x="621" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">feature/music・cabin・drive</text>
+<text x="631" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">5  再生・音量へ反映</text>
+<text x="621" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">BgmPlaybackLoopで再生を制御</text>
+<text x="621" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">CabinVolumeSessionで音量調整</text>
+<text x="621" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">再生履歴と発話割合を記録</text>
+<text x="621" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">platform/android-music</text>
 <rect x="1130" y="485" width="410" height="215" rx="2" fill="white" stroke="#bdbdbd" stroke-width="2"/>
-<text x="1166" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">4  環境の意味へ統合</text>
-<text x="1156" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">認識結果 ＋ GPS・天気等</text>
-<text x="1156" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">DriveContextとして配信</text>
-<text x="1156" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#666666">古い認識は期限切れにする</text>
-<text x="1156" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">data/perception</text>
+<text x="1166" y="509" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="28" font-weight="600" fill="#222222">4  機能ごとに判断</text>
+<text x="1156" y="563" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">選曲：ルート景観・予報と統合</text>
+<text x="1156" y="595" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">音量：声と再生状態から判断</text>
+<text x="1156" y="627" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="400" fill="#666666">記録：選曲・時刻・発話割合</text>
+<text x="1156" y="665" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="400" fill="#444444">feature/music / data/bgm</text>
 <polyline points="1335,385 1335,485" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
 <polygon points="1335,485 1328.9104825224429,472.39374056706254 1341.0895174775571,472.39374056706254" fill="#666666"/>
 <polyline points="1130,590 1005,590" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
 <polygon points="1005,590 1017.6062594329375,583.9104825224427 1017.6062594329375,596.0895174775573" fill="#666666"/>
-<polyline points="595,590 470,590" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round"/>
-<polygon points="470,590 482.60625943293746,583.9104825224427 482.60625943293746,596.0895174775573" fill="#666666"/>
-<text x="82" y="773" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#444444">共有パイプラインと音楽側の入力</text>
-<text x="82" y="809" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">破線：共有経路への実マイク・カメラ・実モデルの接続は未完了。合成フレームで検証する。</text>
-<text x="82" y="841" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">音楽側のCabinMicrophoneは別系統で実装済み。PCMは保存・送信せず、発話割合だけを利用する。</text>
-<text x="82" y="873" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">ナビの採点は実会話・実画像を直接使わない。共有経路と実音楽の収音はまだ統合していない。</text>
+<polyline points="680,385 680,435 265,435 265,485" fill="none" stroke="#666666" stroke-width="3" stroke-linejoin="round" stroke-dasharray="9 7"/>
+<polygon points="265,485 258.91048252244275,472.39374056706254 271.08951747755725,472.39374056706254" fill="#666666"/>
+<text x="82" y="773" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#444444">実装済みのマイク入力と、拡張用の推論を分ける</text>
+<text x="82" y="809" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">実線：共有した実マイクの入力から、端末内で発話と車内の状態を判定する。</text>
+<text x="82" y="841" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">PCMは保存・送信せず、発話割合などの集計値を選曲・音量調整・記録に使う。</text>
+<text x="82" y="873" dominant-baseline="text-before-edge" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="21" font-weight="400" fill="#222222">破線：カメラ・実AIモデルは未接続。会話・画像はナビの経路採点に使わない。</text>
 </svg>

@@ -64,7 +64,9 @@ OSMからValhallaタイル、道路特徴、地名検索用データを作りま
 
 ![入力・推論・統合・判断・実行](media/architecture/06-input-inference.png)
 
-共有パイプラインは`core/sensing`の`SensorSource`、`core/inference`の`InferenceEngine`、`feature/perception`の推論制御、`data/perception`の環境統合に分かれています。実マイクは`core/sensing`へ接続済みです。`InferenceEngine`を使う実モデル推論とカメラ入力は未接続で、この経路は合成フレームで検証しています。
+実マイクは`core/sensing`の共有入力へ接続済みです。`CabinSpeechMonitor`が声と雑音のレベルから発話と車内の状態を判定し、選曲・音量調整・記録へ渡します。この発話判定はAIモデルを使わず、`InferenceEngine`を経由しません。
+
+モデルによる認識は別の拡張経路です。`core/inference`の`InferenceEngine`、`feature/perception`の推論制御、`data/perception`の環境統合を用意しています。実AIモデルとカメラ入力は未接続で、合成フレームで検証しています。
 
 `SharedSensorFeed`は取得を一回にまとめ、不変フレームを配信します。最後の購読終了で機器を解放し、生フレームを再配信しません。推論結果には時刻・モデル版・信頼度を持たせ、期限切れの判断を使い続けません。推論モデルはプレイヤーや車両APIを直接操作しません。
 

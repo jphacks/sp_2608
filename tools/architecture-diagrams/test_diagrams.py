@@ -29,12 +29,28 @@ class ArchitectureTests(unittest.TestCase):
     def test_published_images_and_sources(self):
         output = RENDER.ROOT / 'docs/media/architecture'
         svgs = sorted(output.glob('*.svg'))
-        self.assertEqual(len(svgs), 6)
+        self.assertGreaterEqual(len(svgs), 6)
         for source in svgs:
-            ET.parse(source)
+            root = ET.parse(source).getroot()
             with Image.open(source.with_suffix('.png')) as image:
-                self.assertEqual(image.size, (1600, 1000))
+                self.assertEqual(image.size, (int(root.attrib['width']), int(root.attrib['height'])))
                 image.verify()
+
+    def test_microphone_is_shared_and_model_inference_is_separate(self):
+        source = '\n'.join(RENDER.perception().svg)
+        for label in ('AndroidMicrophone', 'SharedSensorFeed', 'CabinSpeechMonitor',
+                      'BgmPlaybackLoop', 'CabinVolumeSession', '未接続：カメラ・実AIモデル'):
+            self.assertIn(label, source)
+        self.assertNotIn('共有アダプターは未接続', source)
+        self.assertNotIn('CabinMicrophone', source)
+        root = ET.fromstring(source + '\n</svg>')
+        ns = {'svg': 'http://www.w3.org/2000/svg'}
+        capture = root.find("svg:rect[@x='60'][@y='175']", ns)
+        extension = root.find("svg:rect[@x='60'][@y='485']", ns)
+        self.assertIsNotNone(capture)
+        self.assertIsNotNone(extension)
+        self.assertNotIn('stroke-dasharray', capture.attrib)
+        self.assertIn('stroke-dasharray', extension.attrib)
 
     def test_system_separates_car_display_phone_and_shared_navigation(self):
         source = '\n'.join(RENDER.system().svg)

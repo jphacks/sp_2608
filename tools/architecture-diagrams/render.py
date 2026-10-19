@@ -227,21 +227,21 @@ def app():
 
 def perception():
     p = Plate(6, '06-input-inference')
-    p.card(60, 295, 410, 210, '1  共有入力の機器取得', ['マイク ／ カメラ', '権限・頻度・バッファ解放', '共有アダプターは未接続'], '予定：platform/*-input', BLUE, future=True)
-    p.card(595, 295, 410, 210, '2  同じフレームを共有', ['不変のAudioFrame / CameraFrame', '複数の利用先でも取得は一回', '最後の購読終了で機器を解放'], 'core/sensing / SharedSensorFeed', TEAL, size=20)
-    p.card(1130, 295, 410, 210, '3  型付きの認識結果へ', ['会話量・景色・特殊音イベント', '信頼度・鮮度・処理期限を管理', '実AIモデルは未接続'], 'core/inference ＋ feature/perception', GOLD, future=True, size=21)
-    p.arrow([(470, 400), (595, 400)], BLUE, dashed=True)
+    p.card(60, 295, 410, 210, '1  マイクから取得', ['AndroidのAudioRecordで収音', '権限・録音開始・機器解放', 'AudioFrameとして提供'], 'AndroidMicrophone / android-music', BLUE, size=21)
+    p.card(595, 295, 410, 210, '2  同じフレームを共有', ['アプリ全体で一つの入力を共有', '複数の利用先でも取得は一回', '最後の購読終了で機器を解放'], 'core/sensing / SharedSensorFeed', TEAL, size=20)
+    p.card(1130, 295, 410, 210, '3  発話・車内の状態', ['発話の有無・声と雑音のレベル', '会話の継続・無音の長さを集計', '端末内の信号処理で判定'], 'CabinSpeechMonitor / feature/music', GOLD, size=20)
+    p.arrow([(470, 400), (595, 400)], BLUE)
     p.arrow([(1005, 400), (1130, 400)], TEAL)
-    p.card(60, 605, 410, 215, '6  明示した操作を実行', ['PlaybackGateway等の契約', '再生・音量・案内などへ反映', '窓提案からの自動開閉は未接続'], '実機の成功応答と表示状態を区別', BLUE, size=21)
-    p.card(595, 605, 410, 215, '5  各機能が判断', ['選曲 ／ 目標音量 ／ 窓の提案', 'feature/driveで操作を連携', '推論モデルは機器を直接操作しない'], 'feature/music・cabin・drive', TEAL, size=20)
-    p.card(1130, 605, 410, 215, '4  環境の意味へ統合', ['認識結果 ＋ GPS・天気等', 'DriveContextとして配信', '古い認識は期限切れにする'], 'data/perception', TEAL, size=21)
+    p.card(60, 605, 410, 215, '拡張用の推論経路', ['未接続：カメラ・実AIモデル', '認識結果の信頼度・鮮度を管理', '推論結果をDriveContextへ統合'], 'core/inference / feature/perception', BLUE, future=True, size=20)
+    p.card(595, 605, 410, 215, '5  再生・音量へ反映', ['BgmPlaybackLoopで再生を制御', 'CabinVolumeSessionで音量調整', '再生履歴と発話割合を記録'], 'platform/android-music', TEAL, size=20)
+    p.card(1130, 605, 410, 215, '4  機能ごとに判断', ['選曲：ルート景観・予報と統合', '音量：声と再生状態から判断', '記録：選曲・時刻・発話割合'], 'feature/music / data/bgm', TEAL, size=20)
     p.arrow([(1335, 505), (1335, 605)])
     p.arrow([(1130, 710), (1005, 710)])
-    p.arrow([(595, 710), (470, 710)])
-    p.note(875, '共有パイプラインと音楽側の入力',
-           ['破線：共有経路への実マイク・カメラ・実モデルの接続は未完了。合成フレームで検証する。',
-            '音楽側のCabinMicrophoneは別系統で実装済み。PCMは保存・送信せず、発話割合だけを利用する。',
-            'ナビの採点は実会話・実画像を直接使わない。共有経路と実音楽の収音はまだ統合していない。'])
+    p.arrow([(680, 505), (680, 555), (265, 555), (265, 605)], dashed=True)
+    p.note(875, '実装済みのマイク入力と、拡張用の推論を分ける',
+           ['実線：共有した実マイクの入力から、端末内で発話と車内の状態を判定する。',
+            'PCMは保存・送信せず、発話割合などの集計値を選曲・音量調整・記録に使う。',
+            '破線：カメラ・実AIモデルは未接続。会話・画像はナビの経路採点に使わない。'])
     return p
 
 
