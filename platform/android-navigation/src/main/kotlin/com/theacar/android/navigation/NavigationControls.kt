@@ -72,6 +72,7 @@ internal fun NavigationControls(
     routingTokenError: String?,
     routingTokenFromBuild: Boolean,
     onRoutingTokenChanged: suspend (String) -> Boolean,
+    onRoutingUrlChanged: (String) -> Boolean,
     onSearch: (String) -> Unit,
     onPreview: (Destination, RouteOptions) -> Unit,
     onSelectAlternative: (String) -> Unit,
@@ -461,7 +462,8 @@ internal fun NavigationControls(
             { if (avoidTolls != it) onInvalidatePreview(); avoidTolls = it },
             avoidHighways, { if (avoidHighways != it) onInvalidatePreview(); avoidHighways = it }, voiceEnabled, onVoiceChanged, canPlan, { showSettings = false },
             tokenLoaded = routingTokenLoaded, tokenError = routingTokenError,
-            tokenFromBuild = routingTokenFromBuild)
+            tokenFromBuild = routingTokenFromBuild, routingUrl = configuration.routingUrl,
+            builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged)
     }
     if (showSearch && canPlan) {
         DestinationSearchDialog(state, true, onSearch,

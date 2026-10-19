@@ -381,7 +381,7 @@ adb shell am start -n com.theacar.android/.MainActivity
 
 ここではGradle引数でURLだけを上書きするため、既存local.propertiesを壊さない。`GEOCODING_URL`を別サービスに設定済みなら、空欄へ戻して自前APIの`/search`を使う。背景地図を変更済みなら`MAP_STYLE_URL`も確認する。
 
-接続先はビルド時設定。`local.properties`を編集しただけでは、インストール済みAPKは変わらない。URLを変えたら再ビルド・`adb install -r`まで実施する。
+ビルド時の接続先はAPKに入る。`local.properties`を編集しただけでは、インストール済みAPKは変わらない。URLを変えたら再ビルド・`adb install -r`まで実施するか、アプリの設定画面「経路サーバーの URL」で上書きする。設定画面の値はビルド時の値より優先される。
 
 ### 10.3 トークンを保存する
 
@@ -551,7 +551,7 @@ OSMが同じなら景観・場所検索の7DBは再生成しなくてよい。�
 | 検索不可 | places DBとscenic稼働、GEOCODING_URLの別設定、APKの実際の接続先 |
 | GPS確定不可 | 地図の中心ではなく、権限・GPS設定・精度・鮮度とカタログ内の位置を確認 |
 | 経路なし | 基準経路、地域、道路・時間・休憩条件、search.failures。条件を勝手に緩めない |
-| URLを変えても繋がらない | URLはビルド時設定。再ビルド・上書きインストール、公開URLのcheck |
+| URLを変えても繋がらない | 設定画面のURLがビルド時の値より優先される。設定画面の値、再ビルド・上書きインストール、公開URLのcheck |
 | 地図だけ出ない | 背景地図のスタイル・タイル・フォントは別配信。APIトークンやValhallaタイルでは直らない |
 
 背景地図は既定でOpenFreeMapをネット取得する。Valhallaを自前運用しても背景地図まで完全オフラインにはならない。Open-Meteoの無料APIの用途・上限、OSM帰属・ODbL、地理院・ESA・道路紹介資料の利用条件も[データ仕様](public-routing-data.md)に従う。
