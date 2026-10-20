@@ -10,10 +10,10 @@ Android Autoの車載画面とスマートフォンが、一つのナビセッ�
 
 車載UIは`CarAppService`のNavigationカテゴリとして提供し、`NavigationTemplate`とMapLibreの地図Surfaceで構成します。車載画面とスマホは同じ`NavigationSession`を操作し、GPS・TTSはAndroid側で実装します。
 
-外部からの通信はCloudflare Tunnelと認証付きNginxを通します。`/route`はValhalla、景観推薦・場所検索・案内セッションはPythonの`scenic`、`/bgm/`はBGMサービスへ振り分けます。
+外部からの通信は認証付きNginxを通します。PCで動かす場合はCloudflare Tunnel経由、Cloud Runで動かす場合は[Cloud Run版](../infra/cloudrun/README.md)の同じNginxが直接受けます。`/route`はValhalla、景観推薦・場所検索・案内セッションはPythonの`scenic`、`/bgm/`はBGMサービスへ振り分けます。
 ValhallaとscenicのポートはDocker内部用です。Tunnelは認証付きの`127.0.0.1:8003`へ接続します。
 
-PC・Docker・回線・Tunnelが動いている間だけ検索できます。背景地図、Open-Meteo、Spotify、旅の共有ページはそれぞれ別のサービスです。Spotifyの資格情報はサーバー用・アプリ用で分け、経路トークンを地図配信先へは送りません。
+PCで動かす場合は、PC・Docker・回線・Tunnelが動いている間だけ検索できます（Cloud Runでは不要）。背景地図、Open-Meteo、Spotify、旅の共有ページはそれぞれ別のサービスです。Spotifyの資格情報はサーバー用・アプリ用で分け、経路トークンを地図配信先へは送りません。
 
 ## 探索と評価
 
