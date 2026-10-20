@@ -164,6 +164,7 @@ Android Autoの車載画面とスマートフォンが同じ`NavigationSession`�
 これから通る景色と車内の会話に合わせて、Spotifyで流す次の1曲を選びます。海沿いでは明るく広がりのある曲、森林では落ち着いた曲を選びやすくします。
 
 ![景観と車内の状態から曲調を決め、好み・再生履歴を踏まえて選曲し、Spotifyで再生する流れ](docs/media/architecture/07-bgm-recommendation.png)
+<img width="2000" height="1500" alt="music-category" src="https://github.com/user-attachments/assets/33075d4a-7209-44ec-84be-0d64e32b14fc" />
 
 好みを反映するには、音楽画面の「みんなのプレイリスト」で表示名とSpotifyプレイリストURLを入力し、「取り込む」を押します。「プレイリスト内だけ」を選ぶと、取り込んだ曲だけから選曲します。
 
