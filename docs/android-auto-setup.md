@@ -147,11 +147,11 @@ adb shell dumpsys package com.theacar.android | Select-String pkgFlags
 override fun createHostValidator(): HostValidator = if (BuildConfig.DEBUG) {
     HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
 } else {
-    HostValidator.Builder(applicationContext).build()
+    HostValidator.Builder(applicationContext).addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample).build()
 }
 ```
 
-**Release ビルドは許可リストが空なので、DHU も実車も含めてすべてのホストを拒否します。** 検証は Debug ビルドで行います。公開前には正式ホストの許可リストを設定する必要があり、現在は未設定です。
+Release ビルドは、Car App Library が持つ Google の公式ホスト（Android Auto と Android Automotive OS）の一覧だけを許します。一覧は署名の指紋で照合し、ライブラリの版を上げると更新されます。
 
 `ALLOW_ALL_HOSTS_VALIDATOR` は接続元の車載機を検証しません。Debug ビルドの APK を配布しないでください。
 
@@ -361,7 +361,7 @@ adb logcat -d > car-session.log
 | `unauthorized` | 端末の許可ダイアログを承認していない。`adb kill-server` 後に再接続 |
 | 車載画面の一覧にアプリがない | アプリモードが「リリース」/ APK に `TEST_ONLY` が付いている。4.1 の手順で入れ直す |
 | 一覧にあるが起動すると落ちる | `adb logcat -b crash`。`ACCESS_SURFACE` の `SecurityException` は 4.3 を確認 |
-| 一覧にあるが開くと黒いまま | Release ビルドを入れている。`HostValidator` が拒否している |
+| 一覧にあるが開くと黒いまま | `HostValidator` が接続元を拒否している。Release ビルドは公式の Android Auto 以外を拒否する |
 | 「停車中にスマートフォンで…」しか出ない | **正常。**地図を出す条件は 6.3 を参照 |
 | 「設定から経路 APIのトークンを確認してください。」 | 経路 API のトークンが未設定・不正。[10.3節](environment-setup.md#103-トークンを保存する) |
 | 地図だけ出ない | 背景地図は別配信。`MAP_STYLE_URL` とネットワークを確認。経路 API のトークンでは直らない |
@@ -389,5 +389,4 @@ DHUでは、ホームの一覧・ルート確認・案内画面の描画、地�
 - 景観によるルート線の塗り分けと、海が開ける地点・名前の付いた道の知らせ。景観エンジンが経路の景観を返す実走行でのみ出ます。
 - 実走行、道路のマッチング、日本語 TTS、バックグラウンド、画面の再生成、車載切断からの復帰。
 - 走行中の操作制限、800x480 以外の解像度、タッチ以外の入力方式。
-- Release ビルドの正式ホスト許可リスト。**未設定のため Release は車載で起動しません。**
 - 車載画面からの窓の操作。`platform:android-window` は Android Auto へ接続していません（[窓の操作](window-control.md)）。
