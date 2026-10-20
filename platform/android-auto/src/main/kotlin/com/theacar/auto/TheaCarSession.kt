@@ -1,6 +1,7 @@
 package com.theacar.auto
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Rect
 import androidx.car.app.AppManager
 import androidx.car.app.CarToast
@@ -55,6 +56,10 @@ internal class TheaCarSession(
         override fun onScroll(distanceX: Float, distanceY: Float) { renderer.scroll(distanceX, distanceY) }
         override fun onVisibleAreaChanged(visibleArea: Rect) { renderer.setVisibleArea(visibleArea) }
         override fun onScale(focusX: Float, focusY: Float, scaleFactor: Float) { renderer.scale(focusX, focusY, scaleFactor) }
+    }
+
+    override fun onCarConfigurationChanged(newConfiguration: Configuration) {
+        if (::renderer.isInitialized) renderer.setDarkMode(carContext.isDarkMode)
     }
 
     override fun onCreateScreen(intent: Intent): Screen {

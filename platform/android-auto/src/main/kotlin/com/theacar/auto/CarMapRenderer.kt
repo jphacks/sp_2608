@@ -21,6 +21,7 @@ internal class CarMapRenderer(
     private var container: SurfaceContainer? = null
     private var visibleArea: Rect? = null
     private var sceneryRequest: CarScenery? = null
+    private var attribution: android.widget.TextView? = null
 
     fun attach(surface: SurfaceContainer) {
         if (container === surface && display != null) return
@@ -35,10 +36,14 @@ internal class CarMapRenderer(
         val window = Presentation(context, virtualDisplay.display)
         presentation = window
         val map = NavigationMapController(window.context, runtime, scope)
+        map.setDarkMode(context.isDarkMode)
         controller = map
         val layout = android.widget.LinearLayout(window.context).apply { orientation = android.widget.LinearLayout.VERTICAL }
         layout.addView(map.view, android.widget.LinearLayout.LayoutParams(-1, 0, 1f))
-        layout.addView(android.widget.TextView(window.context).apply { text = "© OpenStreetMap contributors · MapLibre / Valhalla" })
+        val credit = android.widget.TextView(window.context).apply { text = "© OpenStreetMap contributors · MapLibre / Valhalla" }
+        layout.addView(credit)
+        attribution = credit
+        paintAttribution(context.isDarkMode)
         map.view.onStart()
         map.view.onResume()
         window.setContentView(layout)
@@ -50,6 +55,17 @@ internal class CarMapRenderer(
     fun showScenery(model: CarScenery?) {
         sceneryRequest = model
         controller?.paintScenery(model?.blocks.orEmpty().map { it.range to carSceneryColor(it.category) })
+    }
+
+    /** 車が昼夜の表示を切り替えたとき（MR-1）。 */
+    fun setDarkMode(enabled: Boolean) {
+        controller?.setDarkMode(enabled)
+        paintAttribution(enabled)
+    }
+
+    private fun paintAttribution(dark: Boolean) {
+        attribution?.setBackgroundColor(android.graphics.Color.parseColor(if (dark) "#1B2420" else "#F5F3EC"))
+        attribution?.setTextColor(android.graphics.Color.parseColor(if (dark) "#A9B5AE" else "#5C6B63"))
     }
 
     /** 1 より大きいと寄る。 */
@@ -74,6 +90,7 @@ internal class CarMapRenderer(
         presentation?.dismiss()
         display?.release()
         controller = null
+        attribution = null
         presentation = null
         display = null
         container = null
