@@ -73,6 +73,9 @@ internal class TheaCarSession(
             override fun onStopNavigation() { runtime.session.stop() }
         })
         lifecycle.addObserver(object : DefaultLifecycleObserver {
+            // スマホの画面を開かずに車の画面だけで使うときも、案内の前に現在地を取る
+            override fun onStart(owner: LifecycleOwner) { runtime.locations.acquire(this@TheaCarSession) }
+            override fun onStop(owner: LifecycleOwner) { runtime.locations.release(this@TheaCarSession) }
             override fun onDestroy(owner: LifecycleOwner) {
                 if (navigationStarted) manager.navigationEnded()
                 manager.clearNavigationManagerCallback()
