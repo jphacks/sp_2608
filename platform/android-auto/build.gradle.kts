@@ -27,7 +27,6 @@ dependencies {
     implementation(project(":platform:android-navigation"))
     implementation(project(":feature:cabin"))
     implementation(libs.androidx.car.app)
-    implementation(libs.zxing.core)
     implementation(libs.kotlinx.coroutines.core)
     coreLibraryDesugaring(libs.android.desugar)
     testImplementation(kotlin("test-junit"))

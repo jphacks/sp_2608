@@ -17,7 +17,6 @@ import androidx.car.app.navigation.model.Trip
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.theacar.android.navigation.AndroidNavigationRuntime
-import com.theacar.android.navigation.NavigationCompanion
 import com.theacar.cabin.CabinNotice
 import com.theacar.cabin.CabinNoticeSource
 import com.theacar.navigation.NavigationPhase
@@ -26,21 +25,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 internal class TheaCarSession(
     private val runtime: AndroidNavigationRuntime,
     private val notices: CabinNoticeSource? = null,
-    private val companion: NavigationCompanion? = null,
 ) : Session() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var renderer: CarMapRenderer
     private var surface: SurfaceContainer? = null
     private var navigationStarted = false
-    /** 案内中に地図へ重ねる、同乗者のリクエストの QR コードを出しているか。案内が終わると隠す。 */
-    private val requestQrShown = MutableStateFlow(false)
     /**
      * 知らせた絶景ポイントと認定道路。再探索で景観が一時的に消えても忘れないよう、
      * 案内セッションと経路が変わるまで持ち越す。
@@ -82,13 +76,6 @@ internal class TheaCarSession(
                 scope.cancel()
             }
         })
-        companion?.let { share ->
-            scope.launch {
-                combine(requestQrShown, share.carShare) { shown, state -> state.takeIf { shown && it.available } }.collect { state ->
-                    renderer.showRequestQr(state?.url, state?.label.orEmpty(), shown = state != null)
-                }
-            }
-        }
         // Main (not immediate) so the first emission runs after the root screen has been pushed.
         scope.launch(Dispatchers.Main) {
             runtime.session.state.collect { navigation ->
@@ -101,15 +88,10 @@ internal class TheaCarSession(
                     (navigationStarted && navigation.phase == NavigationPhase.STOPPING)
                 if (guiding && !navigationStarted) {
                     manager.navigationStarted(); navigationStarted = true
-                    screens.popToRoot(); screens.push(GuidanceScreen(carContext, runtime, controls, companion?.carShare, requestQrShown) {
-                        val show = !requestQrShown.value
-                        if (show) companion?.prepareCarShare()
-                        requestQrShown.value = show
-                    })
+                    screens.popToRoot(); screens.push(GuidanceScreen(carContext, runtime, controls))
                 }
                 if (!guiding && navigationStarted) {
                     manager.navigationEnded(); navigationStarted = false
-                    requestQrShown.value = false
                     screens.popToRoot()
                 }
                 if (guiding) {
