@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -223,7 +224,7 @@ class NavigationActivity : ComponentActivity() {
             addView(tabBar, LinearLayout.LayoutParams(-1, -2))
         }
         setContentView(root)
-        if (savedInstanceState == null && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (savedInstanceState == null && permissions().any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
             requestPermissions()
         }
     }
@@ -267,8 +268,13 @@ class NavigationActivity : ComponentActivity() {
     }
 
     private fun requestPermissions() {
-        permissionRequest.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        permissionRequest.launch(permissions())
     }
+
+    // 案内の通知（車載画面の曲がり角の知らせも含む）は、Android 13 以上では許可がないと出ない
+    private fun permissions(): Array<String> =
+        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION) +
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) arrayOf(Manifest.permission.POST_NOTIFICATIONS) else emptyArray()
 
     private fun openLocationSettings() {
         val intent = if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
