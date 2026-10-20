@@ -487,6 +487,10 @@ adb reverse --remove tcp:8003
 
 QUIC接続が回線で失敗する場合は`cloudflared tunnel --protocol http2 --url http://127.0.0.1:8003`でも確認できる。両方式とも失敗したら、トークンを外さず公式の接続事前確認と回線・VPN・ファイアウォールを調べる。
 
+### 11.4 Cloud Runで動かす場合
+
+PCを常時起動できない場合は、同じ構成をCloud Runに載せられる。手順は[infra/cloudrun/README.md](../infra/cloudrun/README.md)。このときはTunnelもPCのDockerも不要で、アプリのベースURLをCloud RunのURLにする。
+
 ## 12. 再起動・停止・データ更新
 
 ### PC再起動後

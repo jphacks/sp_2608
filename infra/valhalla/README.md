@@ -17,3 +17,5 @@ Docker ComposeでValhalla、景観推薦、BGM、認証ゲートウェイを起�
 - `.secrets/`：経路認証とサーバー用Spotify資格情報。Gitへ含めない
 
 停止・ログ・Tunnel・APK接続は[環境構築](../../docs/environment-setup.md)、データの用途と利用条件は[公開データ](../../docs/public-routing-data.md)、名道の更新は[登録基準](../../docs/scenic-road-registry-policy.md)を参照してください。
+
+PCではなくCloud Runで動かす場合は[Cloud Run版](../cloudrun/README.md)を参照してください。
