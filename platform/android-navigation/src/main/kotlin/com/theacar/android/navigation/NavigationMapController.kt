@@ -66,6 +66,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private var previousPhase: NavigationPhase? = null
     private var contentPadding = intArrayOf(0, 0, 0, 0)
     private var loadTimeout: Job? = null
+    private var dark = false
     private val locationIcon = locationIcon(context, android.graphics.Color.rgb(34, 112, 215))
     private val staleLocationIcon = locationIcon(context, android.graphics.Color.rgb(120, 130, 140))
 
@@ -162,7 +163,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         target.setStyle(style) {
             if (closed) return@setStyle
             styleLoaded = true
-            applyTabiMapColors(it)
+            applyTabiMapColors(it, dark)
             if (runtime.configuration.mapStyleUrl.isBlank()) {
                 loadTimeout?.cancel()
                 mutableDisplayState.value = MapDisplayState.DISABLED
@@ -254,6 +255,13 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         follow = false
         if (factor > 0 && factor.isFinite()) map?.animateCamera(CameraUpdateFactory.zoomBy(kotlin.math.ln(factor.toDouble()) / kotlin.math.ln(2.0)))
     }
+    /** 地図を夜の配色にする。スタイルを読み直さず、色だけを塗り替える。 */
+    fun setDarkMode(enabled: Boolean) {
+        if (dark == enabled) return
+        dark = enabled
+        if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark) }
+    }
+
     fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {
         contentPadding = intArrayOf(left, top, right, bottom)
         map?.let(::applyMapPadding)
