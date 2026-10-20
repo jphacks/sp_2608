@@ -2,6 +2,7 @@ package com.theacar.android.navigation
 
 import android.app.Notification
 import android.app.NotificationChannel
+import android.content.ComponentName
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -12,6 +13,10 @@ import android.media.AudioManager
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import androidx.car.app.notification.CarAppExtender
+import androidx.car.app.notification.CarPendingIntent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.theacar.navigation.NavigationPhase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +33,8 @@ class NavigationService : Service() {
     private var speechReady = false
     private val spokenCues = mutableSetOf<String>()
     private var attemptedStart = false
+    /** 車載画面へ知らせた曲がり角。同じ曲がり角では鳴らし直さない。 */
+    private var notifiedManeuver: String? = null
     private val audioManager by lazy { getSystemService(AudioManager::class.java) }
     private val focus by lazy {
         AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
@@ -79,8 +86,13 @@ class NavigationService : Service() {
                         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, cue)
                     }
                 }
+                val turn = maneuver?.takeIf { !state.rerouting }
+                val key = turn?.let { "${state.sessionId}:${state.routeRevision}:${it.stepIndex}" }
+                val alert = key != null && key != notifiedManeuver
+                if (key != null) notifiedManeuver = key
                 getSystemService(NotificationManager::class.java).notify(1001,
-                    notification(if (state.rerouting) "ルートを再検索しています" else maneuver?.instruction ?: "旅れこで案内中"))
+                    notification(if (state.rerouting) "ルートを再検索しています" else maneuver?.instruction ?: "旅れこで案内中",
+                        turn?.let { distanceAhead(it.distanceMeters) }, alert))
             }
         }
     }
@@ -92,11 +104,30 @@ class NavigationService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun notification(text: String): Notification {
+    /**
+     * 案内の通知。車載画面では、別のアプリを見ている間も次の曲がり角を出す（NF-3）。
+     * [alert] は曲がり角が変わったときだけ true にし、毎回は鳴らさない。
+     */
+    private fun notification(text: String, distance: String? = null, alert: Boolean = false): Notification {
         val pending = PendingIntent.getActivity(this, 0, Intent(this, NavigationActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        return Notification.Builder(this, "navigation").setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("旅れこ ナビ").setContentText(text).setContentIntent(pending).setOngoing(true).build()
+        // 車載画面で通知を押したら、スマホではなく車の旅れこを開く
+        val carApp = CarPendingIntent.getCarApp(this, 0,
+            Intent(Intent.ACTION_VIEW).setComponent(ComponentName(this, CAR_APP_SERVICE)), 0)
+        val car = CarAppExtender.Builder()
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setContentTitle(distance ?: "旅れこ ナビ")
+            .setContentText(text)
+            .setContentIntent(carApp)
+            .setImportance(NotificationManagerCompat.IMPORTANCE_HIGH)
+            .build()
+        return NotificationCompat.Builder(this, "navigation").setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setContentTitle("旅れこ ナビ").setContentText(text).setContentIntent(pending).setOngoing(true)
+            .setCategory(NotificationCompat.CATEGORY_NAVIGATION).setOnlyAlertOnce(!alert)
+            .extend(car).build()
     }
+
+    private fun distanceAhead(meters: Int): String =
+        if (meters < 1000) "${meters}m先" else String.format(Locale.JAPAN, "%.1fkm先", meters / 1000.0)
 
     override fun onTaskRemoved(rootIntent: Intent?) { runtime.session.stop(); stopSelf() }
     override fun onBind(intent: Intent?): IBinder? = null
@@ -108,5 +139,10 @@ class NavigationService : Service() {
         runtime.locations.release(this)
         if (runtime.session.state.value.phase == NavigationPhase.GUIDING) runtime.session.stop()
         super.onDestroy()
+    }
+
+    private companion object {
+        /** 車載画面のサービス。android-auto にあり、このモジュールからは名前でしか指せない。 */
+        const val CAR_APP_SERVICE = "com.theacar.auto.TheaCarService"
     }
 }
