@@ -282,7 +282,26 @@ docs/         設計・構築・運用資料
 
 Android Auto向けに開発中です。iOSのナビは未対応です。
 
-## 使用データ・ツール・参考資料
+## 使用技術・データ・ツール・参考資料
+
+### 使用技術
+
+| 分野 | 技術 | 用途 |
+| --- | --- | --- |
+| アプリの共通処理 | Kotlin / Kotlin Multiplatform | ナビ・音楽・旅の記録のモデルと状態管理 |
+| アプリUI | Compose Multiplatform / Material 3 | 共通UIとスマホの操作画面 |
+| 車載UI | Android Auto / Android for Cars App Library | 車載地図、ルート確認、右左折・残り時間の案内 |
+| 地図表示 | MapLibre Native / OpenFreeMap | スマホ・車載画面の背景地図と経路の描画 |
+| アプリの通信・非同期処理 | Ktor / Kotlin Coroutines・Flow | API通信と状態の配信 |
+| 景観ルート推薦 | Python / SQLite | 景観DBの検索、候補の生成・評価・選抜 |
+| 道路網上の経路計算 | Valhalla | 道路条件に合う経路と所要時間の計算 |
+| BGM推薦API | TypeScript / Hono / Node.js / SQLite | 景観・車内の状態に合う曲の推薦と履歴管理 |
+| 楽曲の特徴づけ | Gemini API | 曲の明るさ・速さ・歌声の強さなど6軸の特徴を事前に推定 |
+| 音楽検索・再生 | Spotify Web API / Spotify Android SDK | 楽曲・プレイリストの取得と再生制御 |
+| 旅の共有Web | TypeScript / Cloudflare Workers・D1・R2 | 共有ページ・API、旅の記録と写真の保存 |
+| APIの起動・公開 | Docker Compose / Nginx / Cloudflare Tunnel | 自前PCでのサーバー起動と外部からの接続 |
+| 窓操作機器 | ESP32 / Arduino（C++）/ BME688 / BLE | ガスの検知、リレーによる窓操作、アプリとの通信 |
+| テスト | Kotlin Test / Python unittest / Vitest | 共通ロジック、推薦API、Web、ドキュメントの検証 |
 
 ### データ
 
