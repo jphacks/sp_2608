@@ -16,7 +16,7 @@ internal class MemoryTokens(var value: SpotifyTokens? = SpotifyTokens("access", 
 class SpotifyAuthorizationTest {
     @Test fun authorizationUrlUsesPkceAndMinimumScopes() {
         val client = HttpClient(MockEngine { error("No request expected") })
-        val auth = SpotifyAuthorization("client", "com.theacar.android.spotify://oauth/callback", client, MemoryTokens(), { 1_000 })
+        val auth = SpotifyAuthorization("client", "com.tabireco.app.spotify://oauth/callback", client, MemoryTokens(), { 1_000 })
         val url = Url(auth.loginUrl("state-value", "challenge-value"))
         assertEquals("https", url.protocol.name)
         assertEquals("accounts.spotify.com", url.host)
