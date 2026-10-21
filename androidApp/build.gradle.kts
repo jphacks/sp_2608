@@ -33,6 +33,19 @@ android {
         }
     }
 
+    // Play に上げるアップロード鍵。鍵の場所とパスワードは local.properties に置き、リポジトリには入れない
+    val releaseSigning = listOf("RELEASE_STORE_FILE", "RELEASE_STORE_PASSWORD", "RELEASE_KEY_ALIAS", "RELEASE_KEY_PASSWORD")
+        .associateWith { name -> providers.gradleProperty(name).orElse(navigationProperties.getProperty(name, "")).get().trim() }
+    if (releaseSigning.values.all { it.isNotEmpty() }) {
+        signingConfigs.create("release") {
+            storeFile = rootProject.file(releaseSigning.getValue("RELEASE_STORE_FILE"))
+            storePassword = releaseSigning.getValue("RELEASE_STORE_PASSWORD")
+            keyAlias = releaseSigning.getValue("RELEASE_KEY_ALIAS")
+            keyPassword = releaseSigning.getValue("RELEASE_KEY_PASSWORD")
+        }
+        buildTypes.getByName("release").signingConfig = signingConfigs.getByName("release")
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
