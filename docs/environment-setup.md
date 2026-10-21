@@ -374,7 +374,7 @@ adb reverse tcp:8003 tcp:8003
 ./gradlew -g .gradle-local -PVALHALLA_URL=http://127.0.0.1:8003 \
   :androidApp:assembleDebug
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-adb shell am start -n com.theacar.android/.MainActivity
+adb shell am start -n com.tabireco.app/com.theacar.android.MainActivity
 ```
 
 複数端末が出たら各adbコマンドに`-s 端末ID`を付ける。`unauthorized`のまま進めない。`adb reverse`はUSBの再接続等でやり直す場合がある。端末の127.0.0.1を、そのままPCだと思わない。

@@ -134,7 +134,7 @@ adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
 ```
 
 ```powershell
-adb shell dumpsys package com.theacar.android | Select-String pkgFlags
+adb shell dumpsys package com.tabireco.app | Select-String pkgFlags
 ```
 
 `TEST_ONLY` が**含まれていない**こと、`DEBUGGABLE` が**含まれている**ことを確認します。
@@ -171,7 +171,7 @@ Release ビルドは、Car App Library が持つ Google の公式ホスト（And
 付与状態の確認:
 
 ```powershell
-adb shell dumpsys package com.theacar.android | Select-String "androidx.car.app"
+adb shell dumpsys package com.tabireco.app | Select-String "androidx.car.app"
 ```
 
 ## 5. 接続して DHU を起動する
@@ -219,7 +219,7 @@ DHU のウィンドウを見るだけでも確認できますが、記録を残�
 最も確実な判定です。
 
 ```powershell
-adb shell dumpsys activity services com.theacar.android
+adb shell dumpsys activity services com.tabireco.app
 ```
 
 `ServiceRecord{... com.theacar.auto.TheaCarService}` があり、`recentCallingPackage=com.google.android.projection.gearhead` が出れば、Android Auto が旅れこをナビアプリとして起動しています。
@@ -315,11 +315,13 @@ DHU 2.0 が持つ機能は、昼夜モードの切り替え、タップとキー
 先に車載画面で案内を開始してから実行します。
 
 ```powershell
-adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
-adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
+adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
+adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
 ```
 
 **受信口は `-n` で名指しします。** アクション名だけの放送は Android 8 以降のバックグラウンド制限でアプリに届かず、`Broadcast completed: result=0` だけが返って何も起きません。
+
+アプリの ID（`com.tabireco.app`）とコードのパッケージ（`com.theacar.android`）は別なので、`/` の後ろはクラス名を省略せずに書きます。
 
 `--ei kmh` が目標の速さです。止まった状態から15秒かけてそこまで上げ、その後も緩やかに上下します。`15` なら寄った地図、`100` なら引いて傾いた地図になります。終点まで走ると自動で止まります。
 
