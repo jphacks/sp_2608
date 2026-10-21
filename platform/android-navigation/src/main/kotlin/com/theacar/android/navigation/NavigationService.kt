@@ -88,7 +88,7 @@ class NavigationService : Service() {
                 }
                 val turn = maneuver?.takeIf { !state.rerouting }
                 val key = turn?.let { "${state.sessionId}:${state.routeRevision}:${it.stepIndex}" }
-                val alert = key != null && key != notifiedManeuver
+                val alert = key != null && key != notifiedManeuver && !runtime.carScreenVisible.value
                 if (key != null) notifiedManeuver = key
                 getSystemService(NotificationManager::class.java).notify(1001,
                     notification(if (state.rerouting) "ルートを再検索しています" else maneuver?.instruction ?: "旅れこで案内中",
