@@ -54,13 +54,14 @@ internal class CarMapRenderer(
     /** ルート線を景観で塗り分ける。地図を作り直したときも同じ状態に戻せるよう覚えておく。 */
     fun showScenery(model: CarScenery?) {
         sceneryRequest = model
-        controller?.paintScenery(model?.blocks.orEmpty().map { it.range to carSceneryColor(it.category) })
+        controller?.paintScenery(model?.blocks.orEmpty().map { it.range to carSceneryColor(it.category, context.isDarkMode) })
     }
 
     /** 車が昼夜の表示を切り替えたとき（MR-1）。 */
     fun setDarkMode(enabled: Boolean) {
         controller?.setDarkMode(enabled)
         paintAttribution(enabled)
+        showScenery(sceneryRequest)
     }
 
     private fun paintAttribution(dark: Boolean) {

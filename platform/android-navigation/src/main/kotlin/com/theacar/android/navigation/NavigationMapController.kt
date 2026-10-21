@@ -260,7 +260,13 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         if (dark == enabled) return
         dark = enabled
         if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark) }
+        routeLine?.color = routeColor()
+        traveledLine?.color = traveledColor()
     }
+
+    // 夜の地図では、これから走る線を明るく、通過済みを暗くして、地との差を保つ
+    private fun routeColor() = if (dark) android.graphics.Color.rgb(95, 179, 211) else android.graphics.Color.rgb(46, 140, 170)
+    private fun traveledColor() = if (dark) android.graphics.Color.rgb(74, 85, 80) else android.graphics.Color.rgb(165, 170, 166)
 
     fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {
         contentPadding = intArrayOf(left, top, right, bottom)
@@ -371,7 +377,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val points = index.slice(ScenicRange(0.0, traveled))
         if (points.size < 2) return
         traveledLine = target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-            .color(android.graphics.Color.rgb(165, 170, 166)).width(10f))
+            .color(traveledColor()).width(10f))
     }
 
     private fun render() {
@@ -410,7 +416,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
                 target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(14f))
             }
             routeLine = routePoints?.let {
-                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.rgb(46, 140, 170)).width(10f))
+                target.addPolyline(PolylineOptions().addAll(it).color(routeColor()).width(10f))
             }
             routeKey = key
             if (route != null && state.phase == NavigationPhase.PREVIEW) {
