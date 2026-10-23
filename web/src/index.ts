@@ -127,7 +127,7 @@ async function handleCreateTrip(request: Request, env: Env): Promise<Response> {
 }
 
 /** 写真のパス。差し替えてもブラウザや CDN のキャッシュに残らないよう、置いた時刻を ?v= に付ける。 */
-function photoPath(trip: StoredTrip): string {
+function photoPath(trip: Pick<StoredTrip, "photoVersion">): string {
   return `/photo.jpg${trip.photoVersion ? `?v=${trip.photoVersion}` : ""}`;
 }
 
@@ -156,7 +156,8 @@ async function withMusic(env: Env, trip: StoredTrip): Promise<StoredTrip> {
 async function handleGetTripJson(request: Request, env: Env, id: string): Promise<Response> {
   const found = await getTrip(env, id);
   if (!found) return json({ error: "not found" }, 404);
-  const trip = await withMusic(env, found);
+  // 端末 ID は同じ端末の旅と音楽ログを結びつけるため、URL を知っている人にも見せない
+  const { deviceId: _deviceId, ...trip } = await withMusic(env, found);
   const photoUrl = trip.hasPhoto ? `${tripUrl(env, request, id)}${photoPath(trip)}` : null;
   return json({ ...trip, url: tripUrl(env, request, id), photoUrl }, 200, { "cache-control": "public, max-age=60" });
 }
