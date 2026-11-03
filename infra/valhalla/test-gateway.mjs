@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const endpoint = 'http://127.0.0.1:8003';
-const token = readFileSync(new URL('./.secrets/routing.token', import.meta.url), 'utf8').trim();
+const endpoint = process.env.GATEWAY_URL || 'http://127.0.0.1:8003';
+const token = readFileSync(process.env.ROUTING_TOKEN_FILE || new URL('./.secrets/routing.token', import.meta.url), 'utf8').trim();
 const request = async (path, options = {}) => {
   for (let attempt = 0; attempt < 6; attempt++) {
     const response = await fetch(endpoint + path, { ...options, redirect: 'error', signal: AbortSignal.timeout(10000) });
