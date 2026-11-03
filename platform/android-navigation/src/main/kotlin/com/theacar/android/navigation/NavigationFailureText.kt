@@ -17,6 +17,7 @@ fun NavigationFailure.message(): String = when (this) {
     NavigationFailure.TIMEOUT -> "時間がかかっています。少し待って再試行してください。"
     NavigationFailure.START -> "案内を開始できませんでした。"
     NavigationFailure.STOP -> "案内を終了できませんでした。"
-    NavigationFailure.LIMIT_REACHED -> "検索回数の上限です。時間を空けて再試行してください。"
+    NavigationFailure.LIMIT_REACHED -> "短い間に検索しすぎました。10分ほど空けてから、もう一度お試しください。"
+    NavigationFailure.BUSY -> "経路サーバーが混み合っています。少し待ってから、もう一度お試しください。"
     NavigationFailure.AWAY_FROM_ROUTE -> "ルートから離れています。「経路を変更」から今いる場所で探し直してください。"
 }
