@@ -1,7 +1,6 @@
-package com.theacar.android.debug
+package com.theacar.android.navigation
 
 import android.os.SystemClock
-import com.theacar.android.navigation.AndroidNavigationRuntime
 import com.theacar.location.LocationFix
 import com.theacar.model.Coordinate
 import com.theacar.navigation.NavigationPhase
@@ -21,9 +20,10 @@ import kotlinx.coroutines.launch
 /**
  * 案内中の経路の上を走っていることにして、位置を作り続ける。机の上では車が動かず、
  * 速度で倍率が変わることを確かめられないため。測位の代わりに位置を差し込むだけで、
- * 案内そのものは実機と同じ道筋で動く。Debug ビルドにしか入らない。
+ * 案内そのものは実機と同じ道筋で動く。Android Auto のテストドライブ（品質ガイドラインの NF-7）と、
+ * Debug ビルドの模擬走行で使う。
  */
-internal class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
+class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var job: Job? = null
 

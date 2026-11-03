@@ -18,6 +18,7 @@ import androidx.car.app.navigation.model.Trip
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.theacar.android.navigation.AndroidNavigationRuntime
+import com.theacar.android.navigation.DriveSimulator
 import com.theacar.cabin.CabinNotice
 import com.theacar.cabin.CabinNoticeSource
 import com.theacar.navigation.NavigationPhase
@@ -41,6 +42,8 @@ internal class TheaCarSession(
      * 案内セッションと経路が変わるまで持ち越す。
      */
     private var announcedFor: Pair<Long, String>? = null
+    private var autoDrive = false
+    private val simulator by lazy { DriveSimulator(runtime) }
     private var announcedReveal: Double? = null
     private var announcedRoad: String? = null
 
@@ -71,6 +74,11 @@ internal class TheaCarSession(
         carContext.getCarService(AppManager::class.java).setSurfaceCallback(surfaceCallback)
         manager.setNavigationManagerCallback(object : NavigationManagerCallback {
             override fun onStopNavigation() { runtime.session.stop() }
+            // 審査で使うテストドライブ（NF-7）。これ以降の案内は、経路の上を走っていることにして進める
+            override fun onAutoDriveEnabled() {
+                autoDrive = true
+                simulator.start(AUTO_DRIVE_KMH)
+            }
         })
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             // スマホの画面を開かずに車の画面だけで使うときも、案内の前に現在地を取る
@@ -81,6 +89,7 @@ internal class TheaCarSession(
             override fun onDestroy(owner: LifecycleOwner) {
                 if (navigationStarted) manager.navigationEnded()
                 manager.clearNavigationManagerCallback()
+                simulator.stop()
                 carContext.getCarService(AppManager::class.java).setSurfaceCallback(null)
                 renderer.close()
                 scope.cancel()
@@ -98,6 +107,7 @@ internal class TheaCarSession(
                     (navigationStarted && navigation.phase == NavigationPhase.STOPPING)
                 if (guiding && !navigationStarted) {
                     manager.navigationStarted(); navigationStarted = true
+                    if (autoDrive) simulator.start(AUTO_DRIVE_KMH)
                     screens.popToRoot(); screens.push(GuidanceScreen(carContext, runtime, controls))
                 }
                 if (!guiding && navigationStarted) {
@@ -177,5 +187,7 @@ internal class TheaCarSession(
         /** 知らせの差し替えに使う番号。車内の知らせとぶつからない値にしている。 */
         const val REVEAL_ALERT_ID = Int.MAX_VALUE - 1
         const val ROAD_ALERT_ID = Int.MAX_VALUE - 2
+        /** テストドライブの速さ。一般道を走る速さにしている。 */
+        const val AUTO_DRIVE_KMH = 50.0
     }
 }

@@ -80,7 +80,7 @@ class AndroidLocationSource(private val context: Context, private val scope: Cor
 
     /**
      * 検証用に位置を差し込む。差し込んでいる間は実機の測位を取り込まない。
-     * null を渡すと測位に戻す。呼び出し側は Debug ビルドにしか無い。
+     * null を渡すと測位に戻す。Android Auto のテストドライブと、Debug ビルドの模擬走行から呼ぶ。
      */
     fun simulate(fix: LocationFix?) {
         simulated = fix != null
