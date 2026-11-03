@@ -199,6 +199,7 @@ APKだけでは経路検索できません。PC側のAPI、道路・景観デー
 | [将来性](docs/outlook.md) | 想定ユーザー、Google Playでの公開までの障壁 |
 | [Google Playへの配布](docs/play-release.md) | アップロード鍵、AABの作成、内部テストでの配布 |
 | [Google Playの公開要件](docs/play-requirements.md) | 確認日と出典つきの要件、実装と照らした結果 |
+| [掲載情報](docs/store-listing.md) | 説明文、画像、スクリーンショットの撮影リスト、申告の回答案 |
 | [ナビの操作](docs/navigation.md) | 目的地検索、好みの調整、候補比較、景観タイムライン |
 | [公開データ](docs/public-routing-data.md) | 取得元、利用条件、地理・地形・土地被覆の扱い |
 | [道路の登録基準](docs/scenic-road-registry-policy.md)・[道路台帳](docs/scenic-road-registry.md) | 名道の選定、出典、対象区間、本登録と保留 |
