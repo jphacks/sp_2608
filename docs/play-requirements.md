@@ -36,8 +36,8 @@
 | マイクの種類 | 用途は Background Audio Access。例は保存しない音声コマンドと録音。動画では、利用者がマイクの収音を始める様子を見せる | 要確認。旅れこは会話の量の判定に使い、案内の開始に連動して始まる。例と違うので、審査の結果は読めない | 同上 |
 | メディア再生の種類 | バックグラウンドで続く音声や動画の再生。再生は利用者が始めたものに限り、自動で流す音は当たらない | 不足のおそれ。`GuestRequestService` は自分では音を出さない。実際の再生は Spotify アプリが行い、このサービスはリクエストの受け付けを保っている | 同上 |
 | アカウント削除 | アプリ内でアカウントを作れる場合に、アプリ内とウェブの削除手段が要る。データセーフティの削除の質問には全員が答える | 対象外。独自のアカウントはない。Spotify の連携がこれに当たるかはページに書かれていない（要確認） | [Account deletion](https://support.google.com/googleplay/android-developer/answer/13327111) |
-| プライバシーポリシー | 公開の URL（PDF 不可、ログイン不要）を、掲載情報とアプリ内の両方にリンクする | 不足。URL は公開済み。アプリ内にリンクがない | [Prepare your app for review](https://support.google.com/googleplay/android-developer/answer/9859455) |
-| 目立つ開示 | 利用者の想定を超える収集は、許可を求める直前にアプリ内で説明する。ポリシーに書くだけでは足りない。位置情報とマイクは個人情報に当たる | 不足。マイクと位置情報は、説明の画面なしで OS の許可ダイアログを出す（`SpotifyMusicActivity.kt:87`、`NavigationActivity.kt:270`） | [User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311) |
+| プライバシーポリシー | 公開の URL（PDF 不可、ログイン不要）を、掲載情報とアプリ内の両方にリンクする | 満たす（2026-11-03）。設定のタブにリンクを入れた | [Prepare your app for review](https://support.google.com/googleplay/android-developer/answer/9859455) |
+| 目立つ開示 | 利用者の想定を超える収集は、許可を求める直前にアプリ内で説明する。ポリシーに書くだけでは足りない。位置情報とマイクは個人情報に当たる | 満たす（2026-11-03）。位置情報とマイクの許可の直前に、何に使い、どこへ送るかを見せる（`PermissionDisclosure.kt`）。写真の撮影場所を読む許可の前は要確認 | [User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311) |
 | 通信の暗号化 | 個人情報は HTTPS などで送る | 満たす。Release には `usesCleartextTraffic` がない | 同上 |
 
 ## 3. Android Auto
@@ -58,14 +58,14 @@
 | --- | --- | --- | --- |
 | NF-1 | 曲がり角の案内 | 満たす | `GuidanceScreen.kt` |
 | NF-3 | 案内の通知 | 満たす | `NavigationService.kt:116`。ongoing、`CATEGORY_NAVIGATION`、`CarAppExtender` |
-| NF-4 | 次の曲がり角をクラスタへ送る | 不足 | `TheaCarSession.kt:111` の `Trip` に `Step` を入れていない |
+| NF-4 | 次の曲がり角をクラスタへ送る | 実装済み、DHU で未確認 | `TheaCarSession.kt` の `Trip` に次の曲がり角を入れた（2026-11-03） |
 | NF-5 | ほかのナビの案内中は止まる | 満たす見込み | `onStopNavigation` で案内を止める。実機では未確認 |
-| NF-6、VC-1 | ほかのアプリの要求と音声コマンドを受ける | 不足 | [#39](https://github.com/jphacks/sp_2608/issues/39) |
-| NF-7 | テストドライブ。Play の審査に必須 | 不足 | [#40](https://github.com/jphacks/sp_2608/issues/40)。`onAutoDriveEnabled` がない。[Build a navigation app](https://developer.android.com/training/cars/apps/navigation)（更新 2026-09-08） |
+| NF-6、VC-1 | ほかのアプリの要求と音声コマンドを受ける | 実装済み、DHU で未確認 | [#39](https://github.com/jphacks/sp_2608/issues/39)。`geo:` の座標か検索の文字を受け、ルートの確認を開く（2026-11-03）。案内中は受けない |
+| NF-7 | テストドライブ。Play の審査に必須 | 実装済み、DHU で未確認 | [#40](https://github.com/jphacks/sp_2608/issues/40)。`onAutoDriveEnabled` で、案内中の経路の上を時速50kmで走らせる（2026-11-03）。[Build a navigation app](https://developer.android.com/training/cars/apps/navigation)（更新 2026-09-08） |
 | DD-1 | 案内の音声チャンネルは案内にだけ使う | 不足 | `CabinNoticeSpeaker.kt:30,48` が窓の知らせも同じチャンネルで読み上げる。[#43](https://github.com/jphacks/sp_2608/issues/43) |
 | PC-1、IN-1 | 車向けでない機能を入れない。必要な通知だけ出す | 要確認 | [#43](https://github.com/jphacks/sp_2608/issues/43)。景観の知らせ、窓の知らせ、BGM の自動開始 |
 | MR-1 | 昼夜の地図 | 満たす | [#41](https://github.com/jphacks/sp_2608/issues/41) の対応。`TheaCarSession.kt:61` |
-| DR-2、DR-3 | 起動と読み込みは10秒以内 | 要確認 | Cloud Run は `minScale: 0`（`feat/cloud-run` の `service.yaml`）。止まった状態からの応答を測る |
+| DR-2、DR-3 | 起動と読み込みは10秒以内 | 不足のおそれ | Cloud Run は `minScale: 0`（`feat/cloud-run` の `service.yaml`）。2026-10 の記録では、止まった状態からの最初の応答が検索で7〜8秒、景観ルートで15.8秒 |
 | VI-1 | スマホを見させるときは、安全なときだけ見るよう伝える | 要確認 | 最近の目的地の案内文には「停車中に」とある。車の画面から許可を求める場面の表示は未確認 |
 | EP-1 | 掲載情報のとおりに動く | 要確認 | 掲載情報に北海道限定と書く。Spotify の扱いで文面が変わる |
 
