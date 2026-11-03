@@ -106,11 +106,19 @@ internal class TheaCarSession(
                 }
                 if (guiding) {
                     navigation.route?.let { route ->
-                        val estimate = travelEstimate(navigation.progress?.remainingMeters ?: route.distanceMeters,
-                            navigation.progress?.remainingSeconds ?: route.durationSeconds)
+                        val remainingMeters = navigation.progress?.remainingMeters ?: route.distanceMeters
+                        val remainingSeconds = navigation.progress?.remainingSeconds ?: route.durationSeconds
                         val trip = Trip.Builder().addDestination(
-                            androidx.car.app.navigation.model.Destination.Builder().setName(route.destination.title).build(), estimate)
-                        navigation.maneuver?.let { trip.setCurrentRoad(it.road) }
+                            androidx.car.app.navigation.model.Destination.Builder().setName(route.destination.title).build(),
+                            travelEstimate(remainingMeters, remainingSeconds))
+                        // メーターの表示（クラスタ）にも次の曲がり角を出す。曲がり角までの時間は残りの時間を距離で按分した目安
+                        navigation.maneuver?.let { maneuver ->
+                            trip.setCurrentRoad(maneuver.road)
+                            val type = route.steps.getOrNull(maneuver.stepIndex)?.type ?: 0
+                            val seconds = (remainingSeconds.toLong() * maneuver.distanceMeters / remainingMeters.coerceAtLeast(1)).toInt()
+                            trip.addStep(ManeuverMapping.step(carContext, maneuver.instruction, maneuver.road, type),
+                                travelEstimate(maneuver.distanceMeters, seconds))
+                        }
                         manager.updateTrip(trip.setLoading(navigation.rerouting).build())
                     }
                 }
