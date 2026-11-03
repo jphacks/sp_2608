@@ -18,6 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.theacar.dashboard.components.AtmosphereControl
 import com.theacar.drive.DriveState
@@ -57,6 +58,15 @@ fun SettingsScreen(
             }
             Spacer(Modifier.height(24.dp))
         }
+        val uriHandler = LocalUriHandler.current
+        SectionTitle("このアプリについて")
+        Surface(onClick = { uriHandler.openUri(PRIVACY_POLICY_URL) }, color = SurfaceWhite, shape = RoundedCornerShape(CardCorner)) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("プライバシーポリシー", Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.bodyLarge)
+                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = Muted)
+            }
+        }
+        Spacer(Modifier.height(24.dp))
         if (demoActions != null) {
             SectionTitle("開発用")
             Surface(color = SurfaceWhite, shape = RoundedCornerShape(CardCorner)) {
@@ -74,6 +84,8 @@ fun SettingsScreen(
         }
     }
 }
+
+private const val PRIVACY_POLICY_URL = "https://tabireco-web.miraidai.workers.dev/privacy"
 
 @Composable
 private fun SectionTitle(text: String) {
