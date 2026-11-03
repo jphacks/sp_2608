@@ -66,10 +66,11 @@ spec:
             - { name: SCENIC_LANDCOVER, value: /data/landcover-hokkaido-v3.sqlite }
             - { name: SCENIC_WEATHER, value: "true" }
             - { name: SCENIC_SEARCH_SECONDS, value: "90" }
+            - { name: SCENIC_RECOMMENDATION_WORKERS, value: "4" }
             # 書き込み先は root ファイルシステム（メモリ上）。インスタンスが消えると推薦ジョブも消える。
             - { name: SCENIC_STATE, value: /tmp/recommendations.sqlite }
           resources:
-            limits: { cpu: "1", memory: 1Gi }
+            limits: { cpu: "1", memory: 2Gi }
           startupProbe:
             tcpSocket: { port: 8004 }
             periodSeconds: 3

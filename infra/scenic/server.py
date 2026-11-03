@@ -211,7 +211,8 @@ if __name__ == '__main__':
         terrain=os.environ.get('SCENIC_TERRAIN') or None,
         context=os.environ.get('SCENIC_CONTEXT') or None,
         landcover=os.environ.get('SCENIC_LANDCOVER') or None,
-        routing_directory=os.environ.get('SCENIC_ROUTING_DIRECTORY') or None)
+        routing_directory=os.environ.get('SCENIC_ROUTING_DIRECTORY') or None,
+        workers=int(os.environ.get('SCENIC_RECOMMENDATION_WORKERS', '1')))
     def cleanup():
         while True:
             threading.Event().wait(60)

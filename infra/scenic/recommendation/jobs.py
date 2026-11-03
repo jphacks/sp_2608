@@ -150,7 +150,7 @@ class JobStore:
 class RecommendationService:
     def __init__(self, jobs, catalog_path, endpoint, parameters=None, forecasts=None, supplements=None, adapter_factory=None,
                  recommended_roads=None, landscapes=None, terrain=None, context=None, landcover=None,
-                 routing_directory=None):
+                 routing_directory=None, workers=1):
         self.jobs, self.catalog_path, self.endpoint = jobs, catalog_path, endpoint
         self.parameters = parameters or Parameters()
         self.forecasts, self.supplements = forecasts or OpenMeteoForecasts(False), supplements
@@ -160,8 +160,10 @@ class RecommendationService:
         self.landcover = landcover
         self.routing_directory = Path(routing_directory) if routing_directory else Path(catalog_path).parent
         self.adapter_factory = adapter_factory or (lambda version: ValhallaAdapter(endpoint, version))
-        self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='recommendations')
-        self.slots = threading.BoundedSemaphore(1)
+        # 探索は1件ごとに別の Catalog・ScenicStore・計画を持つので、並べて走らせても状態を共有しない。
+        # 枠が埋まっていたら待たせずに断る。待たせるとアプリ側の待ち時間（125秒）を超えるため
+        self.executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix='recommendations')
+        self.slots = threading.BoundedSemaphore(workers)
         self.cancel_events = {}
         package = Path(__file__).parent
         self.implementation_hash = hashlib.sha256(b''.join(p.read_bytes() for p in sorted(package.glob('*.py')))).hexdigest()

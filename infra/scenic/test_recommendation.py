@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest.mock import Mock, patch
 
@@ -10,7 +11,7 @@ from geometry import distance
 from recommendation.environment import Forecast, OpenMeteoForecasts, solar_position
 from recommendation.evaluator import RouteEvaluator, integrated_max, geographic_category
 from recommendation.evidence import EvidenceBuilder
-from recommendation.jobs import JobStore, RecommendationService
+from recommendation.jobs import Busy, JobStore, RecommendationService
 from recommendation.models import Anchor, CATEGORIES, Infeasible, InputError, Opportunity, Parameters, RecommendationRequest, Facility
 from recommendation.portfolio import select_portfolio, weighted_overlap
 from recommendation.search import CandidatePlanner
@@ -418,6 +419,31 @@ class JobStoreTest(unittest.TestCase):
             self.assertIsNone(store.route('route_a'))
             store.delete(job)
             self.assertIsNone(store.session(session['session_id']))
+
+
+class ConcurrencyTest(unittest.TestCase):
+    def test_runs_as_many_searches_as_workers_and_rejects_the_rest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            service = RecommendationService(JobStore(Path(directory) / 'jobs.sqlite'), 'unused.sqlite', 'http://unused', workers=2)
+            release, started = threading.Event(), threading.Semaphore(0)
+
+            def run(job_id, request):
+                try:
+                    started.release()
+                    release.wait(5)
+                finally:
+                    service.slots.release()
+            service.run = run
+            request = Mock()
+            request.payload.return_value = {}
+            first, second = service.submit(request), service.submit(request)
+            self.assertTrue(started.acquire(timeout=5) and started.acquire(timeout=5))
+            self.assertNotEqual(first['request_id'], second['request_id'])
+            with self.assertRaises(Busy):
+                service.submit(request)
+            release.set()
+            service.executor.shutdown(wait=True)
+            self.assertTrue(service.slots.acquire(blocking=False) and service.slots.acquire(blocking=False))
 
 
 if __name__ == '__main__':
