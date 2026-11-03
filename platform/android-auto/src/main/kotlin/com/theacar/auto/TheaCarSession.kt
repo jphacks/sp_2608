@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Rect
 import androidx.car.app.AppManager
+import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
 import androidx.car.app.ScreenManager
@@ -23,10 +24,12 @@ import com.theacar.cabin.CabinNotice
 import com.theacar.cabin.CabinNoticeSource
 import com.theacar.navigation.NavigationPhase
 import com.theacar.navigation.NavigationState
+import com.theacar.route.Destination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal class TheaCarSession(
@@ -43,6 +46,7 @@ internal class TheaCarSession(
      */
     private var announcedFor: Pair<Long, String>? = null
     private var autoDrive = false
+    private var controls: CarMapControls? = null
     private val simulator by lazy { DriveSimulator(runtime) }
     private var announcedReveal: Double? = null
     private var announcedRoad: String? = null
@@ -71,6 +75,7 @@ internal class TheaCarSession(
         renderer = CarMapRenderer(carContext, runtime, scope)
         // 地図のボタンから倍率と現在地を動かす。車載機によってはパンモードだけでは拡大できない
         val controls = CarMapControls({ renderer.zoom(CAR_ZOOM_STEP) }, { renderer.zoom(1 / CAR_ZOOM_STEP) }, renderer::recenter)
+        this.controls = controls
         carContext.getCarService(AppManager::class.java).setSurfaceCallback(surfaceCallback)
         manager.setNavigationManagerCallback(object : NavigationManagerCallback {
             override fun onStopNavigation() { runtime.session.stop() }
@@ -137,7 +142,44 @@ internal class TheaCarSession(
         notices?.let { source ->
             scope.launch(Dispatchers.Main) { source.notices.collect(::show) }
         }
+        // ルートの画面はホームの上に積むので、ホームが置かれてから開く
+        scope.launch(Dispatchers.Main) { navigate(intent) }
         return HomeScreen(carContext, runtime, controls)
+    }
+
+    override fun onNewIntent(intent: Intent) = navigate(intent)
+
+    /**
+     * ほかのアプリや音声アシスタントから届いた行き先で、ルートの確認を開く（品質ガイドラインの NF-6、VC-1）。
+     * 案内中は今の案内を止めずに、終わってからにしてもらう。
+     */
+    private fun navigate(intent: Intent) {
+        if (intent.action != CarContext.ACTION_NAVIGATE) return
+        val request = intent.data?.let { navigateRequest(it.toString()) } ?: return
+        val session = runtime.session
+        if (session.state.value.phase !in setOf(NavigationPhase.IDLE, NavigationPhase.PREVIEW, NavigationPhase.PREVIEWING)) {
+            CarToast.makeText(carContext, "案内を終えてから、もう一度お試しください", CarToast.LENGTH_LONG).show()
+            return
+        }
+        scope.launch(Dispatchers.Main) {
+            val destination = when (request) {
+                is NavigateRequest.At -> Destination("geo:${request.coordinate.latitude},${request.coordinate.longitude}",
+                    request.label ?: "指定された場所", request.coordinate)
+                is NavigateRequest.Search -> {
+                    session.search(request.text)
+                    session.state.first { it.query == request.text && !it.searching }.destinations.firstOrNull() ?: run {
+                        CarToast.makeText(carContext, "「${request.text}」が見つかりませんでした", CarToast.LENGTH_LONG).show()
+                        return@launch
+                    }
+                }
+            }
+            session.preview(destination)
+            val screens = carContext.getCarService(ScreenManager::class.java)
+            screens.popToRoot()
+            if (session.state.value.phase in setOf(NavigationPhase.PREVIEWING, NavigationPhase.PREVIEW)) {
+                screens.push(RoutePreviewScreen(carContext, runtime, controls))
+            }
+        }
     }
 
     /**
