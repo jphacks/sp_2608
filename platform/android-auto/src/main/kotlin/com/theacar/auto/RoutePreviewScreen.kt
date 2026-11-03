@@ -9,7 +9,6 @@ import androidx.car.app.CarContext
 import androidx.car.app.ScreenManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
-import androidx.car.app.model.Distance
 import androidx.car.app.model.DistanceSpan
 import androidx.car.app.model.DurationSpan
 import androidx.car.app.model.Header
@@ -92,9 +91,6 @@ internal class RoutePreviewScreen(carContext: CarContext, runtime: AndroidNaviga
 private val previewPhases = setOf(NavigationPhase.PREVIEWING, NavigationPhase.PREVIEW, NavigationPhase.STARTING)
 
 internal fun NavigationFailure?.relevant() = this?.takeUnless { it == NavigationFailure.SEARCH || it == NavigationFailure.NO_RESULTS }
-
-private fun distance(meters: Int) = if (meters < 1000) Distance.create(meters.toDouble(), Distance.UNIT_METERS)
-    else Distance.create(meters / 1000.0, Distance.UNIT_KILOMETERS)
 
 /** ルート確認の行へ並べる景観の件数。これ以上は1行に入らない。 */
 private const val SCENERY_PREVIEW_ITEMS = 2

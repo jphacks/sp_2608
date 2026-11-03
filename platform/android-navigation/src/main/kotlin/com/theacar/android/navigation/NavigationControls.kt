@@ -53,6 +53,7 @@ import com.theacar.ui.Mountains
 import com.theacar.ui.Muted
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.jost
+import java.util.Locale
 
 @Composable
 internal fun NavigationControls(
@@ -249,8 +250,10 @@ internal fun NavigationControls(
                         Text(if (state.rerouting) "ルートを再検索中" else "次の案内", style = MaterialTheme.typography.labelMedium)
                         state.maneuver?.let {
                             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("${it.distanceMeters}", style = MaterialTheme.jost.stat.copy(color = LocalContentColor.current))
-                                Text("m 先", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp))
+                                val (value, unit) = if (it.distanceMeters < 1000) "${it.distanceMeters}" to "m 先"
+                                    else String.format(Locale.JAPAN, "%.1f", it.distanceMeters / 1000.0) to "km 先"
+                                Text(value, style = MaterialTheme.jost.stat.copy(color = LocalContentColor.current))
+                                Text(unit, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp))
                             }
                             Text(it.instruction, style = MaterialTheme.typography.titleMedium)
                         } ?: Text("ルートに沿って進んでください", style = MaterialTheme.typography.titleMedium)

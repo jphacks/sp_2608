@@ -37,7 +37,7 @@ internal class GuidanceScreen(
             val current = steps.getOrNull(maneuver.stepIndex)
             val info = RoutingInfo.Builder().setCurrentStep(
                 ManeuverMapping.step(carContext, maneuver.instruction, maneuver.road, current?.type ?: 0),
-                Distance.create(maneuver.distanceMeters.toDouble(), Distance.UNIT_METERS))
+                distance(maneuver.distanceMeters))
             steps.getOrNull(maneuver.stepIndex + 1)?.let { next ->
                 info.setNextStep(ManeuverMapping.step(carContext, next.instruction, next.road, next.type))
             }
@@ -56,5 +56,9 @@ internal fun stopAction(carApiLevel: Int, onStop: () -> Unit): Action = Action.B
     .setOnClickListener(onStop).build()
 
 internal fun travelEstimate(meters: Int, seconds: Int): TravelEstimate = TravelEstimate.Builder(
-    Distance.create(meters.toDouble(), Distance.UNIT_METERS), ZonedDateTime.now().plusSeconds(seconds.toLong()))
+    distance(meters), ZonedDateTime.now().plusSeconds(seconds.toLong()))
     .setRemainingTimeSeconds(seconds.toLong()).build()
+
+/** 1km 以上は km で出す。m のままだと「52000m 先」のように桁が大きくなる。 */
+internal fun distance(meters: Int): Distance = if (meters < 1000) Distance.create(meters.toDouble(), Distance.UNIT_METERS)
+    else Distance.create(meters / 1000.0, Distance.UNIT_KILOMETERS)
