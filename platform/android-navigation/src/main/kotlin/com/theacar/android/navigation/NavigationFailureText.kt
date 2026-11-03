@@ -5,7 +5,7 @@ import com.theacar.navigation.NavigationFailure
 fun NavigationFailure.message(): String = when (this) {
     NavigationFailure.SEARCH -> "検索できませんでした。緯度,経度でも指定できます。"
     NavigationFailure.NO_RESULTS -> "目的地が見つかりません。"
-    NavigationFailure.NETWORK -> "経路サーバーへ接続できません。現在の経路は保持しています。"
+    NavigationFailure.NETWORK -> "経路サーバーへ接続できません。少し待ってから、もう一度お試しください。"
     NavigationFailure.NO_ROUTE -> "経路が見つかりません。対象地域・時間予算・道路条件・寄り道を確認してください。"
     NavigationFailure.PREVIEW_EXPIRED -> "景観ルートの確認から時間が経過しました。「経路を変更」から再検索してください。"
     NavigationFailure.SCENIC_UNAVAILABLE -> "景観ルートを探せませんでした。景観APIが起動していないか、目的地が景観データの範囲外です。"
