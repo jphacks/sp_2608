@@ -198,6 +198,7 @@ APKだけでは経路検索できません。PC側のAPI、道路・景観デー
 | [音楽推薦の設計](docs/bgm-recommendation-design.md) | 景観の先読み、音楽6軸への変換、好み・履歴による採点と抽選（図解） |
 | [将来性](docs/outlook.md) | 想定ユーザー、Google Playでの公開までの障壁 |
 | [Google Playへの配布](docs/play-release.md) | アップロード鍵、AABの作成、内部テストでの配布 |
+| [公開までのチェックリスト](docs/play-release-checklist.md) | 済んだこと、社長がやること、社長の判断が要ること |
 | [Google Playの公開要件](docs/play-requirements.md) | 確認日と出典つきの要件、実装と照らした結果 |
 | [掲載情報](docs/store-listing.md) | 説明文、画像、スクリーンショットの撮影リスト、申告の回答案 |
 | [ナビの操作](docs/navigation.md) | 目的地検索、好みの調整、候補比較、景観タイムライン |
