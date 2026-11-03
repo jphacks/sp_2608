@@ -33,10 +33,12 @@ import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
 import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.MiniPlayer
+import com.theacar.ui.PermissionDisclosure
 import com.theacar.ui.Sky
 import com.theacar.ui.Tab
 import com.theacar.ui.TabiBottomBar
 import com.theacar.ui.TheaCarTheme
+import com.theacar.ui.disclose
 import com.theacar.ui.openTab
 
 class NavigationActivity : ComponentActivity() {
@@ -149,7 +151,13 @@ class NavigationActivity : ComponentActivity() {
                         onStart = {
                             val missing = companion?.permissionsBeforeStart().orEmpty()
                                 .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
-                            if (missing.isEmpty()) startGuidance() else startPermissionRequest.launch(missing.toTypedArray())
+                            when {
+                                missing.isEmpty() -> startGuidance()
+                                Manifest.permission.RECORD_AUDIO in missing -> disclose(PermissionDisclosure.MICROPHONE, ::startGuidance) {
+                                    startPermissionRequest.launch(missing.toTypedArray())
+                                }
+                                else -> startPermissionRequest.launch(missing.toTypedArray())
+                            }
                         },
                         onStop = runtime.session::stop,
                         onCreateMemory = savedMemoryId?.let { id -> { recording?.open(this@NavigationActivity, id) } },
@@ -268,7 +276,11 @@ class NavigationActivity : ComponentActivity() {
     }
 
     private fun requestPermissions() {
-        permissionRequest.launch(permissions())
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            permissionRequest.launch(permissions())
+        } else {
+            disclose(PermissionDisclosure.LOCATION) { permissionRequest.launch(permissions()) }
+        }
     }
 
     // 案内の通知（車載画面の曲がり角の知らせも含む）は、Android 13 以上では許可がないと出ない
