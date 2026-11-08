@@ -78,7 +78,7 @@ internal class SpotifyAuthController(context: Context, private val scope: Corout
 
     /** ログイン画面からの戻り。受け付けたら [onConnected] を呼ぶ。 */
     fun finishLogin(uri: Uri?, onConnected: () -> Unit) = locked(clearFailure = true) {
-        if (uri?.scheme != "com.theacar.android.spotify" || uri.host != "oauth" || uri.path != "/callback" || uri.port != -1 || uri.userInfo != null || uri.fragment != null) {
+        if (uri?.scheme != "com.tabireco.app.spotify" || uri.host != "oauth" || uri.path != "/callback" || uri.port != -1 || uri.userInfo != null || uri.fragment != null) {
             throw MusicException(MusicFailure.AUTHORIZATION)
         }
         val request = storage.readLogin() ?: throw MusicException(MusicFailure.AUTHORIZATION)

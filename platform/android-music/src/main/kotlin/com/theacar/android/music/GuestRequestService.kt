@@ -28,7 +28,7 @@ class GuestRequestService : Service() {
         val open = PendingIntent.getActivity(this, 0, Intent(this, SpotifyMusicActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val stop = PendingIntent.getService(this, 0, Intent(this, GuestRequestService::class.java).setAction(STOP), PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL).setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle("TheaCar リクエスト受付中")
+            .setContentTitle("旅れこ リクエスト受付中")
             .setContentText("QRから届いた曲を車内で再生します。")
             .setContentIntent(open).setOngoing(true)
             .addAction(Notification.Action.Builder(null, "受付終了", stop).build()).build()

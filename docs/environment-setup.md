@@ -374,7 +374,7 @@ adb reverse tcp:8003 tcp:8003
 ./gradlew -g .gradle-local -PVALHALLA_URL=http://127.0.0.1:8003 \
   :androidApp:assembleDebug
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-adb shell am start -n com.theacar.android/.MainActivity
+adb shell am start -n com.tabireco.app/com.theacar.android.MainActivity
 ```
 
 複数端末が出たら各adbコマンドに`-s 端末ID`を付ける。`unauthorized`のまま進めない。`adb reverse`はUSBの再接続等でやり直す場合がある。端末の127.0.0.1を、そのままPCだと思わない。
@@ -486,6 +486,10 @@ adb reverse --remove tcp:8003
 ```
 
 QUIC接続が回線で失敗する場合は`cloudflared tunnel --protocol http2 --url http://127.0.0.1:8003`でも確認できる。両方式とも失敗したら、トークンを外さず公式の接続事前確認と回線・VPN・ファイアウォールを調べる。
+
+### 11.4 Cloud Runで動かす場合
+
+PCを常時起動できない場合は、同じ構成をCloud Runに載せられる。手順は[infra/cloudrun/README.md](../infra/cloudrun/README.md)。このときはTunnelもPCのDockerも不要で、アプリのベースURLをCloud RunのURLにする。
 
 ## 12. 再起動・停止・データ更新
 

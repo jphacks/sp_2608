@@ -15,7 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import com.theacar.music.MusicMember
 import com.theacar.music.MusicTrack
+import com.theacar.ui.PermissionDisclosure
 import com.theacar.ui.TheaCarTheme
+import com.theacar.ui.disclose
 import com.theacar.ui.openTab
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -32,7 +34,9 @@ class SpotifyMusicActivity : ComponentActivity() {
 
     private fun inspectEnvironment() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) runtime.inspectEnvironment()
-        else environmentPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        else disclose(PermissionDisclosure.LOCATION) {
+            environmentPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
     }
     private val permission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) runtime.startDriveMusic()
@@ -41,7 +45,9 @@ class SpotifyMusicActivity : ComponentActivity() {
 
     private fun startDriveMusic() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) runtime.startDriveMusic()
-        else permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        else disclose(PermissionDisclosure.LOCATION) {
+            permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
     }
 
     /** 手動の再生操作は自動の選曲より優先する。 */
@@ -84,7 +90,7 @@ class SpotifyMusicActivity : ComponentActivity() {
     private fun startBgm(members: List<MusicMember>) {
         pendingMembers = members
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) beginBgm(members)
-        else microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+        else disclose(PermissionDisclosure.MICROPHONE, { beginBgm(members) }) { microphonePermission.launch(Manifest.permission.RECORD_AUDIO) }
     }
 
     private fun beginBgm(members: List<MusicMember>) {

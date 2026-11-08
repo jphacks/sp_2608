@@ -74,6 +74,8 @@ class AndroidNavigationRuntime(application: Application) {
             }
         }
     }
+    /** 車の画面に旅れこが出ているか。出ている間は曲がり角を案内の画面で見せるので、通知では知らせない。 */
+    val carScreenVisible = MutableStateFlow(false)
     private val mutableVoiceEnabled = MutableStateFlow(true)
     val voiceEnabled = mutableVoiceEnabled.asStateFlow()
     fun setVoiceEnabled(enabled: Boolean) { mutableVoiceEnabled.value = enabled }

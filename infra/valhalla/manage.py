@@ -278,8 +278,10 @@ def upgrade_config(settings):
 def build_data(settings, only=None):
     data = Path(settings['data_dir'])
     pbf = data / 'region.osm.pbf'
-    python = ROOT / '.venv-scenic/bin/python'
-    if not pbf.is_file() or not python.is_file():
+    # venvの実行ファイルの場所はOSで違う（POSIXはbin、WindowsはScripts）。
+    python = next((path for path in (ROOT / '.venv-scenic/bin/python', ROOT / '.venv-scenic/Scripts/python.exe')
+                   if path.is_file()), None)
+    if not pbf.is_file() or python is None:
         raise ValueError('region.osm.pbf and .venv-scenic are required. Follow the clean setup guide first.')
     paths = {key: data / name for key, name in settings['files'].items()}
     catalog = paths['SCENIC_DATABASE']

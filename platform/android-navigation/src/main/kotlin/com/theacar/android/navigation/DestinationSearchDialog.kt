@@ -89,7 +89,7 @@ internal fun DestinationSearchDialog(
                     }
                 }
                 failure == NavigationFailure.NO_RESULTS -> SearchStatus("場所が見つかりませんでした", "別の地名や、短い施設名で検索してみてください。")
-                failure == NavigationFailure.NETWORK -> SearchStatus("検索サーバーへ接続できません", "ネット接続と、PCのサーバー・Tunnelの起動状態を確認してください。TunnelのURLが変わった場合はアプリの接続先も更新してください。", error = true)
+                failure == NavigationFailure.NETWORK -> SearchStatus("検索サーバーへ接続できません", "ネット接続を確かめて、少し待ってから、もう一度検索してください。", error = true)
                 failure != null -> SearchStatus("検索できませんでした", failure.message(), error = true)
                 else -> SearchStatus(
                     if (placeSearchEnabled) "地名や施設名で検索" else "座標を入力して検索",

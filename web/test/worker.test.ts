@@ -241,8 +241,9 @@ describe("音楽ログ", () => {
 
     await call(env, "/api/trips", { method: "POST", headers: { ...auth, "content-type": "application/json", "x-device-id": deviceId }, body: JSON.stringify(sampleTrip) });
     const api = await call(env, `/api/trips/${sampleTrip.id}`);
-    const stored = await api.json<{ deviceId: string; music: { tracks: unknown[]; mood: unknown[] } }>();
-    expect(stored.deviceId).toBe(deviceId);
+    const stored = await api.json<{ music: { tracks: unknown[]; mood: unknown[] } }>();
+    expect(stored).not.toHaveProperty("deviceId");
+    expect((await env.DB.prepare("SELECT device_id FROM trips WHERE id = ?1").bind(sampleTrip.id).first<{ device_id: string }>())?.device_id).toBe(deviceId);
     expect(stored.music.tracks).toHaveLength(sampleMusic.tracks.length);
     expect(stored.music.mood).toHaveLength(sampleMusic.mood.length);
     const page = await (await call(env, `/t/${sampleTrip.id}`)).text();

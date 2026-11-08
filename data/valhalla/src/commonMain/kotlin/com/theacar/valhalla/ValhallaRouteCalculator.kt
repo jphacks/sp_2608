@@ -138,5 +138,6 @@ private fun JsonObject.flag(name: String) = this[name]?.jsonPrimitive?.booleanOr
 
 fun routingHttpClient() = HttpClient {
     followRedirects = false
-    install(HttpTimeout) { requestTimeoutMillis = 20_000; connectTimeoutMillis = 5_000; socketTimeoutMillis = 15_000 }
+    // Cloud Run が止まっている状態から起動すると、最初の応答まで 7〜16 秒かかる（2026-10 の記録）
+    install(HttpTimeout) { requestTimeoutMillis = 30_000; connectTimeoutMillis = 5_000; socketTimeoutMillis = 30_000 }
 }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.theacar.android.navigation.AndroidNavigationOwner
+import com.theacar.android.navigation.DriveSimulator
 
 /**
  * 机の上で模擬走行を出し入れするための口。Debug ビルドにしか無い。

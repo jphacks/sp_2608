@@ -81,7 +81,17 @@ internal fun carSceneryBreakdownLines(shares: List<CarSceneryShare>, lines: Int,
     }
 
 /** ルート線の色。スマホ側（core/ui の TheaCarTheme.kt）と同じ値を使って見た目を揃える。 */
-internal fun carSceneryColor(category: String): Int = when (category) {
+internal fun carSceneryColor(category: String, dark: Boolean = false): Int = if (dark) when (category) {
+    // 夜の地図（地 #1B2420）の上で見分けられるよう、同じ色味のまま明るくする
+    "sea" -> 0xFF8EC1EC.toInt()
+    "forest" -> 0xFF8FD1C6.toInt()
+    "inland_water", "lake", "river" -> 0xFFA6E3EA.toInt()
+    "valley" -> 0xFFA3C2AE.toInt()
+    "open_nature" -> 0xFFCFE08F.toInt()
+    "farmland" -> 0xFFE8C766.toInt()
+    "townscape", "urban" -> 0xFFD9DED9.toInt()
+    else -> 0x99A9B5AE.toInt()
+} else when (category) {
     "sea" -> 0xFF6FA6D6.toInt()
     "forest" -> 0xFF75B1A9.toInt()
     "inland_water", "lake", "river" -> 0xFF8FD0D8.toInt()

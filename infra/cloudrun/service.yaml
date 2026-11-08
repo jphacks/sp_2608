@@ -1,0 +1,110 @@
+# 経路サーバー一式を Cloud Run の1サービス（複数コンテナ）として動かす。infra/valhalla/compose.yaml の Cloud Run 版。
+# ${...} は deploy.sh deploy が envsubst で埋める（PROJECT_ID, REGION, REGISTRY, TAG, SERVICE_ACCOUNT）。
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tabireco-routing
+  labels:
+    cloud.googleapis.com/location: ${REGION}
+  annotations:
+    # アプリの Bearer トークンは nginx が確かめる。Cloud Run の呼び出し元確認を有効にすると、それを Google のトークンとして検証して 401 にする。
+    run.googleapis.com/invoker-iam-disabled: "true"
+spec:
+  template:
+    metadata:
+      annotations:
+        # scenic の推薦ジョブと bgm の同乗者リクエストはメモリ/ローカル sqlite に状態を持つので、インスタンスは1つに固定する。
+        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/minScale: "0"
+        # 推薦ジョブはレスポンスを返した後もバックグラウンドで計算する。CPU を常時割り当てにする。
+        run.googleapis.com/cpu-throttling: "false"
+        # 起動順: valhalla -> scenic -> bgm -> gateway（依存先の startupProbe が通ってから起動する）。
+        run.googleapis.com/container-dependencies: '{"scenic":["valhalla"],"bgm":["scenic"],"gateway":["valhalla","scenic","bgm"]}'
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: ${SERVICE_ACCOUNT}
+      containers:
+        # 入口。Cloud Run が受けた通信はこのコンテナ（:8080）にだけ届き、他は同じインスタンス内の 127.0.0.1 で話す。
+        - name: gateway
+          image: ${REGISTRY}/gateway:${TAG}
+          ports:
+            - containerPort: 8080
+          resources:
+            limits: { cpu: "0.5", memory: 128Mi }
+          volumeMounts:
+            # Bearer トークンの map。中身は infra/valhalla/.secrets/routing-auth.conf（deploy.sh secrets で登録）。
+            - name: routing-auth
+              mountPath: /run/secrets
+          startupProbe:
+            tcpSocket: { port: 8080 }
+            periodSeconds: 2
+            failureThreshold: 30
+        - name: valhalla
+          image: ${REGISTRY}/valhalla:${TAG}
+          resources:
+            limits: { cpu: "2", memory: 2Gi }
+          startupProbe:
+            httpGet: { path: /status, port: 8002 }
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+        - name: scenic
+          image: ${REGISTRY}/scenic:${TAG}
+          env:
+            # 起動確認は 127.0.0.1 ではなくインスタンスのアドレスへ届く。外へ開くのは gateway の 8080 だけ。
+            - { name: SCENIC_BIND, value: 0.0.0.0 }
+            - { name: VALHALLA_INTERNAL_URL, value: "http://127.0.0.1:8002" }
+            - { name: SCENIC_ROUTING_DIRECTORY, value: /routing }
+            - { name: SCENIC_DATABASE, value: /data/scenic-hokkaido.sqlite }
+            - { name: PLACES_DATABASE, value: /data/places.sqlite }
+            - { name: SCENIC_RECOMMENDED_ROADS, value: /data/road-recommendations-research-20261018-v7.sqlite }
+            - { name: SCENIC_LANDSCAPES, value: /data/landscapes-hokkaido-v4.sqlite }
+            - { name: SCENIC_TERRAIN, value: /data/terrain-hokkaido-v1.sqlite }
+            - { name: SCENIC_CONTEXT, value: /data/context-hokkaido-v1.sqlite }
+            - { name: SCENIC_LANDCOVER, value: /data/landcover-hokkaido-v3.sqlite }
+            - { name: SCENIC_WEATHER, value: "true" }
+            - { name: SCENIC_SEARCH_SECONDS, value: "90" }
+            - { name: SCENIC_RECOMMENDATION_WORKERS, value: "4" }
+            # 書き込み先は root ファイルシステム（メモリ上）。インスタンスが消えると推薦ジョブも消える。
+            - { name: SCENIC_STATE, value: /tmp/recommendations.sqlite }
+          resources:
+            limits: { cpu: "1", memory: 2Gi }
+          startupProbe:
+            tcpSocket: { port: 8004 }
+            periodSeconds: 3
+            failureThreshold: 20
+        - name: bgm
+          image: ${REGISTRY}/bgm:${TAG}
+          # Secret Manager のファイルは KEY=VALUE 形式。compose の env_file と同じ内容を環境変数にしてから起動する。
+          command: [sh, -c]
+          args:
+            - set -a; . /run/bgm/bgm.env; set +a; exec node --disable-warning=ExperimentalWarning node.mjs
+          env:
+            - { name: BGM_BIND, value: 0.0.0.0 }
+            - { name: BGM_DATABASE, value: /tmp/bgm.sqlite }
+            - { name: SCENIC_INTERNAL_URL, value: "http://127.0.0.1:8004" }
+          resources:
+            limits: { cpu: "1", memory: 512Mi }
+          volumeMounts:
+            - name: bgm-env
+              mountPath: /run/bgm
+          startupProbe:
+            tcpSocket: { port: 8005 }
+            periodSeconds: 3
+            failureThreshold: 20
+      volumes:
+        - name: routing-auth
+          secret:
+            secretName: tabireco-routing-auth
+            items:
+              - { key: latest, path: routing-auth.conf }
+        - name: bgm-env
+          secret:
+            secretName: tabireco-bgm-env
+            items:
+              - { key: latest, path: bgm.env }
+  traffic:
+    - percent: 100
+      latestRevision: true

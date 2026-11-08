@@ -10,7 +10,7 @@
 2. Redirect URI に次を完全一致で登録します。末尾の `/` は追加しません。画面の「コピー」から貼り付けてください。
 
    ```text
-   com.theacar.android.spotify://oauth/callback
+   com.tabireco.app.spotify://oauth/callback
    ```
 
 3. 「Which API/SDKs are you planning to use?」で Web API を選び、Save を押します。
@@ -37,7 +37,7 @@ SPOTIFY_CLIENT_ID=Dashboardに表示された32文字のClientID
 
 1. 端末に Spotify アプリを入れ、旅れこで使う Premium アカウントでログインします。
 2. Dashboard のアプリの Settings で「Which API/SDKs」に **Android** を追加し、Android packages に次を登録します。
-   - Package name: `com.theacar.android`
+   - Package name: `com.tabireco.app`
    - SHA1 fingerprint: ビルドに使う署名の SHA-1。デバッグ署名は次で確認できます。署名は PC ごとに異なるので、別の PC でビルドする人はそれぞれ登録します。
 
    ```shell

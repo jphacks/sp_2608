@@ -126,7 +126,7 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         spotifyRuntime = AndroidSpotifyRuntime(this, navigationRuntime.locations, microphone, musicJourney::current, scenery::current,
             navigationRuntime.configuration.routingUrl) { navigationRuntime.routingToken.value }
         windowRuntime = AndroidWindowRuntime(this)
-        navigationCompanion = NavigationMusicCompanion(spotifyRuntime.driveBgm, spotifyRuntime, navigationRuntime.session.state, MainScope())
+        navigationCompanion = NavigationMusicCompanion(spotifyRuntime.driveBgm, navigationRuntime.session.state, MainScope())
         // 読み上げは画面に依存しない。Android Auto でも、アプリを見ていないときでも鳴る。
         // 読み上げを用意できない端末でもアプリは動かす。ここで投げるとアプリ全体が起動できなくなり、
         // Android Auto の一覧からも消えてしまうため、必ず飲み込む。

@@ -62,7 +62,7 @@ internal fun NavigationSettings(
                 Text(when {
                     urlInvalid -> "https:// で始まる URL を入力してください。"
                     routingUrl != builtInRoutingUrl -> "アプリに同梱した接続先から変更しています。変更すると、アプリが起動し直します。"
-                    else -> "Tunnel の URL が変わったときは、ここを書き換えます。変更すると、アプリが起動し直します。"
+                    else -> "別の経路サーバーへつなぐときだけ書き換えます。変更すると、アプリが起動し直します。"
                 }, style = MaterialTheme.typography.bodySmall,
                     color = if (urlInvalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                 if (routingUrl != builtInRoutingUrl) {

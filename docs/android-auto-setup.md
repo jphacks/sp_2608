@@ -134,7 +134,7 @@ adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
 ```
 
 ```powershell
-adb shell dumpsys package com.theacar.android | Select-String pkgFlags
+adb shell dumpsys package com.tabireco.app | Select-String pkgFlags
 ```
 
 `TEST_ONLY` が**含まれていない**こと、`DEBUGGABLE` が**含まれている**ことを確認します。
@@ -147,11 +147,11 @@ adb shell dumpsys package com.theacar.android | Select-String pkgFlags
 override fun createHostValidator(): HostValidator = if (BuildConfig.DEBUG) {
     HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
 } else {
-    HostValidator.Builder(applicationContext).build()
+    HostValidator.Builder(applicationContext).addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample).build()
 }
 ```
 
-**Release ビルドは許可リストが空なので、DHU も実車も含めてすべてのホストを拒否します。** 検証は Debug ビルドで行います。公開前には正式ホストの許可リストを設定する必要があり、現在は未設定です。
+Release ビルドは、Car App Library が持つ Google の公式ホスト（Android Auto と Android Automotive OS）の一覧だけを許します。一覧は署名の指紋で照合し、ライブラリの版を上げると更新されます。
 
 `ALLOW_ALL_HOSTS_VALIDATOR` は接続元の車載機を検証しません。Debug ビルドの APK を配布しないでください。
 
@@ -171,7 +171,7 @@ override fun createHostValidator(): HostValidator = if (BuildConfig.DEBUG) {
 付与状態の確認:
 
 ```powershell
-adb shell dumpsys package com.theacar.android | Select-String "androidx.car.app"
+adb shell dumpsys package com.tabireco.app | Select-String "androidx.car.app"
 ```
 
 ## 5. 接続して DHU を起動する
@@ -219,7 +219,7 @@ DHU のウィンドウを見るだけでも確認できますが、記録を残�
 最も確実な判定です。
 
 ```powershell
-adb shell dumpsys activity services com.theacar.android
+adb shell dumpsys activity services com.tabireco.app
 ```
 
 `ServiceRecord{... com.theacar.auto.TheaCarService}` があり、`recentCallingPackage=com.google.android.projection.gearhead` が出れば、Android Auto が旅れこをナビアプリとして起動しています。
@@ -304,7 +304,9 @@ DHU を起動したターミナルでコマンドを入力できます。一覧�
 
 DHU 2.0 が持つ機能は、昼夜モードの切り替え、タップとキーコードの注入、位置・速度・走行距離・燃料・航続距離・加速度・ジャイロ・方位・料金カード・運転制限の設定、マイク入力の wav 再生、映像フォーカスの切り替え、スリープ、終了です。コマンド名はバージョンで変わるため、`help` の出力に従ってください。
 
-夜間モードと走行中の操作制限も、このコンソールから切り替えて確認します。アプリでの検証は未実施です。
+夜間モードと走行中の操作制限も、このコンソールから切り替えて確認します。`night` と `day` で昼夜を切り替えると、地図は暗い配色と明るい配色に塗り替わります。走行中の操作制限はアプリでの検証が未実施です。
+
+アプリの画像（アイコン）を削除・追加した後は、ボタンに古いアイコンが出ることがあります。Android Auto がアイコンをリソース番号ごとに覚えていて、番号がずれるためです。エミュレータやスマートフォンで Android Auto を強制停止してから、DHU をつなぎ直してください。
 
 ### 7.3 走行を模擬する
 
@@ -313,11 +315,13 @@ DHU 2.0 が持つ機能は、昼夜モードの切り替え、タップとキー
 先に車載画面で案内を開始してから実行します。
 
 ```powershell
-adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
-adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
+adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
+adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
 ```
 
 **受信口は `-n` で名指しします。** アクション名だけの放送は Android 8 以降のバックグラウンド制限でアプリに届かず、`Broadcast completed: result=0` だけが返って何も起きません。
+
+アプリの ID（`com.tabireco.app`）とコードのパッケージ（`com.theacar.android`）は別なので、`/` の後ろはクラス名を省略せずに書きます。
 
 `--ei kmh` が目標の速さです。止まった状態から15秒かけてそこまで上げ、その後も緩やかに上下します。`15` なら寄った地図、`100` なら引いて傾いた地図になります。終点まで走ると自動で止まります。
 
@@ -359,7 +363,7 @@ adb logcat -d > car-session.log
 | `unauthorized` | 端末の許可ダイアログを承認していない。`adb kill-server` 後に再接続 |
 | 車載画面の一覧にアプリがない | アプリモードが「リリース」/ APK に `TEST_ONLY` が付いている。4.1 の手順で入れ直す |
 | 一覧にあるが起動すると落ちる | `adb logcat -b crash`。`ACCESS_SURFACE` の `SecurityException` は 4.3 を確認 |
-| 一覧にあるが開くと黒いまま | Release ビルドを入れている。`HostValidator` が拒否している |
+| 一覧にあるが開くと黒いまま | `HostValidator` が接続元を拒否している。Release ビルドは公式の Android Auto 以外を拒否する |
 | 「停車中にスマートフォンで…」しか出ない | **正常。**地図を出す条件は 6.3 を参照 |
 | 「設定から経路 APIのトークンを確認してください。」 | 経路 API のトークンが未設定・不正。[10.3節](environment-setup.md#103-トークンを保存する) |
 | 地図だけ出ない | 背景地図は別配信。`MAP_STYLE_URL` とネットワークを確認。経路 API のトークンでは直らない |
@@ -379,13 +383,12 @@ adb logcat -d > car-session.log
 - 車載画面にクラッシュなく画面が描画される。
 - 地図まで確認する場合は、経路の確認中に地図が出る。
 
-DHUでは、ホームの一覧・ルート確認・案内画面の描画、地図、ターンバイターン、到着見込み、地図のボタン（拡大・縮小・現在地）、[7.3節](#73-走行を模擬する)の模擬走行による追従の倍率と傾きまで確認済みです。実機ナビでは一覧表示と起動まで確認しています。
+DHUでは、ホームの一覧・ルート確認・案内画面の描画、地図、ターンバイターン、到着見込み、地図のボタン（拡大・縮小・現在地）、昼夜の地図の切り替え、別のアプリを開いている間の曲がり角の通知、[7.3節](#73-走行を模擬する)の模擬走行による追従の倍率と傾きまで確認済みです。実機ナビでは一覧表示と起動まで確認しています。
 
 未確認の範囲:
 
 - 実機ナビでの地図・ターンバイターン・到着見込み・地図のボタン。
 - 景観によるルート線の塗り分けと、海が開ける地点・名前の付いた道の知らせ。景観エンジンが経路の景観を返す実走行でのみ出ます。
 - 実走行、道路のマッチング、日本語 TTS、バックグラウンド、画面の再生成、車載切断からの復帰。
-- 夜間モード、走行中の操作制限、800x480 以外の解像度、タッチ以外の入力方式。
-- Release ビルドの正式ホスト許可リスト。**未設定のため Release は車載で起動しません。**
+- 走行中の操作制限、800x480 以外の解像度、タッチ以外の入力方式。
 - 車載画面からの窓の操作。`platform:android-window` は Android Auto へ接続していません（[窓の操作](window-control.md)）。
