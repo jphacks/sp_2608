@@ -46,6 +46,12 @@ android {
         buildTypes.getByName("release").signingConfig = signingConfigs.getByName("release")
     }
 
+    // 別の PC で作った Debug ビルドが入っている端末に、消さずに並べて入れるとき（例：-PDEBUG_APP_ID_SUFFIX=.dev）。
+    // 署名の鍵が違うと上書きできないため。指定しなければ今までどおり com.tabireco.app
+    providers.gradleProperty("DEBUG_APP_ID_SUFFIX").orNull?.let { suffix ->
+        buildTypes.getByName("debug").applicationIdSuffix = suffix
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

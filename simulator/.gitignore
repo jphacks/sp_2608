@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# Google の API キー。コミットしない
+.env.local

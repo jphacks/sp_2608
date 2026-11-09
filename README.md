@@ -192,7 +192,7 @@ APKだけでは経路検索できません。PC側のAPI、道路・景観デー
 
 `up`はコンテナを再作成するため、検索・案内中には実行しないでください。外出先から使う場合は、[Cloudflare Tunnelの設定](docs/environment-setup.md#11-外でも使う--cloudflare-tunnel)も必要です。
 
-音楽には[Spotifyの設定](docs/spotify-setup.md)、窓の操作には[専用機器の設定](docs/window-control.md)を行います。旅の共有ページは[Web版の手順](web/README.md)を参照してください。
+音楽には[Spotifyの設定](docs/spotify-setup.md)、窓の操作には[専用機器の設定](docs/window-control.md)を行います。旅の共有ページは[Web版の手順](web/README.md)を参照してください。ハンコンで北海道の道を走り、その位置でナビを動かすには[ドライブシミュレータ](simulator/README.md)を使います。
 
 ## 設計とデータ
 

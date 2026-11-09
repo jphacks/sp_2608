@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>旅れこ ドライブシミュレータ</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="world"><canvas></canvas></div>
+
+    <section id="hud" hidden>
+      <div class="panel trip">
+        <div class="label">走っている道</div>
+        <div data-route class="value"></div>
+        <div class="label">旅れこの目的地に入れる名前</div>
+        <div data-destination class="value strong"></div>
+        <div data-remaining class="sub"></div>
+      </div>
+      <div class="panel status">
+        <div data-phones></div>
+        <div data-notice class="sub"></div>
+        <div data-usage class="sub"></div>
+      </div>
+      <div class="panel road">
+        <div data-road class="road-name"></div>
+        <div data-junction class="junction"></div>
+      </div>
+      <div class="panel controls">
+        <div class="wheel"><div data-steer class="wheel-mark"></div></div>
+        <div class="pedals">
+          <div class="pedal"><span>ブレーキ</span><div class="bar"><div data-brake class="fill brake"></div></div></div>
+          <div class="pedal"><span>アクセル</span><div class="bar"><div data-throttle class="fill throttle"></div></div></div>
+        </div>
+      </div>
+      <div class="panel speed">
+        <span data-speed class="kmh">0</span><span class="unit">km/h</span>
+      </div>
+      <!-- Map Tiles API の決まり：Google Maps の表記と写真ごとの出典、右下に問題を報告するリンク -->
+      <div class="credit-google" aria-label="Google Maps"><span class="gm">Google Maps</span><span data-copyright></span></div>
+      <a data-report class="report" target="_blank" rel="noopener" hidden>この画像の問題を報告</a>
+      <div class="help">M 道を選ぶ　C ハンコンの調整　U U ターン　Backspace 出発点へ　キーボード：矢印キー</div>
+    </section>
+
+    <section id="menu" class="overlay">
+      <div class="sheet">
+        <h1>旅れこ ドライブシミュレータ</h1>
+        <p>走る道を選んでください。スマホの旅れこには、選んだ道の目的地を入れて案内を始めます。交差点では、ハンドルを切った方の道へ進みます。</p>
+        <div data-routes class="routes"></div>
+        <p data-wheel class="sub"></p>
+        <p class="credit">景色：Google ストリートビュー（Map Tiles API）　道路：© OpenStreetMap contributors</p>
+      </div>
+    </section>
+
+    <section id="calibration" class="overlay" hidden>
+      <div class="sheet">
+        <h1>ハンコンの調整</h1>
+        <p data-prompt class="prompt"></p>
+        <p data-message class="warning"></p>
+        <div data-axes class="axes"></div>
+        <div class="buttons">
+          <button data-cancel type="button">やめる</button>
+          <button data-next type="button" class="primary">次へ（Enter）</button>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
