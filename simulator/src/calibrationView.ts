@@ -66,7 +66,6 @@ export class CalibrationView {
     }
     const now = [...pad.axes]
     const name = ORDER[this.step]
-    const used = [this.draft.steer?.index, this.draft.throttle?.index].filter((i): i is number => i !== undefined)
 
     if (name === 'rest') {
       this.rest = now
@@ -80,8 +79,13 @@ export class CalibrationView {
       if (Math.abs(now[steer.index] - steer.left) < 0.3) return this.retry()
       steer.right = now[steer.index]
     } else if (name === 'throttle' || name === 'brake') {
-      const index = mostMovedAxis(this.rest, now, used)
+      // ハンドルの軸は外す。アクセルの軸は外さない：ペダルを1本の軸にまとめる設定（Windows の G HUB など）では、
+      // アクセルで片側へ、ブレーキで反対側へ動く。同じ軸でも、アクセルと反対へ動いていればブレーキとして覚える
+      const index = mostMovedAxis(this.rest, now, [this.draft.steer!.index])
       if (index === undefined) return this.retry()
+      const throttle = this.draft.throttle
+      if (name === 'brake' && throttle?.index === index &&
+        Math.sign(now[index] - this.rest[index]) === Math.sign(throttle.full - throttle.rest)) return this.retry()
       this.draft[name] = { index, rest: this.rest[index], full: now[index] }
     }
     // ボタンの段で Enter を押したら「使わない」
