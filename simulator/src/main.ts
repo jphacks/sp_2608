@@ -1,16 +1,14 @@
 import { CalibrationView } from './calibrationView'
-import { bearingDegrees, distanceMeters } from './geo'
+import { distanceMeters, offset, type LatLon } from './geo'
 import { Input } from './input'
 import { LinkClient } from './link'
-import { RoadNetwork, headingAt, pointAt, turnAngle, turnAround, type RoadData, type RoadPosition } from './roads'
+import { RoadNetwork, headingAt, pointAt, turnAngle, type RoadData, type RoadPosition } from './roads'
 import { ROUTES, type DemoRoute } from './routes'
 import { LOOK_AHEAD_METERS as PHOTO_LOOK_AHEAD, PanoramaFeed } from './panoramaFeed'
 import { PanoramaRenderer, type PanoramaLayer, type View } from './panoramaRenderer'
 import { StreetViewApi } from './streetviewApi'
-import { nextSpeed, type Controls } from './vehicle'
+import { nextSpeed, yawRate, type Controls } from './vehicle'
 
-/** 向きは少し先の道の点から決める。道の折れ目で視点がカクカク回らないように */
-const LOOK_AHEAD_METERS = 12
 /** 写真を探す地点の間隔（panoramaFeed の SAMPLE_EVERY_METERS と同じ） */
 const PHOTO_SAMPLE_METERS = 10
 /** 横の視野角と、少し見下ろす角度 */
@@ -55,6 +53,9 @@ const networks = new Map<string, RoadNetwork>()
 
 let route: DemoRoute | undefined
 let network: RoadNetwork | undefined
+/** 車のいる場所。道幅の中なら、道の真ん中の線から外れて自由に動ける */
+let car: LatLon | undefined
+/** 車にいちばん近い道の上の点。道の名前、分かれ道の案内、写真の先読みに使う */
 let position: RoadPosition | undefined
 let speed = 0
 let heading = 0
@@ -67,7 +68,7 @@ let lastFrame: { view: View; a?: PanoramaLayer; b?: PanoramaLayer } | undefined
  * 半径を数字で比べて決めるために使った（panoramaRenderer.ts の PROXY_RADIUS）。
  */
 ;(window as unknown as Record<string, unknown>).__usage = () => ({ ...api.usage, ...feed.stats })
-;(window as unknown as Record<string, unknown>).__feed = () => position && network ? feed.debug(pointAt(position)) : undefined
+;(window as unknown as Record<string, unknown>).__feed = () => car ? feed.debug(car) : undefined
 ;(window as unknown as Record<string, unknown>).__seam = (settings: { radius: number }[]) => {
   if (!lastFrame?.a || !lastFrame.b) return undefined
   const saved = { radius: renderer.radius }
@@ -128,27 +129,33 @@ async function spawn(next: DemoRoute): Promise<void> {
   position = network.snap(next.start, next.headingDegrees)
   speed = 0
   deadEnd = false
+  car = pointAt(position)
   heading = headingAt(position)
   feed.reset()
   // スマホの旅れこに、この道の目的地で案内を始めさせる（デモ中にスマホで検索して打たなくてよいように）
-  void link.start(pointAt(position), heading, next.destination)
+  void link.start(car, heading, next.destination)
   running = true
 }
 
 function drive(dt: number, now: number): void {
-  if (!network || !position) return
+  if (!network || !car) return
   const controls = input.read(dt)
   speed = nextSpeed(speed, controls, dt)
-  const moved = network.advance(position, speed * dt, controls.steer)
-  position = moved.position
-  if (moved.stopped) speed = 0
-  deadEnd = moved.stopped || (deadEnd && speed === 0)
+  // ハンドルで車の向きが変わり、向いている方へ進む
+  heading = (heading + yawRate(speed, controls.steer) * dt + 360) % 360
+  const radians = heading * Math.PI / 180
+  const kept = network.keepOnRoad(offset(car, Math.cos(radians) * speed * dt, Math.sin(radians) * speed * dt), heading)
+  car = kept.at
+  position = kept.position
+  if (kept.pushed) {
+    // 道の端に当たった。端に沿って滑らせ、向きを道なりへ戻す。端へ突っ込む角度が深いほど速さを落とす
+    const along = turnAngle(heading, headingAt(position))
+    speed = Math.max(0, speed - speed * Math.abs(Math.sin(along * Math.PI / 180)) * 4 * dt)
+    heading = (heading + along * Math.min(1, dt * 2) + 360) % 360
+  }
+  deadEnd = kept.pushed && network.advance(position, 1, 0).stopped
 
-  const here = pointAt(position)
-  const ahead = network.advance(position, LOOK_AHEAD_METERS, controls.steer)
-  const target = ahead.stopped ? headingAt(position) : bearingDegrees(here, pointAt(ahead.position))
-  heading = (heading + turnAngle(heading, target) * Math.min(1, dt * 3) + 360) % 360
-
+  const here = car
   // 道なりの先の地点。この辺りの写真を先に読んでおく
   const path = [here]
   for (let meters = PHOTO_SAMPLE_METERS; meters <= PHOTO_LOOK_AHEAD; meters += PHOTO_SAMPLE_METERS) {
@@ -157,8 +164,7 @@ function drive(dt: number, now: number): void {
     if (next.stopped) break
   }
   const { a, b, mixB } = feed.update(here, heading, path, now)
-  // ハンドルを切ると、少しだけそちらを見る（交差点で曲がる方を選んでいることが分かるように）
-  const view = { heading: (heading + controls.steer * 10 + 360) % 360, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
+  const view = { heading, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
   renderer.render(view, a, b, mixB)
   lastFrame = { view, a, b }
   link.update(now, here, heading, speed)
@@ -180,7 +186,7 @@ function renderHud(controls: Controls, here: { lat: number; lon: number }): void
   hud.junction.textContent = deadEnd
     ? '行き止まりです。U キー（または U ターンのボタン）で向きを変えます'
     : junction
-      ? `${Math.round(junction.distance)}m 先の分かれ道：${direction(junction.turn)}${junction.choice.edge.name ? `（${junction.choice.edge.name}）` : ''}`
+      ? `${Math.round(junction.distance)}m 先に分かれ道`
       : 'しばらく分かれ道はありません'
 
   hud.phones.innerHTML = link.phones === undefined
@@ -197,22 +203,11 @@ function renderHud(controls: Controls, here: { lat: number; lon: number }): void
   if (credit?.reportProblemLink) hud.report.href = credit.reportProblemLink
 }
 
-function direction(turn: number): string {
-  if (turn < -135 || turn > 135) return '引き返す'
-  if (turn < -30) return '← 左へ'
-  if (turn > 30) return '右へ →'
-  if (turn < -10) return '↖ 左寄りに'
-  if (turn > 10) return '右寄りに ↗'
-  return '↑ まっすぐ'
-}
-
+/** その場で反対を向く。道幅の中では切り返しが難しいので残している。 */
 function uturn(): void {
-  if (!position || speed > 2) return
-  const turned = turnAround(position)
-  if (!turned) return
-  position = turned
+  if (!car || speed > 2) return
   deadEnd = false
-  heading = headingAt(position)
+  heading = (heading + 180) % 360
 }
 
 input.onUturn = uturn

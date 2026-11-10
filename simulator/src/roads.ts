@@ -20,6 +20,8 @@ export interface Edge {
   /** 1 は from→to だけ、-1 は to→from だけ、0 は両方へ走れる */
   oneway: 0 | 1 | -1
   name: string
+  /** 道の真ん中の線から端までの幅（メートル）。この中なら左右へ自由に動ける */
+  halfWidth: number
 }
 
 /** 道の上の車の位置。forward は from→to の向きに走っていること。 */
@@ -50,18 +52,18 @@ export class RoadNetwork {
       for (let i = 1; i < way.nodes.length; i++) {
         if (i < way.nodes.length - 1 && (used.get(way.nodes[i]) ?? 0) < 2) continue
         const nodes = way.nodes.slice(start, i + 1)
-        this.add(nodes, nodes.map(position), way.oneway, roadName(way))
+        this.add(nodes, nodes.map(position), way.oneway, roadName(way), halfWidth(way.highway))
         start = i
       }
     }
   }
 
-  private add(nodes: number[], points: LatLon[], oneway: 0 | 1 | -1, name: string): void {
+  private add(nodes: number[], points: LatLon[], oneway: 0 | 1 | -1, name: string, halfWidth: number): void {
     const along = [0]
     for (let i = 1; i < points.length; i++) along.push(along[i - 1] + distanceMeters(points[i - 1], points[i]))
     const length = along[along.length - 1]
     if (length < 0.5) return
-    const edge: Edge = { id: this.edges.length, from: nodes[0], to: nodes[nodes.length - 1], points, along, length, oneway, name }
+    const edge: Edge = { id: this.edges.length, from: nodes[0], to: nodes[nodes.length - 1], points, along, length, oneway, name, halfWidth }
     this.edges.push(edge)
     for (const node of new Set([edge.from, edge.to])) {
       const list = this.junctions.get(node) ?? []
@@ -72,6 +74,17 @@ export class RoadNetwork {
 
   /** いちばん近い道の上の点。向きは heading に近い方を選ぶ（一方通行なら走れる向き）。 */
   snap(target: LatLon, headingDegrees: number): RoadPosition {
+    const { position } = this.locate(target, headingDegrees)
+    if (position.edge.oneway === 1) position.forward = true
+    if (position.edge.oneway === -1) position.forward = false
+    return position
+  }
+
+  /**
+   * いちばん近い道の上の点と、そこまでの距離。向きは heading に近い方。
+   * 自由に走っている車の今いる道を知るためのもので、一方通行は見ない（逆走していても、走っている向きを返す）。
+   */
+  locate(target: LatLon, headingDegrees: number): { position: RoadPosition; distance: number } {
     let best: { edge: Edge; offset: number; distance: number } | undefined
     for (const edge of this.edges) {
       for (let i = 1; i < edge.points.length; i++) {
@@ -81,10 +94,22 @@ export class RoadNetwork {
     }
     if (!best) throw new Error('道がありません')
     const along = headingAt({ edge: best.edge, offset: best.offset, forward: true })
-    let forward = Math.abs(turnAngle(headingDegrees, along)) <= 90
-    if (best.edge.oneway === 1) forward = true
-    if (best.edge.oneway === -1) forward = false
-    return { edge: best.edge, offset: best.offset, forward }
+    const forward = Math.abs(turnAngle(headingDegrees, along)) <= 90
+    return { position: { edge: best.edge, offset: best.offset, forward }, distance: best.distance }
+  }
+
+  /**
+   * 自由に動いた車の位置 target を、道幅の中へ収める。道の端を越えていたら端まで戻し、pushed を返す。
+   * 交差点では、いちばん近い道が入れ替わるので、ハンドルを切った先の道へそのまま入っていける。
+   */
+  keepOnRoad(target: LatLon, headingDegrees: number): { at: LatLon; position: RoadPosition; pushed: boolean } {
+    const { position, distance } = this.locate(target, headingDegrees)
+    const limit = position.edge.halfWidth
+    if (distance <= limit) return { at: target, position, pushed: false }
+    const center = pointAt(position)
+    const t = limit / distance
+    const at = { lat: center.lat + (target.lat - center.lat) * t, lon: center.lon + (target.lon - center.lon) * t }
+    return { at, position, pushed: true }
   }
 
   /**
@@ -217,6 +242,13 @@ function roadName(way: RoadData['ways'][number]): string {
   if (!way.ref) return way.name
   const number = label(way.highway, way.ref)
   return way.name && way.name !== number ? `${number}（${way.name}）` : number
+}
+
+/** OSM のデータに車線の数を入れていないので、道の種類で幅を決める（片側1車線で約 3.5m、路肩を少し足す）。 */
+function halfWidth(highway: string): number {
+  if (/^(motorway|trunk)/.test(highway)) return 5.5
+  if (/^(primary|secondary)/.test(highway)) return 4.5
+  return 3.5
 }
 
 /** 日本の OSM では、一般国道を trunk、道道（主要地方道と一般道道）を primary・secondary にしている。 */

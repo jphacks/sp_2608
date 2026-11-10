@@ -128,3 +128,40 @@ describe('デモの4本の道（OSM から取った実データ）', () => {
     })
   }
 })
+
+describe('道幅の中を自由に走る', () => {
+  const network = new RoadNetwork(data)
+
+  it('道幅の中なら、真ん中の線から外れた位置をそのまま使う', () => {
+    // 南北の道（tertiary、端まで 3.5m）の、真ん中から東へ 2m
+    const target = at(-100, 2)
+    const kept = network.keepOnRoad(target, 0)
+    expect(kept.pushed).toBe(false)
+    expect(kept.at).toEqual(target)
+    expect(kept.position.edge.name).toBe('南北の道')
+    expect(kept.position.forward).toBe(true)
+  })
+
+  it('道の端を越えたら、端まで戻す', () => {
+    const kept = network.keepOnRoad(at(-100, 10), 0)
+    expect(kept.pushed).toBe(true)
+    expect(distanceMeters(kept.at, at(-100, 0))).toBeCloseTo(3.5, 1)
+    // 道に沿った位置は変えない
+    expect(distanceMeters(kept.at, at(-100, 3.5))).toBeLessThan(0.1)
+  })
+
+  it('交差点で横へ向かうと、横の道へ入れる', () => {
+    // C から西へ 30m。南北の道からは外れているが、西の道の上
+    const kept = network.keepOnRoad(at(1, -30), 270)
+    expect(kept.pushed).toBe(false)
+    expect(kept.position.edge.name).toBe('西の道')
+  })
+
+  it('一方通行を逆に走っていても、走っている向きを返す', () => {
+    // 東の道は西向きにだけ走れる。東へ向かって走る
+    const { position } = network.locate(at(0, 100), 90)
+    expect(position.edge.name).toBe('東の道')
+    expect(headingAt(position)).toBeCloseTo(90, 0)
+  })
+})
+

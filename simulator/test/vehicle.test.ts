@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { bearingDegrees, distanceMeters, offset } from '../src/geo'
-import { CAR, nextSpeed, type Controls } from '../src/vehicle'
+import { CAR, nextSpeed, yawRate, type Controls } from '../src/vehicle'
 
 const idle: Controls = { steer: 0, throttle: 0, brake: 0 }
 
@@ -36,3 +36,21 @@ describe('nextSpeed', () => {
     expect(after).toBeLessThan(20)
   })
 })
+
+describe('yawRate', () => {
+  it('止まっていると曲がらない', () => {
+    expect(yawRate(0, 1)).toBe(0)
+  })
+
+  it('ハンドルを切った方へ曲がり、まっすぐなら曲がらない', () => {
+    expect(yawRate(5, 0.5)).toBeGreaterThan(0)
+    expect(yawRate(5, -0.5)).toBeLessThan(0)
+    expect(yawRate(5, 0)).toBeCloseTo(0, 10)
+  })
+
+  it('速いときは、横向きの加速の上限までしか曲がらない', () => {
+    const rate = yawRate(CAR.topSpeed, 1) * Math.PI / 180
+    expect(rate * CAR.topSpeed).toBeCloseTo(CAR.maxLateralAcceleration, 5)
+  })
+})
+
