@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { offset } from '../src/geo'
-import { aheadMeters, aligned, blend, grid, tileColumns } from '../src/panoramaFeed'
+import { aheadMeters, aligned, blend, grid, onLevel, tileColumns } from '../src/panoramaFeed'
 
 describe('tileColumns', () => {
   it('写真の真ん中と同じ向きを見るなら、真ん中の列（8列のうち 2〜5）を読む', () => {
@@ -64,5 +64,26 @@ describe('grid', () => {
     for (let view = 0; view < 360; view += 15) {
       expect(Math.max(...tileColumns(0, view, 55, old.columns))).toBeLessThanOrEqual(6)
     }
+  })
+})
+
+describe('onLevel', () => {
+  const here = { lat: 41.78, lon: 140.727 }
+  const bridge = [0, 10, 20].map((north) => ({ at: offset(here, north, 0), elevation: 15 + north * 0.05 }))
+  const below = { at: offset(here, 12, 3), elevation: 4 }
+
+  it('橋の上にいるときは、真下の道の写真を外す', () => {
+    expect(onLevel([...bridge, below], true)).toEqual(bridge)
+  })
+
+  it('下の道にいるときは、橋の上の写真を外す', () => {
+    expect(onLevel([...bridge, below], false)).toEqual([below])
+  })
+
+  it('坂の途中の写真や、高さの分からない写真は外さない', () => {
+    const slope = [0, 30, 60].map((north) => ({ at: offset(here, north, 0), elevation: 5 + north * 0.07 }))
+    expect(onLevel(slope, true)).toEqual(slope)
+    expect(onLevel(slope, false)).toEqual(slope)
+    expect(onLevel([...bridge, { at: here }], true)).toHaveLength(4)
   })
 })

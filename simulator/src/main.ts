@@ -232,7 +232,7 @@ function drive(dt: number, now: number): void {
   // ハンドルで車の向きが変わり、向いている方へ進む
   heading = (heading + yawRate(speed, controls.steer) * dt + 360) % 360
   const radians = heading * Math.PI / 180
-  const kept = network.keepOnRoad(offset(car, Math.cos(radians) * speed * dt, Math.sin(radians) * speed * dt), heading)
+  const kept = network.keepOnRoad(offset(car, Math.cos(radians) * speed * dt, Math.sin(radians) * speed * dt), heading, position)
   car = kept.at
   position = kept.position
   if (kept.pushed) {
@@ -262,7 +262,7 @@ function drive(dt: number, now: number): void {
   // 止まってアクセルを離している間は、ハンドルで辺りを見回せる。走り出すと正面へ戻る
   const lookTarget = speed < 0.5 && controls.throttle === 0 ? controls.steer * LOOK_DEGREES : 0
   look += (lookTarget - look) * Math.min(1, dt * 6)
-  const { a, b, mixB } = feed.update(here, heading + look, path, now)
+  const { a, b, mixB } = feed.update(here, heading + look, path, now, position.edge.bridge)
   const view = { heading: heading + look, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
   for (const index of [0, 1, 2]) {
     renderer.render({ ...view, heading: view.heading + (index - 1) * SIDE_DEGREES }, a, b, mixB, { index, count: 3 })

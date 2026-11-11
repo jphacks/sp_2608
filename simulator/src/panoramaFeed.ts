@@ -95,6 +95,20 @@ export function aheadMeters(car: LatLon, heading: number, p: LatLon): number {
 }
 
 /**
+ * 橋の上の道と、その真下の道のように、同じ場所に高さの違う写真があるとき、車がいる方の写真だけを残す。
+ * 橋の上（onBridge）なら、近くにずっと高い写真がある写真（下の道のもの）を外す。橋の上でなければ、その逆。
+ * 「ずっと」は、坂でも越えない差：3m と、離れた距離の 8%。
+ */
+export function onLevel<P extends { at: LatLon; elevation?: number }>(panos: P[], onBridge: boolean): P[] {
+  const sign = onBridge ? 1 : -1
+  return panos.filter((p) => p.elevation === undefined || !panos.some((q) => {
+    if (q.elevation === undefined) return false
+    const distance = distanceMeters(p.at, q.at)
+    return distance <= 40 && (q.elevation - p.elevation!) * sign > 3 + distance * 0.08
+  }))
+}
+
+/**
  * 走る先の写真を順に用意する。道の上の少し先までの地点で写真の ID を探し、
  * 今の写真 A と次の写真 B を決め、進む向きの分だけタイルを読み込む。
  */
@@ -143,13 +157,20 @@ export class PanoramaFeed {
    * 毎フレーム呼ぶ。path は車の位置から道なりに先へ並べた地点（SAMPLE_EVERY_METERS おき）。
    * 描く2枚の写真と、B を重ねる強さを返す。
    */
-  update(car: LatLon, heading: number, path: LatLon[], now: number): { a?: PanoramaLayer; b?: PanoramaLayer; mixB: number } {
+  update(car: LatLon, heading: number, path: LatLon[], now: number, onBridge = false): { a?: PanoramaLayer; b?: PanoramaLayer; mixB: number } {
     // ID を聞く回数も数えられるので、毎フレームではなくまとめて聞く
     if (now - this.lastAsk >= ASK_EVERY_MS) {
       this.lastAsk = now
       this.askIds(path)
     }
-    const sequence = this.sequence(path)
+    // 橋の上を走っていると、真下の道の写真がいちばん近いことがある
+    const found = this.sequence(path)
+    const sequence = onLevel(found, onBridge)
+    // 写真の情報は1枚ずつ遅れて届く。先に届いた下の道の写真を選んでしまっていたら、上の写真が届いた時点で外す
+    const wrongLevel = (p: Pano) => found.includes(p) && !sequence.includes(p)
+    if (this.a && wrongLevel(this.a)) this.a = undefined
+    const wrong = this.next.findIndex(wrongLevel)
+    if (wrong >= 0) this.next = this.next.slice(0, wrong)
     this.gap = sequence.length === 0 && path.every((p) => this.ids.get(key(p)) === null)
     const ahead = (p: Pano) => aheadMeters(car, heading, p.at)
     // 交差点で曲がって、先読みしていた写真が今の道から外れたか

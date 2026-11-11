@@ -5,7 +5,7 @@ export interface RoadData {
   attribution: string
   fetched: string
   nodes: [number, number][]
-  ways: { name: string; ref: string; highway: string; oneway: 0 | 1 | -1; nodes: number[] }[]
+  ways: { name: string; ref: string; highway: string; oneway: 0 | 1 | -1; nodes: number[]; bridge?: 1 }[]
 }
 
 /** 交差点から交差点までの1本の道。 */
@@ -22,6 +22,8 @@ export interface Edge {
   name: string
   /** 道の真ん中の線から端までの幅（メートル）。この中なら左右へ自由に動ける */
   halfWidth: number
+  /** 橋の上の道 */
+  bridge: boolean
 }
 
 /** 道の上の車の位置。forward は from→to の向きに走っていること。 */
@@ -54,18 +56,18 @@ export class RoadNetwork {
       for (let i = 1; i < way.nodes.length; i++) {
         if (i < way.nodes.length - 1 && (used.get(way.nodes[i]) ?? 0) < 2) continue
         const nodes = way.nodes.slice(start, i + 1)
-        this.add(nodes, nodes.map(position), way.oneway, roadName(way), halfWidth(way.highway))
+        this.add(nodes, nodes.map(position), way.oneway, roadName(way), halfWidth(way.highway), way.bridge === 1)
         start = i
       }
     }
   }
 
-  private add(nodes: number[], points: LatLon[], oneway: 0 | 1 | -1, name: string, halfWidth: number): void {
+  private add(nodes: number[], points: LatLon[], oneway: 0 | 1 | -1, name: string, halfWidth: number, bridge: boolean): void {
     const along = [0]
     for (let i = 1; i < points.length; i++) along.push(along[i - 1] + distanceMeters(points[i - 1], points[i]))
     const length = along[along.length - 1]
     if (length < 0.5) return
-    const edge: Edge = { id: this.edges.length, from: nodes[0], to: nodes[nodes.length - 1], points, along, length, oneway, name, halfWidth }
+    const edge: Edge = { id: this.edges.length, from: nodes[0], to: nodes[nodes.length - 1], points, along, length, oneway, name, halfWidth, bridge }
     this.edges.push(edge)
     for (let i = 1; i < points.length; i++) {
       const [a, b] = [points[i - 1], points[i]]
@@ -97,21 +99,25 @@ export class RoadNetwork {
    * いちばん近い道の上の点と、そこまでの距離。向きは heading に近い方。
    * 自由に走っている車の今いる道を知るためのもので、一方通行は見ない（逆走していても、走っている向きを返す）。
    */
-  locate(target: LatLon, headingDegrees: number): { position: RoadPosition; distance: number } {
+  locate(target: LatLon, headingDegrees: number, among?: Iterable<Edge>): { position: RoadPosition; distance: number } {
     let best: { edge: Edge; offset: number; distance: number } | undefined
     const check = (edge: Edge, i: number) => {
       const [offset, distance] = nearestOnSegment(edge.points[i - 1], edge.points[i], target)
       if (!best || distance < best.distance) best = { edge, offset: edge.along[i - 1] + offset, distance }
     }
-    // まず、まわりの升目（3×3）の線分だけを調べる。升目1つ分より近い道が見つかれば、それがいちばん近い
-    const [row, column] = [cellRow(target.lat), cellColumn(target.lon)]
-    for (let r = row - 1; r <= row + 1; r++) {
-      for (let c = column - 1; c <= column + 1; c++) {
-        for (const [edge, i] of this.cells.get(`${r},${c}`) ?? []) check(edge, i)
+    if (among) {
+      for (const edge of among) for (let i = 1; i < edge.points.length; i++) check(edge, i)
+    } else {
+      // まず、まわりの升目（3×3）の線分だけを調べる。升目1つ分より近い道が見つかれば、それがいちばん近い
+      const [row, column] = [cellRow(target.lat), cellColumn(target.lon)]
+      for (let r = row - 1; r <= row + 1; r++) {
+        for (let c = column - 1; c <= column + 1; c++) {
+          for (const [edge, i] of this.cells.get(`${r},${c}`) ?? []) check(edge, i)
+        }
       }
-    }
-    if (!best || best.distance > CELL_METERS) {
-      for (const edge of this.edges) for (let i = 1; i < edge.points.length; i++) check(edge, i)
+      if (!best || best.distance > CELL_METERS) {
+        for (const edge of this.edges) for (let i = 1; i < edge.points.length; i++) check(edge, i)
+      }
     }
     if (!best) throw new Error('道がありません')
     const along = headingAt({ edge: best.edge, offset: best.offset, forward: true })
@@ -122,9 +128,12 @@ export class RoadNetwork {
   /**
    * 自由に動いた車の位置 target を、道幅の中へ収める。道の端を越えていたら端まで戻し、pushed を返す。
    * 交差点では、いちばん近い道が入れ替わるので、ハンドルを切った先の道へそのまま入っていける。
+   * from（直前にいた道）を渡すと、その道と、その道の両端でつながる道だけから選ぶ。
+   * 橋の下をくぐる道のように、地図の上で重なるだけでつながっていない道へは移らない。
    */
-  keepOnRoad(target: LatLon, headingDegrees: number): { at: LatLon; position: RoadPosition; pushed: boolean } {
-    const { position, distance } = this.locate(target, headingDegrees)
+  keepOnRoad(target: LatLon, headingDegrees: number, from?: RoadPosition): { at: LatLon; position: RoadPosition; pushed: boolean } {
+    const among = from && new Set([from.edge, ...this.junctions.get(from.edge.from) ?? [], ...this.junctions.get(from.edge.to) ?? []])
+    const { position, distance } = this.locate(target, headingDegrees, among)
     const limit = position.edge.halfWidth
     if (distance <= limit) return { at: target, position, pushed: false }
     const center = pointAt(position)

@@ -163,4 +163,23 @@ describe('道幅の中を自由に走る', () => {
     expect(position.edge.name).toBe('東の道')
     expect(headingAt(position)).toBeCloseTo(90, 0)
   })
+
+  it('橋の下をくぐる道のように、つながっていない道へは移らない', () => {
+    // 南北の橋と、その下を東西にくぐる道。同じ点を共有していない
+    const crossing = [at(-200, 0), at(200, 0), at(0, -200), at(0, 200)]
+    const bridge = new RoadNetwork({
+      ...data,
+      nodes: crossing.map((p) => [p.lat, p.lon]),
+      ways: [
+        { name: '橋', ref: '', highway: 'tertiary', oneway: 0, nodes: [0, 1] },
+        { name: '下の道', ref: '', highway: 'residential', oneway: 0, nodes: [2, 3] },
+      ],
+    })
+    // 橋の真ん中から東へ 2m。下の道の真上なので、何も渡さなければ下の道がいちばん近い
+    const target = at(0, 2)
+    expect(bridge.keepOnRoad(target, 0).position.edge.name).toBe('下の道')
+    const before = bridge.keepOnRoad(at(-10, 2), 0).position
+    expect(before.edge.name).toBe('橋')
+    expect(bridge.keepOnRoad(target, 0, before).position.edge.name).toBe('橋')
+  })
 })

@@ -122,8 +122,12 @@ def compact(elements):
                 out_nodes.append([round(nodes[node][0], 6), round(nodes[node][1], 6)])
             ids.append(index[node])
         if len(ids) >= 2:
-            out_ways.append({"name": tags.get("name", ""), "ref": tags.get("ref", ""), "highway": tags["highway"],
-                             "oneway": oneway(tags), "nodes": ids})
+            way = {"name": tags.get("name", ""), "ref": tags.get("ref", ""), "highway": tags["highway"],
+                   "oneway": oneway(tags), "nodes": ids}
+            # 橋の上の道。真下の道の写真と見分けるのに使う
+            if tags.get("bridge", "no") != "no":
+                way["bridge"] = 1
+            out_ways.append(way)
     return {"attribution": "© OpenStreetMap contributors (ODbL)", "fetched": date.today().isoformat(),
             "nodes": out_nodes, "ways": out_ways}
 

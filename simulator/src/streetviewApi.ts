@@ -12,6 +12,8 @@ export interface PanoMeta {
   /** 写真全体のいちばん細かい大きさ（ピクセル）。新しい写真は 16384×8192、古い写真は小さい */
   imageWidth: number
   imageHeight: number
+  /** 撮った場所の高さ（メートル）。橋の上の写真と、その下の道の写真を見分けるのに使う。無い写真もある */
+  elevation?: number
   /** 画面に出す出典（例：© 2024 Google） */
   copyright: string
   /** 写真の問題を報告するリンク。画面の右下に出す決まり */
@@ -78,6 +80,7 @@ export class StreetViewApi {
     if (!response.ok) throw new Error(`写真の情報を取れませんでした（${response.status}）`)
     const body = await response.json() as {
       lat: number; lng: number; heading: number; imageWidth: number; imageHeight: number; copyright?: string; reportProblemLink?: string
+      originalElevationAboveEgm96?: number
     }
     return {
       id,
@@ -85,6 +88,7 @@ export class StreetViewApi {
       heading: body.heading,
       imageWidth: body.imageWidth,
       imageHeight: body.imageHeight,
+      elevation: body.originalElevationAboveEgm96,
       copyright: body.copyright ?? '',
       reportProblemLink: body.reportProblemLink ?? '',
     }
