@@ -139,7 +139,7 @@ private fun SearchStatus(title: String, description: String, loading: Boolean = 
         Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(bottom = 8.dp))
+        if (loading) TabiProgress(Modifier.fillMaxWidth().padding(bottom = 8.dp))
         Text(title, style = MaterialTheme.typography.titleSmall,
             color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
         Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

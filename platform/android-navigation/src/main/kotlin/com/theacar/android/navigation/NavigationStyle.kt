@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.SelectableChipColors
@@ -139,3 +140,10 @@ internal fun jostNumbers(text: String): AnnotatedString {
         append(text.substring(last))
     }
 }
+
+/** 探している間の棒。緑で進み具合を見せる */
+@Composable
+internal fun TabiProgress(modifier: Modifier = Modifier) =
+    LinearProgressIndicator(modifier, color = ProgressGreen, trackColor = ProgressGreen.copy(alpha = .22f))
+
+private val ProgressGreen = Color(0xFF6E8A3A)

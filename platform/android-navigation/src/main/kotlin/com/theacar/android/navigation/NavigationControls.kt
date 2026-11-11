@@ -378,7 +378,7 @@ internal fun NavigationControls(
                                     color = MaterialTheme.colorScheme.primary)
                             }
                             if (busy) {
-                                LinearProgressIndicator(Modifier.fillMaxWidth())
+                                TabiProgress(Modifier.fillMaxWidth())
                                 if (options.scenic != null && state.phase == NavigationPhase.PREVIEWING) {
                                     Text("景観区間をつなぎ、候補を改善しています（最大約2分）", style = MaterialTheme.typography.bodySmall)
                                 }
@@ -396,7 +396,7 @@ internal fun NavigationControls(
                                 }
                                 if (state.phase == NavigationPhase.PREVIEW) {
                                     if (state.previewImproving) {
-                                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                                        TabiProgress(Modifier.fillMaxWidth())
                                         Text("候補を表示しました。ほかの経路も探索中です。選択・案内開始できます。",
                                             style = MaterialTheme.typography.labelSmall)
                                     }
