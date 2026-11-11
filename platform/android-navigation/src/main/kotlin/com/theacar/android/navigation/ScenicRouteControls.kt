@@ -1,8 +1,6 @@
 package com.theacar.android.navigation
 
-import androidx.compose.material.icons.rounded.Hiking
 
-import androidx.compose.material.icons.rounded.DirectionsRun
 
 import androidx.compose.material.icons.Icons
 
@@ -130,20 +128,7 @@ internal fun ScenicSearchControls(
     }
     if (preference != null) {
         if (!settings.roundTrip) {
-            Text("最短経路からの寄り道 ＋${scenicDetourLabel(extraMinutes)}まで", style = MaterialTheme.typography.bodyMedium)
-            // 左は走る人（早く着く）、右はハイキングの人（寄り道して景色を楽しむ）
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Rounded.DirectionsRun, contentDescription = "寄り道なし", tint = Muted)
-                Slider(value = scenicDetourIndex(extraMinutes).toFloat(),
-                    onValueChange = { onExtraMinutes(scenicDetourMinutes[it.roundToInt().coerceIn(scenicDetourMinutes.indices)]) },
-                    valueRange = 0f..scenicDetourMinutes.lastIndex.toFloat(),
-                    steps = scenicDetourMinutes.size - 2, enabled = enabled, modifier = Modifier.weight(1f))
-                Icon(Icons.Rounded.Hiking, contentDescription = "寄り道を多く", tint = Muted)
-            }
-            if (!compact) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("寄り道なし", style = MaterialTheme.typography.labelSmall)
-                Text("最大6時間", style = MaterialTheme.typography.labelSmall)
-            }
+            DetourSlider(extraMinutes, onExtraMinutes, enabled)
             if (!compact) Text("同じ道路条件の通常ルートと比較します。休憩時間は別です。", style = MaterialTheme.typography.bodySmall)
         } else {
             Text("周遊全体の上限 ${settings.totalSeconds / 60}分（休憩込み）", style = MaterialTheme.typography.bodyMedium)
