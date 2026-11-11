@@ -2,6 +2,7 @@ package com.theacar.android.navigation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -72,7 +73,8 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
             enabled = enabled,
             thumb = {
                 Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
-                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(CarWidth))
+                    // 車体の高さを道に合わせ、道が車体に隠れて屋根とタイヤだけ少しはみ出すようにする
+                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(CarWidth).offset(y = (-3).dp))
             },
             track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
     }
@@ -82,20 +84,20 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
 private fun roadColor(t: Float): Color =
     if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Orange, (t - .5f) * 2)
 
-/** 道路に中央の白い破線。車の前の端より後ろ側だけ色を付ける（車の下に灰色がのぞかないように） */
+/** 道路に中央の白い破線。車の下で色が切り替わり、後ろ側だけ色を付ける */
 @Composable
 private fun RoadTrack(color: Color, passed: Float) {
-    Canvas(Modifier.fillMaxWidth().height(16.dp)) {
+    Canvas(Modifier.fillMaxWidth().height(10.dp)) {
         // スライダーは車の半分の幅だけ道を内側に縮めるので、その分だけ外へ伸ばして描く（車は枠からはみ出さない）
         val reach = CarWidth.toPx() / 2
         val road = Size(size.width + reach * 2, size.height)
         val start = Offset(-reach, 0f)
         val r = CornerRadius(size.height / 2)
         drawRoundRect(Asphalt, start, road, r)
-        clipRect(left = -reach, right = size.width * passed + reach) { drawRoundRect(color, start, road, r) }
+        clipRect(left = -reach, right = size.width * passed + reach * .8f) { drawRoundRect(color, start, road, r) }
         drawLine(Color.White.copy(alpha = .6f), Offset(-reach + size.height / 2, size.height / 2),
             Offset(size.width + reach - size.height / 2, size.height / 2),
-            strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
+            strokeWidth = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 6.dp.toPx())))
     }
 }
 
