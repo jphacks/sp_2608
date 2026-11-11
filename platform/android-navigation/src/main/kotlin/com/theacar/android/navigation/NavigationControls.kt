@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
 import com.theacar.ui.Spruce
+import com.theacar.ui.FadedOrange
 import com.theacar.ui.Cream
 import com.theacar.ui.Muted
 import com.theacar.ui.Surface as SurfaceColor
@@ -453,7 +454,12 @@ internal fun NavigationControls(
                         }
                     }
                     if (state.phase == NavigationPhase.PREVIEW && selectedDestination == null) {
-                        ActionWithClose(if (canGuide) "案内を開始" else "現在地を確認中…", onStart, onInvalidatePreview, "経路を選び直す",
+                        // 経路が古い・外れているときは案内を始められないので、その場で選び直せるボタンにする
+                        val replan = state.failure == NavigationFailure.PREVIEW_EXPIRED || state.failure == NavigationFailure.AWAY_FROM_ROUTE
+                        if (replan) ActionWithClose("経路を変更", onInvalidatePreview, onInvalidatePreview, "経路を選び直す",
+                            Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = FadedOrange, contentColor = Spruce))
+                        else ActionWithClose(if (canGuide) "案内を開始" else "現在地を確認中…", onStart, onInvalidatePreview, "経路を選び直す",
                             Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp), enabled = canGuide)
                     }
                 }

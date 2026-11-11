@@ -77,9 +77,9 @@ internal fun MapIconButton(icon: ImageVector, description: String, onClick: () -
 /** 決めるボタンと、その横の取り消すバツ。経路を探す・案内を始める枠で同じ形にそろえる */
 @Composable
 internal fun ActionWithClose(label: String, onClick: () -> Unit, onClose: () -> Unit, closeDescription: String,
-    modifier: Modifier = Modifier, enabled: Boolean = true) {
+    modifier: Modifier = Modifier, enabled: Boolean = true, colors: ButtonColors? = null) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = onClick, enabled = enabled, modifier = Modifier.weight(1f).height(44.dp),
+        Button(onClick = onClick, enabled = enabled, colors = colors ?: ButtonDefaults.buttonColors(), modifier = Modifier.weight(1f).height(44.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)) { Text(label) }
         Surface(onClick = onClose, modifier = Modifier.size(44.dp), shape = CircleShape, color = CloseBackground) {
             Icon(Icons.Rounded.Close, contentDescription = closeDescription, tint = Ink, modifier = Modifier.padding(11.dp))
