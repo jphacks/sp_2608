@@ -19,6 +19,8 @@ export interface DemoRoute {
    * 無ければ道の始まりから目的地まで
    */
   demo?: { normal: [number, number]; scenic: [number, number] }
+  /** 道を選ぶ画面の背景の写真。使ってよい条件（ライセンス）がはっきりしたものだけ。credit は画面に出す出典 */
+  photo?: { url: string; credit: string }
 }
 
 export const ROUTES: readonly DemoRoute[] = [
@@ -33,6 +35,8 @@ export const ROUTES: readonly DemoRoute[] = [
     note: '約3kmの短い道。おすすめの道は、函館港の上を渡るともえ大橋を通る',
     // おすすめの道は、橋の上り口から海の上を渡りきるまで。ふつうの道は、同じ辺りの国道5号
     demo: { normal: [500, 1900], scenic: [500, 1950] },
+    // https://commons.wikimedia.org/wiki/File:%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg
+    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg/1920px-%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg', credit: '写真：Ryo FUKAsawa（CC BY 2.0、Wikimedia Commons）' },
   },
   {
     id: 'onuma-lake',
@@ -44,6 +48,8 @@ export const ROUTES: readonly DemoRoute[] = [
     note: '大沼の湖畔。おすすめの道は湖を回る道道338号を通る',
     // おすすめの道は、湖の区間がいちばん長く続く所。ふつうの道は、林の中を抜ける所
     demo: { normal: [4300, 5700], scenic: [3100, 4700] },
+    // https://commons.wikimedia.org/wiki/File:Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg
+    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg/1920px-Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg', credit: '写真：663highland（CC BY 2.5、Wikimedia Commons）' },
   },
   {
     id: 'wakkanai-noshappu',
@@ -53,6 +59,8 @@ export const ROUTES: readonly DemoRoute[] = [
     destination: { name: 'ノシャップ岬', position: { lat: 45.448782, lon: 141.644754 } },
     km: 4.5,
     note: 'おすすめの道は、稚内港の海沿いを通る',
+    // https://commons.wikimedia.org/wiki/File:The_lighthouse_at_Cape_Noshappu,_Wakkanai,_Japan.jpg
+    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/The_lighthouse_at_Cape_Noshappu%2C_Wakkanai%2C_Japan.jpg/1920px-The_lighthouse_at_Cape_Noshappu%2C_Wakkanai%2C_Japan.jpg', credit: '写真：OKJaguar（CC BY 4.0、Wikimedia Commons）' },
   },
   {
     id: 'rumoi-ogon',
@@ -62,5 +70,7 @@ export const ROUTES: readonly DemoRoute[] = [
     destination: { name: '黄金岬', position: { lat: 43.947591, lon: 141.630582 } },
     km: 2.9,
     note: 'おすすめの道は、日本海の海沿いを通る',
+    // https://commons.wikimedia.org/wiki/File:%E9%BB%84%E9%87%91%E5%B2%AC_-_panoramio.jpg
+    photo: { url: 'https://upload.wikimedia.org/wikipedia/commons/b/be/%E9%BB%84%E9%87%91%E5%B2%AC_-_panoramio.jpg', credit: '写真：Yobito KAYANUMA（CC BY-SA 3.0、Wikimedia Commons）' },
   },
 ]

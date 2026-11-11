@@ -444,7 +444,8 @@ html, body {
 }
 
 /*
- * 道を選ぶ画面。1つの目的地を大きく出す。左に空中写真の地図、右に目的地と2本の道
+ * 道を選ぶ画面。1つの目的地を大きく出す。左に空中写真の地図、右に目的地と2本の道。
+ * 背景は、その目的地の写真を暗くして敷く
  */
 #menu.menu {
   background: #141c18;
@@ -468,6 +469,21 @@ html, body {
   opacity: 0.75;
   font-size: 13px;
   margin: 6px 0 0;
+}
+
+.course-photo {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* 右側の文字が読めるよう、右へ行くほど暗くする */
+.course-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(20, 28, 24, 0.2) 0%, rgba(20, 28, 24, 0.55) 50%, rgba(20, 28, 24, 0.85) 100%);
 }
 
 .course {
@@ -515,6 +531,7 @@ html, body {
   letter-spacing: 0.02em;
   color: var(--paper);
   text-wrap: balance;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 .course-via {
@@ -651,4 +668,12 @@ html, body {
   font-size: 13px;
   color: var(--mist);
   opacity: 0.75;
+}
+
+.course-credit {
+  position: fixed;
+  right: 16px;
+  bottom: 10px;
+  font-size: 11px;
+  color: rgba(245, 243, 236, 0.75);
 }

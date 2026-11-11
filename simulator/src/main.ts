@@ -127,6 +127,7 @@ async function renderMenu(): Promise<void> {
       </button>`
   }
   $('[data-routes]').innerHTML = `
+    ${r.photo ? `<div class="course-photo" style="background-image: url('${r.photo.url}')"></div>` : ''}
     <div class="course">
       <figure class="course-map">
         ${comparison ? `<canvas data-preview="${r.id}"></canvas>` : ''}
@@ -146,7 +147,8 @@ async function renderMenu(): Promise<void> {
     <nav class="course-tabs">
       ${ROUTES.map((each, i) => `<button type="button" data-course="${i}"${i === course ? ' class="current"' : ''}>${splitName(each.name).to}</button>`).join('')}
       <span class="course-hint">← → 目的地　1 2 道を選ぶ</span>
-    </nav>`
+    </nav>
+    ${r.photo ? `<div class="course-credit">${r.photo.credit}</div>` : ''}`
   const canvas = document.querySelector<HTMLCanvasElement>('[data-preview]')
   const paintMap = (focus?: RouteKind) => {
     if (canvas && comparison) drawPreview(canvas, comparison, focus, [from, to])
