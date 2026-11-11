@@ -1,5 +1,6 @@
 package com.theacar.android.navigation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -32,6 +33,8 @@ internal fun sortRoutes(routes: List<RouteAlternative>, by: ScenicPreference?): 
 @Composable
 internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?) -> Unit) {
     var open by remember { mutableStateOf(false) }
+    // Box で包み、選択肢をボタンの真下に出す
+    Box {
     // 下向きの小さな三角で、押すと選べることを示す
     TextButton(onClick = { open = true }, contentPadding = PaddingValues(start = 8.dp, end = 4.dp)) {
         Text(by?.let { "${it.label}の順" } ?: "おすすめ順")
@@ -42,5 +45,6 @@ internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?)
         ScenicPreference.entries.forEach { preference ->
             DropdownMenuItem(text = { Text("${preference.label}の順") }, onClick = { onSort(preference); open = false })
         }
+    }
     }
 }
