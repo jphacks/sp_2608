@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.unit.dp
 import com.theacar.location.LocationState
 import com.theacar.location.LocationStatus
@@ -390,7 +392,8 @@ internal fun NavigationControls(
                                 }
                             }
                             state.route?.takeIf { selectedDestination == null }?.let { route ->
-                                if (panelExpanded || state.phase == NavigationPhase.ARRIVED) Text(if (state.phase == NavigationPhase.ARRIVED) "到着しました" else route.destination.title,
+                                // 目的地の名前は見出しに出ているので、ここでは到着したときだけ
+                                if (state.phase == NavigationPhase.ARRIVED) Text("到着しました",
                                     style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 if (!panelExpanded && compactTimeline.isEmpty()) {
                                     Text(jostNumbers("${((state.progress?.remainingSeconds ?: route.durationSeconds) + 59) / 60}分 · ${((state.progress?.remainingMeters ?: route.distanceMeters) / 100) / 10.0}km"),
@@ -460,7 +463,10 @@ internal fun NavigationControls(
                                 modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
                                 Text(if (canGuide) "案内を開始" else "現在地を確認中…")
                             }
-                            TextButton(onClick = onInvalidatePreview) { Text("変更") }
+                            Spacer(Modifier.width(10.dp))
+                            Surface(onClick = onInvalidatePreview, modifier = Modifier.size(48.dp), shape = CircleShape, color = Color(0xFFEDEDED)) {
+                                Icon(Icons.Rounded.Close, contentDescription = "経路を選び直す", tint = Ink, modifier = Modifier.padding(12.dp))
+                            }
                         }
                     }
                 }
@@ -513,13 +519,9 @@ private fun LocationNotice(location: LocationState, now: Long, onRequestPermissi
             !canPreview -> "位置の誤差が大きいため、より正確な位置を待っています"
             (location.fix?.accuracyMeters ?: 101f) > 100 -> "おおよその現在地から検索できます · 案内は精度向上を待機"
             (location.fix?.accuracyMeters ?: 100f) > 40 -> "案内を開始できます · 右左折の案内は精度が上がってから"
-            else -> "青い点が現在地です"
+            else -> null
         }
         else -> null
     }
     message?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-    location.fix?.let { fix ->
-        Text("測位精度 約 ${kotlin.math.ceil(fix.accuracyMeters).toInt()} m · ${((now - fix.elapsedRealtimeMillis) / 1_000).coerceAtLeast(0)} 秒前",
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
 }
