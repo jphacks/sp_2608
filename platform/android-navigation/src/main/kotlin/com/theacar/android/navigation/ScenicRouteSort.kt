@@ -37,14 +37,24 @@ internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?)
     Box {
     // 下向きの小さな三角で、押すと選べることを示す
     TextButton(onClick = { open = true }, contentPadding = PaddingValues(start = 8.dp, end = 4.dp)) {
-        Text(by?.let { "${it.label}の順" } ?: "おすすめ順")
+        Text(by?.let(::sortLabel) ?: "おすすめ順")
         Icon(Icons.Rounded.ArrowDropDown, contentDescription = null, modifier = Modifier.size(20.dp))
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
         DropdownMenuItem(text = { Text("おすすめ順") }, onClick = { onSort(null); open = false })
         ScenicPreference.entries.forEach { preference ->
-            DropdownMenuItem(text = { Text("${preference.label}の順") }, onClick = { onSort(preference); open = false })
+            DropdownMenuItem(text = { Text(sortLabel(preference)) }, onClick = { onSort(preference); open = false })
         }
     }
     }
+}
+
+private fun sortLabel(by: ScenicPreference): String = when (by) {
+    ScenicPreference.SEA -> "海が多い"
+    ScenicPreference.FOREST -> "森が多い"
+    ScenicPreference.BALANCED -> "自然が多い"
+    ScenicPreference.WATER -> "湖・川が多い"
+    ScenicPreference.VALLEY -> "渓谷が多い"
+    ScenicPreference.FARMLAND -> "田園が多い"
+    ScenicPreference.URBAN -> "街なかが多い"
 }
