@@ -261,15 +261,19 @@ export function drawPreview(canvas: HTMLCanvasElement, comparison: Comparison, f
     context.fillRect(0, 0, width, height)
     context.lineJoin = context.lineCap = 'round'
 
-    context.globalAlpha = focus === 'scenic' ? 0.45 : 1
     context.setLineDash(focus === 'normal' ? [] : [8 * ratio * scale, 7 * ratio * scale])
     stroke(normal, 0, normal.points.length - 1, '#f5f3ec', focus === 'normal' ? 5 : 3)
     context.setLineDash([])
-    context.globalAlpha = focus === 'normal' ? 0.35 : 1
-    stroke(scenic, 0, scenic.points.length - 1, '#acd0c0', 6)
-    for (let i = 1; i < scenic.points.length; i++) {
-      const here = scenic.sceneryAt((scenic.along[i - 1] + scenic.along[i]) / 2)
-      if (here && here.label !== '街') stroke(scenic, i - 1, i, here.color, 6)
+    if (focus === 'normal') {
+      // ふつうの道を選びかけているときは、景色のいい道を色のない薄い線にして、ふつうの道だけを見せる
+      context.globalAlpha = 0.18
+      stroke(scenic, 0, scenic.points.length - 1, '#9aa39d', 6)
+    } else {
+      stroke(scenic, 0, scenic.points.length - 1, '#acd0c0', 6)
+      for (let i = 1; i < scenic.points.length; i++) {
+        const here = scenic.sceneryAt((scenic.along[i - 1] + scenic.along[i]) / 2)
+        if (here && here.label !== '街') stroke(scenic, i - 1, i, here.color, 6)
+      }
     }
     context.globalAlpha = 1
 
