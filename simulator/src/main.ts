@@ -313,7 +313,7 @@ function renderHud(controls: Controls, here: { lat: number; lon: number }): void
     : link.phones > 0
       ? `<span class="ok">スマホ ${link.phones}台に位置を送っています</span>`
       : '<span class="ng">スマホがつながっていません</span>'
-  hud.notice.textContent = !feed.ready ? '景色を読み込んでいます…' : feed.gap ? 'この辺りは写真がありません' : ''
+  hud.notice.textContent = api.limited ? 'Google の今日の上限に達しました（17時ごろ戻ります）' : !feed.ready ? '景色を読み込んでいます…' : feed.gap ? 'この辺りは写真がありません' : ''
   // Street View のタイルは月10万枚まで無料、その先は1,000枚で約2ドル（2026-11 の料金表）
   hud.usage.textContent = `読み込んだ写真のタイル ${api.usage.tiles.toLocaleString()} 枚`
   const credit = feed.attribution

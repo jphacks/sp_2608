@@ -33,6 +33,8 @@ export interface Usage {
  */
 export class StreetViewApi {
   readonly usage: Usage = { tiles: 0, panoIds: 0, metadata: 0 }
+  /** Google が「上限を超えた」（429）と返している。1日の上限は太平洋時間の 0 時（日本の 17 時ごろ）に戻る */
+  limited = false
 
   private constructor(private readonly key: string, private readonly session: string) {}
 
@@ -69,6 +71,7 @@ export class StreetViewApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ locations: locations.map((p) => ({ lat: p.lat, lng: p.lon })), radius: radiusMeters }),
     })
+    this.limited = response.status === 429
     if (!response.ok) throw new Error(`写真の ID を取れませんでした（${response.status}）`)
     const { panoIds } = await response.json() as { panoIds: string[] }
     return panoIds.map((id) => id || undefined)
@@ -77,6 +80,7 @@ export class StreetViewApi {
   async metadata(id: string): Promise<PanoMeta> {
     this.usage.metadata += 1
     const response = await fetch(`${BASE}/streetview/metadata?${this.query()}&panoId=${encodeURIComponent(id)}`)
+    this.limited = response.status === 429
     if (!response.ok) throw new Error(`写真の情報を取れませんでした（${response.status}）`)
     const body = await response.json() as {
       lat: number; lng: number; heading: number; imageWidth: number; imageHeight: number; copyright?: string; reportProblemLink?: string
@@ -99,6 +103,7 @@ export class StreetViewApi {
     this.usage.tiles += 1
     const response = await fetch(
       `${BASE}/streetview/tiles/${zoom}/${x}/${y}?${this.query()}&panoId=${encodeURIComponent(id)}`)
+    this.limited = response.status === 429
     if (!response.ok) throw new Error(`写真を取れませんでした（${response.status}）`)
     return createImageBitmap(await response.blob())
   }
