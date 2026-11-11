@@ -68,7 +68,7 @@ fun MiniPlayer(
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             // ロゴは文の一部にせず単独で置き、文との間にマークの高さの半分以上をあける
             Image(SpotifyFullLogoWhite, contentDescription = "Spotify", modifier = Modifier.width(72.dp).padding(end = 6.dp))
-            if (showIndicator) EqualizerBars(isPlaying, Sunglow)
+            if (showIndicator) EqualizerBars(isPlaying, Navajo)
             Column(Modifier.weight(1f)) {
                 Text(title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, modifier = Modifier.slowMarquee())
                 subtitle?.let {
@@ -78,7 +78,7 @@ fun MiniPlayer(
             }
             if (actionReplacesPlay && actionLabel != null && onAction != null) {
                 // 流せる曲がないときは、再生ボタンの場所を操作のボタンにする
-                Surface(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp), color = Sunglow, shape = CircleShape) {
+                Surface(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp), color = Navajo, shape = CircleShape) {
                     Box(Modifier.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
                         Text(actionLabel, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
                     }
@@ -87,13 +87,13 @@ fun MiniPlayer(
             }
             if (actionLabel != null && onAction != null) {
                 TextButton(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp)) {
-                    Text(actionLabel, color = Sunglow, fontWeight = FontWeight.Bold, maxLines = 1)
+                    Text(actionLabel, color = Navajo, fontWeight = FontWeight.Bold, maxLines = 1)
                 }
             }
             Surface(
                 onClick = onToggle,
                 modifier = Modifier.size(44.dp).semantics { contentDescription = if (isPlaying) "一時停止" else "再生" },
-                color = Sunglow,
+                color = Navajo,
                 shape = CircleShape,
             ) {
                 Box(contentAlignment = Alignment.Center) {

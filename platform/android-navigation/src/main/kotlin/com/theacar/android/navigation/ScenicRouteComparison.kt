@@ -62,8 +62,9 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
             itemsIndexed(routes, key = { _, route -> route.plan.id }) { index, route ->
                 val selected = route.plan.id == selectedId
                 Surface(onClick = { onSelect(route.plan.id) }, shape = RoundedCornerShape(CardCorner),
-                    color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    // 色を増やさないよう、選んだ候補は塗らずに濃い枠で示す
+                    color = MaterialTheme.colorScheme.surface,
+                    border = if (selected) BorderStroke(2.dp, Spruce) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.width(224.dp).semantics {
                         contentDescription = "候補${index + 1}。${if (selected) "選択中。" else ""}${titles.getValue(route.plan.id)}"
                     }) {
