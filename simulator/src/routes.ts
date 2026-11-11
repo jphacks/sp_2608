@@ -36,7 +36,7 @@ export const ROUTES: readonly DemoRoute[] = [
     // おすすめの道は、橋の上り口から海の上を渡りきるまで。ふつうの道は、同じ辺りの国道5号
     demo: { normal: [500, 1900], scenic: [500, 1950] },
     // https://commons.wikimedia.org/wiki/File:%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg
-    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg/1920px-%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg', credit: '写真：Ryo FUKAsawa（CC BY 2.0、Wikimedia Commons）' },
+    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg/1920px-%E5%87%BD%E9%A4%A8%E6%B9%BE%E5%B2%B8%E5%A4%A7%E6%A9%8B.jpg', credit: '写真：Ryo FUKAsawa（CC BY 2.0、Wikimedia Commons）。レコードの絵は、この写真をもとに画像生成でイラストにしたもの' },
   },
   {
     id: 'onuma-lake',
@@ -49,7 +49,7 @@ export const ROUTES: readonly DemoRoute[] = [
     // おすすめの道は、湖の区間がいちばん長く続く所。ふつうの道は、林の中を抜ける所
     demo: { normal: [4300, 5700], scenic: [3100, 4700] },
     // https://commons.wikimedia.org/wiki/File:Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg
-    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg/1920px-Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg', credit: '写真：663highland（CC BY 2.5、Wikimedia Commons）' },
+    photo: { url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg/1920px-Onuma_Park_Nanae_Hokkaido_Japan01s5.jpg', credit: '写真：663highland（CC BY 2.5、Wikimedia Commons）。レコードの絵は、Photos of Japan（CC0、Wikimedia Commons）の写真をもとに画像生成でイラストにしたもの' },
   },
   {
     id: 'wakkanai-noshappu',
