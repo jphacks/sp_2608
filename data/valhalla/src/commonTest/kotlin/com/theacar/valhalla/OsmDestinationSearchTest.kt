@@ -52,6 +52,17 @@ class OsmDestinationSearchTest {
         client.close()
     }
 
+    @Test fun stationAndItsStopsBecomeOneStationResult() = runTest {
+        val client = HttpClient(MockEngine {
+            respond("""[{"place_id":"node:1","display_name":"札幌 · station","lat":"43.06864","lon":"141.35092"},
+                {"place_id":"node:2","display_name":"札幌 · stop","lat":"43.06875","lon":"141.35096"},
+                {"place_id":"node:3","display_name":"札幌市 · city","lat":"43.06197","lon":"141.35437"}]""")
+        })
+        val titles = OsmDestinationSearch("https://routing.example.com", client) { "secret" }.search("札幌").map { it.title }
+        assertEquals(listOf("札幌駅 · station", "札幌市 · city"), titles)
+        client.close()
+    }
+
     @Test fun refusesTokenOnRemoteHttp() = runTest {
         val client = HttpClient(MockEngine { error("Must not send credentials") })
         assertEquals(RoutingFailure.AUTHORIZATION, assertFailsWith<RoutingException> {

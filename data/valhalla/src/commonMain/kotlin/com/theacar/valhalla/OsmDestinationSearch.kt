@@ -37,7 +37,7 @@ class OsmDestinationSearch(
         val response = try {
             client.get(endpoint.trimEnd('/') + "/search") {
                 if (token.isNotEmpty()) header(HttpHeaders.Authorization, "Bearer $token")
-                parameter("q", query); parameter("format", "jsonv2"); parameter("limit", 5)
+                parameter("q", query); parameter("format", "jsonv2"); parameter("limit", 10)
             }
         } catch (error: CancellationException) {
             throw error
@@ -49,12 +49,30 @@ class OsmDestinationSearch(
         if (response.status.value !in 200..299) throw RoutingException(RoutingFailure.NETWORK)
         val text = response.bodyAsText()
         require(text.length < 1_000_000)
-        return Json.parseToJsonElement(text).jsonArray.take(5).map {
+        val found = Json.parseToJsonElement(text).jsonArray.map {
             val item = it.jsonObject
             val lat = item.getValue("lat").jsonPrimitive.double
             val lon = item.getValue("lon").jsonPrimitive.double
             Destination("osm:${item.getValue("place_id").jsonPrimitive.content}",
-                item.getValue("display_name").jsonPrimitive.content, Coordinate(lat, lon))
+                stationTitle(item.getValue("display_name").jsonPrimitive.content), Coordinate(lat, lon))
         }
+        // 駅の本体とホームの停車位置のように、同じ名前で近くにあるものは1件にまとめる
+        return found.filterIndexed { index, place ->
+            found.take(index).none { it.title.substringBefore(" · ") == place.title.substringBefore(" · ") &&
+                roughMeters(it.coordinate, place.coordinate) < 300 }
+        }.take(5)
     }
+}
+
+/** 地名データでは駅の名前が「札幌」だけなので、「札幌駅」と呼ぶ */
+internal fun stationTitle(label: String): String {
+    val parts = label.split(" · ")
+    if (parts.size < 2 || parts.last() !in setOf("station", "stop", "halt") || parts[0].endsWith("駅")) return label
+    return (listOf(parts[0] + "駅") + parts.drop(1)).joinToString(" · ")
+}
+
+private fun roughMeters(a: Coordinate, b: Coordinate): Double {
+    val dy = (a.latitude - b.latitude) * 111_000
+    val dx = (a.longitude - b.longitude) * 111_000 * kotlin.math.cos(a.latitude * kotlin.math.PI / 180)
+    return kotlin.math.sqrt(dx * dx + dy * dy)
 }
