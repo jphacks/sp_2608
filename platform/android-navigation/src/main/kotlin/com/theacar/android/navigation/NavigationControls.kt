@@ -362,7 +362,13 @@ internal fun NavigationControls(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
-                                ActionWithClose("経路", { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
+                                // 寄り道の分数はスライダーの上ではなく、ここに出す
+                                val routeLabel = when {
+                                    viaPointCount > 0 -> "経路"
+                                    extraMinutes == 0 -> "最短の経路を探す"
+                                    else -> "寄り道＋${scenicDetourLabel(extraMinutes)}で経路を探す"
+                                }
+                                ActionWithClose(routeLabel, { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
                                     onClearSelection, "目的地の選択を取り消す", enabled = !busy)
                                 if (panelExpanded) TextButton(onClick = onAddViaPoint, enabled = !busy && viaPointCount < 126) { Text("寄り道に追加") }
                             } else if (canPlan && state.route == null && !busy) {

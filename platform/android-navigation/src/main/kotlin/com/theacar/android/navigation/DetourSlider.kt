@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 import com.theacar.ui.Ink
 import com.theacar.ui.Spruce
-import com.theacar.ui.Muted
 import com.theacar.ui.Regent
 
 private class DetourStage(val upTo: Int, val name: String, val icon: ImageVector)
@@ -63,7 +62,8 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
     val position = scenicDetourPosition(minutes)
     // 寄り道の段階はアイコンだけで見せる
     Column(modifier) {
-        StageHeader(stage, if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}")
+        // 分数は下の経路のボタンに出すので、ここでは呼び名だけにする
+        StageHeader(stage)
         RoadSlider(position, last, { onMinutes(scenicDetourMinutesAt(it)) }, enabled, "寄り道 ${stage.name}")
     }
 }
@@ -82,20 +82,19 @@ private val roundTripStages = listOf(
 internal fun RoundTripSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
     val stage = roundTripStages.first { minutes <= it.upTo }
     Column(modifier) {
-        // 分数は下の「◯分以内の周遊ルートを探す」に出るので、ここでは呼び名だけにする
+        // 分数は下の「◯分以内の周遊ルートを探す」に出す
         StageHeader(stage)
         RoadSlider((minutes - RoundTripMin).toFloat(), (RoundTripMax - RoundTripMin).toFloat(),
             { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${stage.name}")
     }
 }
 
-/** 段階のアイコンと呼び名。[detail] があれば小さく添える */
+/** 段階のアイコンと呼び名 */
 @Composable
-private fun StageHeader(stage: DetourStage, detail: String? = null) {
+private fun StageHeader(stage: DetourStage) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Icon(stage.icon, contentDescription = null, tint = Spruce)
         Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
-        detail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Muted) }
     }
 }
 
