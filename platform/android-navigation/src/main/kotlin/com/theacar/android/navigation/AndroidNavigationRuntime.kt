@@ -29,6 +29,7 @@ data class MiniPlayerState(
     val subtitle: String? = null,
     val actionLabel: String? = null,
     val showIndicator: Boolean = false,
+    val actionReplacesPlay: Boolean = false,
 )
 
 interface MiniPlayerSource {

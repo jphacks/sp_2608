@@ -206,7 +206,8 @@ class NavigationActivity : ComponentActivity() {
                     TheaCarTheme {
                         MiniPlayer(player.title, player.isPlaying, miniPlayer::toggle, { miniPlayer.open(this@NavigationActivity) },
                             subtitle = player.subtitle, actionLabel = player.actionLabel,
-                            onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator)
+                            onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator,
+                            actionReplacesPlay = player.actionReplacesPlay)
                     }
                 }
             }

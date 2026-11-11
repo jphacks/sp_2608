@@ -61,6 +61,7 @@ fun MiniPlayer(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
     showIndicator: Boolean = false,
+    actionReplacesPlay: Boolean = false,
 ) {
     val row: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
@@ -74,6 +75,15 @@ fun MiniPlayer(
                     Text(it, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodySmall,
                         maxLines = 1, modifier = Modifier.slowMarquee())
                 }
+            }
+            if (actionReplacesPlay && actionLabel != null && onAction != null) {
+                // 流せる曲がないときは、再生ボタンの場所を操作のボタンにする
+                Surface(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp), color = Sunglow, shape = CircleShape) {
+                    Box(Modifier.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
+                        Text(actionLabel, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
+                    }
+                }
+                return@Row
             }
             if (actionLabel != null && onAction != null) {
                 TextButton(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp)) {
