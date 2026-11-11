@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { linkPlugin } from './bridge/link.ts'
+import { usageLogPlugin } from './bridge/usageLog.ts'
 
 export default defineConfig({
   server: {
@@ -10,5 +11,5 @@ export default defineConfig({
   build: {
     target: 'es2022',
   },
-  plugins: [linkPlugin()],
+  plugins: [linkPlugin(), usageLogPlugin()],
 })

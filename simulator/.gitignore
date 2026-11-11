@@ -2,3 +2,5 @@ node_modules/
 dist/
 # Google の API キー。コミットしない
 .env.local
+# ストリートビューを読んだ枚数の記録
+logs/

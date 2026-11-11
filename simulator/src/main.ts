@@ -403,6 +403,19 @@ window.addEventListener('gamepadconnected', () => {
 })
 window.addEventListener('pagehide', () => link.stop())
 
+// ストリートビューを実際に何枚読んだかを、開発サーバーのファイル（logs/streetview-usage.jsonl）に残す。
+// 前に送ってから増えた分だけを、30 秒おきと、画面を閉じるときに送る
+let logged = { ...api.usage }
+function logUsage(): void {
+  const now = { ...api.usage }
+  const added = Object.fromEntries(Object.entries(now).map(([name, value]) => [name, value - logged[name as keyof typeof now]]))
+  if (Object.values(added).every((value) => value === 0)) return
+  logged = now
+  navigator.sendBeacon('/usage-log', JSON.stringify({ route: route?.id, kind, ...added }))
+}
+setInterval(logUsage, 30_000)
+window.addEventListener('pagehide', logUsage)
+
 void renderMenu()
 // ?route=onuma-lake&kind=normal のように道を指定すると、選ぶ画面を飛ばして走り出す（kind を省くとおすすめの道）
 const initialRoute = params.get('route')

@@ -22,9 +22,16 @@ export interface PanoMeta {
 
 /** これまでに Google へ送った数。費用の目安として画面に出す */
 export interface Usage {
+  /** 読もうとしたタイルの数。ブラウザに残っていた分（Google へ届いていない）も含む */
   tiles: number
   panoIds: number
   metadata: number
+  /** タイルのうち、Google へ実際に届いて返ってきた数（Google の1日の上限と料金に数えられる分） */
+  tilesFromGoogle: number
+  /** タイルのうち、ブラウザに残っていたものを使い回した数 */
+  tilesFromCache: number
+  /** タイルのうち、Google に断られた数（上限に達したときなど） */
+  tilesRefused: number
 }
 
 /**
@@ -32,11 +39,22 @@ export interface Usage {
  * 写真は走るたびに読み込み、保存しない。保存してよいのはパノラマの ID だけ（Map Tiles API のポリシー）。
  */
 export class StreetViewApi {
-  readonly usage: Usage = { tiles: 0, panoIds: 0, metadata: 0 }
+  readonly usage: Usage = { tiles: 0, panoIds: 0, metadata: 0, tilesFromGoogle: 0, tilesFromCache: 0, tilesRefused: 0 }
   /** Google が「上限を超えた」（429）と返している。1日の上限は太平洋時間の 0 時（日本の 17 時ごろ）に戻る */
   limited = false
 
-  private constructor(private readonly key: string, private readonly session: string) {}
+  private constructor(private readonly key: string, private readonly session: string) {
+    // タイルの読み込みが、Google へ届いたのか、ブラウザに残っていたものを使ったのかを、ブラウザの通信の記録で見分ける。
+    // 使い回したときは、通信で受け取った大きさ（transferSize）が 0 になる
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as PerformanceResourceTiming[]) {
+        if (!entry.name.startsWith(`${BASE}/streetview/tiles/`)) continue
+        if (entry.transferSize === 0) this.usage.tilesFromCache += 1
+        else if (entry.responseStatus === 200) this.usage.tilesFromGoogle += 1
+        else this.usage.tilesRefused += 1
+      }
+    }).observe({ type: 'resource', buffered: true })
+  }
 
   static async create(key: string): Promise<StreetViewApi> {
     // セッションを使い回す。写真のタイルは「1時間は使い回してよい」（Cache-Control: max-age=3600）ので、
