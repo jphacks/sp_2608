@@ -116,7 +116,7 @@ internal fun DestinationSearchDialog(
 @Composable
 private fun DestinationResult(destination: Destination, onClick: () -> Unit) {
     val title = destination.title.substringBefore(" · ")
-    val detail = destination.title.substringAfter(" · ", "")
+    val detail = destination.title.split(" · ").drop(1).mapNotNull(::placeCategoryLabel).joinToString(" · ")
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically,
