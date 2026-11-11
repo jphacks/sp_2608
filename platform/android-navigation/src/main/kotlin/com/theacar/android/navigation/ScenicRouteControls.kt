@@ -1,5 +1,13 @@
 package com.theacar.android.navigation
 
+import androidx.compose.material.icons.rounded.Map
+
+import androidx.compose.material.icons.rounded.Landscape
+
+import androidx.compose.foundation.lazy.items
+
+import androidx.compose.foundation.lazy.LazyRow
+
 import androidx.compose.ui.graphics.drawscope.clipPath
 
 import androidx.compose.ui.geometry.RoundRect
@@ -190,23 +198,22 @@ internal fun ScenicAlternatives(alternatives: List<RouteAlternative>, selectedId
         val explanation = alternative?.explanation
         if (explanation != null) {
             Column(Modifier.fillMaxWidth().bringIntoViewRequester(detailFocus)) {
-                explanation.reasons.take(2).forEach { reason ->
-                    TextButton(onClick = { onHighlight(reason.ranges) }) { Text(shortReason(reason.text) + " · 地図で確認") }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    explanation.reasons.take(2).forEach { reason -> ReasonRow(shortReason(reason.text)) { onHighlight(reason.ranges) } }
                 }
+                Spacer(Modifier.height(12.dp))
                 ScenicTimeline(explanation.timeline, onHighlight, environment = explanation.environment)
                 var details by rememberSaveable(alternative?.plan?.id) { mutableStateOf(false) }
                 TextButton(onClick = { details = !details }) { Text(if (details) "根拠・注意を閉じる" else "根拠・注意を確認") }
                 if (details) {
-                    explanation.reasons.drop(2).forEach { reason ->
-                        TextButton(onClick = { onHighlight(reason.ranges) }) { Text(shortReason(reason.text) + " · 地図で確認") }
-                    }
+                    explanation.reasons.drop(2).forEach { reason -> ReasonRow(shortReason(reason.text)) { onHighlight(reason.ranges) } }
+                    if (explanation.searchLimited) Text("計算予算内で探索した候補です。全組み合わせの最適解ではありません。", style = MaterialTheme.typography.bodySmall)
                     Text("景観の根拠と運転負荷は別の推定です。負荷指標 ${"%.2f".format(explanation.load)}", style = MaterialTheme.typography.bodySmall)
                     explanation.warnings.distinct().forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
                     explanation.sources.forEach { Text("${it.id} · ${it.license}\n${it.url}", style = MaterialTheme.typography.bodySmall) }
                     explanation.comparisons.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
                     Text("${explanation.snapshotId} / revision ${explanation.revision}", style = MaterialTheme.typography.labelSmall)
                 }
-                if (explanation.searchLimited) Text("計算予算内で探索した候補です。全組み合わせの最適解ではありません。", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -293,7 +300,7 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
     }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("景観の流れ", style = MaterialTheme.typography.labelMedium)
+            Text("道中の景色", style = MaterialTheme.typography.labelMedium)
             Text("全${scenicDistanceLabel(total)}", style = MaterialTheme.typography.labelSmall)
         }
         ScenicTimelineBar(blocks, total, onHighlight, compact)
@@ -309,9 +316,18 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
         if (roads.isNotEmpty()) ScenicRoadRankLegend(roads.map { it.rank }.distinct())
         ScenicEnvironmentTimeline(environment, total, onHighlight, compact)
         if (!compact) {
-            blocks.filter { it.range.endMeters - it.range.startMeters >= 300 }.take(6).forEach { block ->
-                TextButton(onClick = { onHighlight(listOf(block.range)) }) {
-                    Text("${categoryLabel(block.category)} · ${(block.range.startMeters / 100).toInt() / 10.0}〜${(block.range.endMeters / 100).toInt() / 10.0}km")
+            val scenic = blocks.filter { it.range.endMeters - it.range.startMeters >= 300 && it.category !in setOf("urban", "unclassified", "unknown") }
+            if (scenic.isNotEmpty()) LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(scenic.take(12)) { block ->
+                    Surface(onClick = { onHighlight(listOf(block.range)) }, shape = RoundedCornerShape(50),
+                        color = categoryColor(block.category).copy(alpha = .15f)) {
+                        Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Canvas(Modifier.size(8.dp)) { drawCircle(categoryColor(block.category)) }
+                            Text("${categoryLabel(block.category)} ${(block.range.startMeters / 100).toInt() / 10.0}〜${(block.range.endMeters / 100).toInt() / 10.0}km",
+                                style = MaterialTheme.typography.labelMedium, color = Ink)
+                        }
+                    }
                 }
             }
         }
@@ -327,4 +343,17 @@ private fun scenicChipStyle(item: ScenicPreference): Pair<Color, Color> = when (
     ScenicPreference.VALLEY -> Mountains to SurfaceColor
     ScenicPreference.FARMLAND -> Sunglow to Ink
     ScenicPreference.URBAN -> Muted to SurfaceColor
+}
+
+/** 推薦の理由の1行。文と、その区間を地図で見るボタン */
+@Composable
+private fun ReasonRow(text: String, onMap: () -> Unit) {
+    Surface(onClick = onMap, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .45f)) {
+        Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Mountains, modifier = Modifier.size(20.dp))
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink, modifier = Modifier.weight(1f))
+            Icon(Icons.Rounded.Map, contentDescription = "地図で見る", tint = Muted, modifier = Modifier.size(20.dp))
+        }
+    }
 }
