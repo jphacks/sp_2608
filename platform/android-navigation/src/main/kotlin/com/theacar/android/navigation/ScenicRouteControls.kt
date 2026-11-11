@@ -243,6 +243,7 @@ internal fun rankColor(rank: ScenicRoadRank) = when (rank) {
 private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
     onHighlight: (List<ScenicRange>) -> Unit, compact: Boolean) {
     val sections = remember(blocks, compact) { scenicTimelineOverview(blocks, if (compact) 24 else 48) }
+    val roads = remember(blocks) { scenicRoadHighlights(blocks) }
     Canvas(Modifier.fillMaxWidth().height(48.dp).semantics {
         contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示します。タップで地図を表示。"
         customActions = sections.filter { it.sourceRanges.isNotEmpty() }.take(6).map { section ->
@@ -250,9 +251,13 @@ private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
                 onHighlight(section.sourceRanges); true
             }
         }
-    }.pointerInput(sections, total) {
+    }.pointerInput(sections, roads, total) {
         detectTapGestures { tap ->
             val distance = tap.x / size.width.coerceAtLeast(1) * total
+            roads.firstOrNull { road -> road.ranges.any { distance >= it.startMeters && distance <= it.endMeters } }?.let {
+                onHighlight(it.ranges)
+                return@detectTapGestures
+            }
             sections.firstOrNull { distance >= it.range.startMeters && distance <= it.range.endMeters }
                 ?.takeIf { it.sourceRanges.isNotEmpty() }?.let { onHighlight(it.sourceRanges) }
         }
@@ -264,6 +269,8 @@ private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
             drawRoundRect(categoryColor(section.category), Offset(left, (size.height - barHeight) / 2),
                 Size((width - 1.dp.toPx()).coerceAtLeast(0f), barHeight), CornerRadius(3.dp.toPx()))
         }
+        // 名道の区間は帯の上に重ねる
+        drawRoadSegments(roads, total, size.height / 2, outline = true)
     }
 }
 
@@ -290,10 +297,7 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
                 }
             }
         }
-        if (roads.isNotEmpty()) {
-            ScenicRoadTimeline(blocks, total, onHighlight = { onHighlight(it.ranges) })
-            ScenicRoadRankLegend()
-        }
+        if (roads.isNotEmpty()) ScenicRoadRankLegend()
         ScenicEnvironmentTimeline(environment, total, onHighlight, compact)
         if (!compact) {
             blocks.filter { it.range.endMeters - it.range.startMeters >= 300 }.take(6).forEach { block ->
