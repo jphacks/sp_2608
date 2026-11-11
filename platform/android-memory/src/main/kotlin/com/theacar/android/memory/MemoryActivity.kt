@@ -41,6 +41,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.rounded.PhotoLibrary
+import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -63,6 +69,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.core.content.FileProvider
 import com.theacar.memory.PhotoStyle
 import com.theacar.memory.STICKER_HEIGHT_MM
 import com.theacar.memory.STICKER_WIDTH_MM
@@ -89,6 +96,7 @@ import java.io.File
 
 private const val PREVIEW_WIDTH_PX = 600
 private const val STATE_PENDING_PHOTO = "pendingPhoto"
+private const val STATE_CAMERA_PHOTO = "cameraPhoto"
 private const val PLAY_STORE_PACKAGE = "com.android.vending"
 private const val PLAY_STORE_ICON_PX = 96
 
@@ -131,13 +139,21 @@ class MemoryActivity : ComponentActivity() {
                 DocumentsContract.EXTRA_INITIAL_URI,
                 DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:DCIM/Camera"),
             )
-    }) { uri ->
-        if (uri == null) return@registerForActivityResult
+    }) { uri -> if (uri != null) receivePhoto(uri) }
+
+    // カメラアプリに撮らせ、記録のフォルダに書いてもらう。撮った写真は選んだ写真と同じ流れで読む
+    private var cameraPhoto: Uri? = null
+    private val takePhoto = registerForActivityResult(ActivityResultContracts.TakePicture()) { taken ->
+        // 自分のフォルダの写真なので、写真の位置情報を読む許可は聞かない
+        cameraPhoto?.takeIf { taken }?.let { receivePhoto(it, askLocation = false) }
+    }
+
+    private fun receivePhoto(uri: Uri, askLocation: Boolean = true) {
         pendingPhoto = uri
         lifecycleScope.launch {
             // 権限ダイアログの間に画面が作り直されても消えないよう、先に元写真を保存する
             if (!copyOriginal(uri)) { notice = "写真を読み込めませんでした"; return@launch }
-            if (Build.VERSION.SDK_INT >= 29 &&
+            if (askLocation && Build.VERSION.SDK_INT >= 29 &&
                 ContextCompat.checkSelfPermission(this@MemoryActivity, Manifest.permission.ACCESS_MEDIA_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 mediaLocationRequest.launch(Manifest.permission.ACCESS_MEDIA_LOCATION)
             } else {
@@ -153,6 +169,7 @@ class MemoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val id = intent.getStringExtra(EXTRA_MEMORY_ID)
         pendingPhoto = savedInstanceState?.getString(STATE_PENDING_PHOTO)?.let(Uri::parse)
+        cameraPhoto = savedInstanceState?.getString(STATE_CAMERA_PHOTO)?.let(Uri::parse)
         setContent {
             TheaCarTheme {
                 val edit = editor?.state?.collectAsState()?.value
@@ -185,6 +202,7 @@ class MemoryActivity : ComponentActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         pendingPhoto?.let { outState.putString(STATE_PENDING_PHOTO, it.toString()) }
+        cameraPhoto?.let { outState.putString(STATE_CAMERA_PHOTO, it.toString()) }
     }
 
     override fun onPause() {
@@ -241,8 +259,15 @@ class MemoryActivity : ComponentActivity() {
     private fun MemoryForm(current: TripMemory, placeText: String, memberText: String) {
         val scope = rememberCoroutineScope()
         Text("写真", style = MaterialTheme.typography.titleLarge)
-        OutlinedButton(onClick = { pickPhoto.launch(arrayOf("image/*")) }) {
-            Text("写真を選ぶ")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = {
+                val file = File(store.directory(current.id), "camera.jpg")
+                cameraPhoto = FileProvider.getUriForFile(this@MemoryActivity, "$packageName.memory.fileprovider", file)
+                runCatching { takePhoto.launch(cameraPhoto!!) }.onFailure { notice = "カメラを開けませんでした" }
+            }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) { PhotoButtonLabel(Icons.Rounded.PhotoCamera, "写真を撮る") }
+            OutlinedButton(onClick = { pickPhoto.launch(arrayOf("image/*")) }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) {
+                PhotoButtonLabel(Icons.Rounded.PhotoLibrary, "写真を選ぶ")
+            }
         }
         Text("デフォルメ", style = MaterialTheme.typography.titleLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -486,4 +511,11 @@ class MemoryActivity : ComponentActivity() {
         const val EXTRA_MEMORY_ID = "memoryId"
         fun intent(context: Context, memoryId: String): Intent = Intent(context, MemoryActivity::class.java).putExtra(EXTRA_MEMORY_ID, memoryId)
     }
+}
+
+@Composable
+private fun PhotoButtonLabel(icon: ImageVector, text: String) {
+    Icon(icon, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+    Text(text)
 }

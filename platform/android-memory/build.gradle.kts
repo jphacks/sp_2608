@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.compose.material3)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.zxing.core)
     testImplementation(kotlin("test-junit"))
