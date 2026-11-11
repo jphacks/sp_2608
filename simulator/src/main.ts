@@ -127,6 +127,14 @@ async function renderMenu(): Promise<void> {
         <span class="chips">${parts || '<span class="chip"><i style="background: #8c8c8c"></i>街なか</span>'}</span>
       </button>`
   }
+  // 画面の左右の端の、隣の目的地へ移る矢印。下に隣の目的地の名前を出す（← → キーでも移れる）
+  const arrow = (step: -1 | 1) => {
+    const neighbor = splitName(ROUTES[(course + step + ROUTES.length) % ROUTES.length].name).to
+    return `<button type="button" class="course-arrow ${step < 0 ? 'previous' : 'next'}" data-step="${step}" aria-label="${neighbor}へ">
+      <svg viewBox="0 0 12 24" aria-hidden="true"><path d="${step < 0 ? 'M10 2 L2 12 L10 22' : 'M2 2 L10 12 L2 22'}"/></svg>
+      <span>${neighbor}</span>
+    </button>`
+  }
   $('[data-routes]').innerHTML = `
     ${r.photo ? `<div class="course-photo" style="background-image: url('${r.photo.url}')"></div>` : ''}
     <div class="course">
@@ -135,9 +143,12 @@ async function renderMenu(): Promise<void> {
         <figcaption>${AERIAL_CREDIT}</figcaption>
       </figure>
       <div class="course-info">
-        <div class="course-from">${from}から</div>
-        <div class="course-title">
-          <h1 class="course-to">${to}</h1>
+        <div class="course-head">
+          <div class="course-route">
+            <div class="course-from">${from}から</div>
+            <h1 class="course-to">${to}</h1>
+            <div class="course-en">${r.en}</div>
+          </div>
           ${roadRecord(r.id, comparison?.scenic) ?? (via ? `<span class="course-via">${via}</span>` : '')}
         </div>
         <div class="course-options">
@@ -149,9 +160,12 @@ async function renderMenu(): Promise<void> {
     </div>
     <nav class="course-tabs">
       ${ROUTES.map((each, i) => `<button type="button" data-course="${i}"${i === course ? ' class="current"' : ''}>${splitName(each.name).to}</button>`).join('')}
-      <span class="course-hint">← → 目的地　1 2 道を選ぶ</span>
     </nav>
-    ${r.photo ? `<div class="course-credit">${r.photo.credit}</div>` : ''}`
+    ${r.photo ? `<div class="course-credit">${r.photo.credit}</div>` : ''}
+    ${arrow(-1)}${arrow(1)}`
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-step]')) {
+    button.addEventListener('click', () => showCourse(course + Number(button.dataset.step)))
+  }
   const canvas = document.querySelector<HTMLCanvasElement>('[data-preview]')
   const paintMap = (focus?: RouteKind) => {
     if (canvas && comparison) drawPreview(canvas, comparison, focus, [from, to])

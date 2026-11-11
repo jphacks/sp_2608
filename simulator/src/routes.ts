@@ -14,6 +14,8 @@ export interface DemoRoute {
   /** 最短ルートの距離（キロメートル） */
   km: number
   note: string
+  /** 目的地の英語の名前。道を選ぶ画面に出す */
+  en: string
   /**
    * デモで走る区間。道の始まりからの道のり（メートル）の [始まり, 終わり]。特に見てほしい所だけを走る。
    * 無ければ道の始まりから目的地まで
@@ -27,6 +29,7 @@ export const ROUTES: readonly DemoRoute[] = [
   // 短い道（5〜15分で走り比べられる）。出発点と向きは、走り比べのデータ（public/compare）の道の始まりを使う
   {
     id: 'hakodate-tomoe',
+    en: 'HAKODATE STATION',
     name: '万代町 → 函館駅（ともえ大橋）',
     start: { lat: 41.79004, lon: 140.728635 },
     headingDegrees: 194.0,
@@ -40,6 +43,7 @@ export const ROUTES: readonly DemoRoute[] = [
   },
   {
     id: 'onuma-lake',
+    en: 'HIGASHI-ONUMA',
     name: '大沼公園駅 → 東大沼',
     start: { lat: 41.967686, lon: 140.668872 },
     headingDegrees: 197.3,
@@ -53,6 +57,7 @@ export const ROUTES: readonly DemoRoute[] = [
   },
   {
     id: 'wakkanai-noshappu',
+    en: 'CAPE NOSHAPPU',
     name: '稚内駅 → ノシャップ岬',
     start: { lat: 45.417307, lon: 141.676764 },
     headingDegrees: 249.0,
@@ -64,6 +69,7 @@ export const ROUTES: readonly DemoRoute[] = [
   },
   {
     id: 'rumoi-ogon',
+    en: 'CAPE OGON',
     name: '留萌駅 → 黄金岬',
     start: { lat: 43.939985, lon: 141.653791 },
     headingDegrees: 258.5,

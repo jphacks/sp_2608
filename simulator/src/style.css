@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Bungee&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Bungee&family=Shippori+Antique+B1&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
 
 /* 色は旅れこのアプリ（core/ui の TheaCarTheme.kt）と同じ */
 :root {
@@ -454,7 +454,7 @@ html, body {
 
 #menu.menu .sheet {
   position: relative;
-  width: min(1240px, calc(100vw - 64px));
+  width: min(1240px, calc(100vw - 220px));
   max-height: calc(100vh - 32px);
   background: transparent;
   color: var(--paper);
@@ -518,28 +518,89 @@ html, body {
   color: rgba(245, 243, 236, 0.8);
 }
 
+/*
+ * 目的地の見出し。地図と同じ記号で、出発地（白い点）から点線を下りて目的地（橙の点）に着く。
+ * 右に、名のある道のレコード
+ */
+.course-head {
+  --to-size: clamp(38px, 4.6vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.course-route {
+  position: relative;
+  padding-left: 34px;
+}
+
+/* 出発地の点から目的地の点までの点線 */
+.course-route::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 15px;
+  height: calc(30px + var(--to-size) * 0.58 - 15px);
+  border-left: 2px dashed rgba(245, 243, 236, 0.55);
+}
+
 .course-from {
+  position: relative;
+  height: 30px;
+  line-height: 30px;
   font-size: 18px;
   color: var(--mist);
 }
 
+.course-from::before,
+#menu .course-to::before {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  box-sizing: border-box;
+}
+
+.course-from::before {
+  left: -33px;
+  top: 7px;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+}
+
 #menu .course-to {
+  position: relative;
   margin: 0;
-  font-size: clamp(40px, 5vw, 68px);
-  line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  /* しっぽりアンチック B1。漢字はゴシック、かなは明朝寄りの、昔の印刷物のような書体（SIL OFL） */
+  font-family: 'Shippori Antique B1', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: var(--to-size);
+  line-height: 1.16;
+  /* 小さい「ャ」「ッ」の前後が空きすぎないよう、文字ごとの幅で詰める */
+  font-feature-settings: 'palt';
+  letter-spacing: 0;
   color: var(--paper);
   text-wrap: balance;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
-.course-title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 18px;
-  margin-top: 2px;
+#menu .course-to::before {
+  left: -37px;
+  top: calc(var(--to-size) * 0.58 - 12px);
+  width: 24px;
+  height: 24px;
+  background: var(--sunset);
+}
+
+.course-en {
+  margin-top: 6px;
+  font-family: 'Bungee', 'Jost', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  color: var(--sunglow);
 }
 
 /* 目的地の横の、道のレコード */
@@ -706,17 +767,64 @@ html, body {
   font-weight: 700;
 }
 
-.course-hint {
-  margin-left: auto;
-  font-size: 13px;
-  color: var(--mist);
-  opacity: 0.75;
-}
-
 .course-credit {
   position: fixed;
   right: 16px;
   bottom: 10px;
   font-size: 11px;
   color: rgba(245, 243, 236, 0.75);
+}
+
+/* 隣の目的地へ移る矢印。画面の左右の端の真ん中に、細い線だけで控えめに置く。隣の目的地の名前は、乗せたときだけ出す */
+.course-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 88px;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--paper);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+.course-arrow.previous {
+  left: 8px;
+}
+
+.course-arrow.next {
+  right: 8px;
+}
+
+.course-arrow svg {
+  width: 26px;
+  height: 52px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.course-arrow span {
+  visibility: hidden;
+}
+
+.course-arrow:hover,
+.course-arrow:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.course-arrow:hover span,
+.course-arrow:focus-visible span {
+  visibility: visible;
 }
