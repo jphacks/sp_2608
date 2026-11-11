@@ -115,6 +115,8 @@ export class PanoramaFeed {
   gap = false
   /** 開発用の数え上げ（写真を選び直した回数、全方向を読んだ回数、入れ替えた回数、テクスチャを取り上げた回数） */
   readonly stats = { reselect: 0, around: 0, advance: 0, evict: 0 }
+  /** 先読みする写真の数。1か所の景色を止まって見るだけのとき（main.ts の at）は 0 にして、タイルを読む数を抑える */
+  prefetch = PREFETCH
 
   constructor(private readonly api: StreetViewApi, private readonly renderer: PanoramaRenderer) {
     for (let i = 0; i < SLOTS; i++) this.free.push(renderer.createTexture())
@@ -174,7 +176,7 @@ export class PanoramaFeed {
     // 一度決めた先読みは、道から外れない限り替えない。替えるたびに読み込みし直しになる
     const off = this.next.findIndex((p) => !onPath(p))
     if (off >= 0) this.next = this.next.slice(0, off)
-    while (this.a && this.next.length < PREFETCH) {
+    while (this.a && this.next.length < this.prefetch) {
       const following = after(this.next.at(-1) ?? this.a, [this.a, ...this.next])
       if (!following) break
       this.next.push(following)

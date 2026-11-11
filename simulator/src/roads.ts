@@ -36,6 +36,8 @@ export class RoadNetwork {
   readonly edges: Edge[] = []
   /** 点の番号ごとの、そこにつながる道 */
   private readonly junctions = new Map<number, Edge[]>()
+  /** 升目ごとの、そこを通る線分（道と、points の番号）。近い道を毎フレーム探すので、全部の道を調べずに済むように */
+  private readonly cells = new Map<string, [Edge, number][]>()
 
   constructor(data: RoadData) {
     const used = new Map<number, number>()
@@ -65,6 +67,17 @@ export class RoadNetwork {
     if (length < 0.5) return
     const edge: Edge = { id: this.edges.length, from: nodes[0], to: nodes[nodes.length - 1], points, along, length, oneway, name, halfWidth }
     this.edges.push(edge)
+    for (let i = 1; i < points.length; i++) {
+      const [a, b] = [points[i - 1], points[i]]
+      for (let row = cellRow(Math.min(a.lat, b.lat)); row <= cellRow(Math.max(a.lat, b.lat)); row++) {
+        for (let column = cellColumn(Math.min(a.lon, b.lon)); column <= cellColumn(Math.max(a.lon, b.lon)); column++) {
+          const key = `${row},${column}`
+          const list = this.cells.get(key)
+          if (list) list.push([edge, i])
+          else this.cells.set(key, [[edge, i]])
+        }
+      }
+    }
     for (const node of new Set([edge.from, edge.to])) {
       const list = this.junctions.get(node) ?? []
       list.push(edge)
@@ -86,11 +99,19 @@ export class RoadNetwork {
    */
   locate(target: LatLon, headingDegrees: number): { position: RoadPosition; distance: number } {
     let best: { edge: Edge; offset: number; distance: number } | undefined
-    for (const edge of this.edges) {
-      for (let i = 1; i < edge.points.length; i++) {
-        const [offset, distance] = nearestOnSegment(edge.points[i - 1], edge.points[i], target)
-        if (!best || distance < best.distance) best = { edge, offset: edge.along[i - 1] + offset, distance }
+    const check = (edge: Edge, i: number) => {
+      const [offset, distance] = nearestOnSegment(edge.points[i - 1], edge.points[i], target)
+      if (!best || distance < best.distance) best = { edge, offset: edge.along[i - 1] + offset, distance }
+    }
+    // まず、まわりの升目（3×3）の線分だけを調べる。升目1つ分より近い道が見つかれば、それがいちばん近い
+    const [row, column] = [cellRow(target.lat), cellColumn(target.lon)]
+    for (let r = row - 1; r <= row + 1; r++) {
+      for (let c = column - 1; c <= column + 1; c++) {
+        for (const [edge, i] of this.cells.get(`${r},${c}`) ?? []) check(edge, i)
       }
+    }
+    if (!best || best.distance > CELL_METERS) {
+      for (const edge of this.edges) for (let i = 1; i < edge.points.length; i++) check(edge, i)
     }
     if (!best) throw new Error('道がありません')
     const along = headingAt({ edge: best.edge, offset: best.offset, forward: true })
@@ -185,6 +206,11 @@ export class RoadNetwork {
     return result
   }
 }
+
+/** 升目の大きさ。緯度 0.002 度は約 220m、経度 0.003 度は北海道で約 240m */
+const CELL_METERS = 200
+const cellRow = (lat: number) => Math.floor(lat / 0.002)
+const cellColumn = (lon: number) => Math.floor(lon / 0.003)
 
 /** 道の上の地点。 */
 export function pointAt(position: RoadPosition): LatLon {

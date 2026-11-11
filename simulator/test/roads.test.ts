@@ -99,7 +99,7 @@ describe('turnAngle', () => {
   })
 })
 
-describe('デモの4本の道（OSM から取った実データ）', () => {
+describe('デモの道（OSM から取った実データ）', () => {
   for (const route of ROUTES) {
     it(`${route.name}：出発点が道の上にあり、道をたどって目的地の近くまで行ける`, async () => {
       const data = JSON.parse(await readFile(new URL(`../public/roads/${route.id}.json`, import.meta.url), 'utf8')) as RoadData
@@ -164,4 +164,3 @@ describe('道幅の中を自由に走る', () => {
     expect(headingAt(position)).toBeCloseTo(90, 0)
   })
 })
-

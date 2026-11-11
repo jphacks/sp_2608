@@ -11,10 +11,8 @@
 
     <section id="hud" hidden>
       <div class="panel trip">
-        <div class="label">走っている道</div>
         <div data-route class="value"></div>
-        <div class="label">旅れこの目的地に入れる名前</div>
-        <div data-destination class="value strong"></div>
+        <div data-kind class="kind-badge"></div>
         <div data-remaining class="sub"></div>
       </div>
       <div class="panel status">
@@ -25,6 +23,15 @@
       <div class="panel road">
         <div data-road class="road-name"></div>
         <div data-junction class="junction"></div>
+      </div>
+      <!-- 走り比べ：2本の道の地図と、道の始まりから終わりまでの景色の帯（印は今いる所） -->
+      <div data-compare class="panel compare" hidden>
+        <canvas data-compare-map></canvas>
+        <div class="rows">
+          <div data-compare-row="normal" class="compare-row"><div class="figures"></div><div class="strip"><div class="marker"></div></div></div>
+          <div data-compare-row="scenic" class="compare-row"><div class="figures"></div><div class="strip"><div class="marker"></div></div></div>
+          <div data-scenery class="sub"></div>
+        </div>
       </div>
       <div class="panel controls">
         <div class="wheel"><div data-steer class="wheel-mark"></div></div>
@@ -39,13 +46,15 @@
       <!-- Map Tiles API の決まり：Google Maps の表記と写真ごとの出典、右下に問題を報告するリンク -->
       <div class="credit-google" aria-label="Google Maps"><span class="gm">Google Maps</span><span data-copyright></span></div>
       <a data-report class="report" target="_blank" rel="noopener" hidden>この画像の問題を報告</a>
-      <div class="help">M 道を選ぶ　C ハンコンの調整　U U ターン　Backspace 出発点へ　キーボード：WASD・矢印キー</div>
+      <div class="help">M 道を選ぶ　T 道を切り替える　J 次の見どころへ　C ハンコンの調整　U U ターン　Backspace 出発点へ　キーボード：WASD・矢印キー</div>
     </section>
 
     <section id="menu" class="overlay">
       <div class="sheet">
-        <h1>旅れこ ドライブシミュレータ</h1>
-        <p>走る道を選んでください。スマホの旅れこには、選んだ道の目的地を入れて案内を始めます。道幅の中を自由に走れます。交差点では、行きたい方へハンドルを切って入ります。</p>
+        <header>
+          <h1>どの道を走りますか</h1>
+          <p class="lead">同じ目的地へ、2本の道を走り比べる</p>
+        </header>
         <div data-routes class="routes"></div>
         <p data-wheel class="sub"></p>
         <p class="credit">景色：Google ストリートビュー（Map Tiles API）　道路：© OpenStreetMap contributors</p>

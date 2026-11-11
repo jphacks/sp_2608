@@ -102,7 +102,12 @@ html, body {
 .trip {
   top: 16px;
   left: 16px;
-  max-width: 360px;
+  padding: 10px 14px;
+}
+
+.trip .value {
+  font-size: 16px;
+  margin-bottom: 2px;
 }
 
 .status {
@@ -263,20 +268,33 @@ html, body {
 }
 
 .sheet {
-  width: min(760px, calc(100vw - 32px));
+  width: min(880px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   overflow: auto;
   background: var(--paper);
   color: var(--ink);
   border-radius: 18px;
-  padding: 28px 32px;
+  padding: 32px 36px;
   box-sizing: border-box;
 }
 
 .sheet h1 {
-  margin: 0 0 8px;
-  font-size: 26px;
-  color: var(--mountains);
+  margin: 0;
+  font-size: 30px;
+  color: var(--ink);
+}
+
+.sheet header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sheet .lead {
+  margin: 0;
+  font-size: 15px;
+  color: var(--muted);
 }
 
 .sheet .sub {
@@ -284,35 +302,215 @@ html, body {
 }
 
 .routes {
+  margin: 20px 0 16px;
+  border-top: 1px solid rgba(30, 42, 36, 0.14);
+}
+
+.route-card {
   display: grid;
-  gap: 10px;
-  margin: 16px 0;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(30, 42, 36, 0.14);
+}
+
+.route-card canvas,
+.route-card .no-preview {
+  width: 200px;
+  height: 132px;
+  border-radius: 12px;
+  background: #e9e6db;
+}
+
+.routes .name {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.routes .arrow {
+  margin: 0 10px;
+  color: var(--sky);
+}
+
+.routes .pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .routes button {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: center;
   text-align: left;
   font: inherit;
-  padding: 14px 16px;
+  color: var(--ink);
+  padding: 12px 16px;
   border-radius: 12px;
-  border: 2px solid var(--mist);
-  background: white;
+  border: 2px solid rgba(30, 42, 36, 0.2);
+  background: transparent;
   cursor: pointer;
+}
+
+.routes button.scenic {
+  border-color: var(--mountains);
+  background: var(--mountains);
+  color: var(--paper);
 }
 
 .routes button:hover,
 .routes button:focus-visible {
-  border-color: var(--sky);
+  border-color: var(--sunset);
   outline: none;
 }
 
-.routes .name {
-  font-size: 19px;
+.routes .key {
+  grid-row: span 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-items: center;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.routes .key:empty {
+  visibility: hidden;
+}
+
+.routes .kind {
+  font-size: 17px;
   font-weight: 700;
 }
 
-.routes .note {
+.routes .figures {
+  font-size: 13px;
+}
+
+.routes .figures b {
+  font-family: 'Jost', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 2px 0 8px;
+}
+
+.routes .figures b:first-child {
+  margin-left: 0;
+}
+
+.routes .strip {
+  grid-column: 1 / -1;
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  margin: 8px 0 4px;
+}
+
+.routes .chips {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.routes .chip i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.strip {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: #4a4a4a;
+  margin: 4px 0;
+}
+
+.kind-badge {
+  display: inline-block;
   font-size: 14px;
-  color: var(--muted);
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin: 4px 0 6px;
+  color: #1c1c1c;
+  background: #f0c75e;
+}
+
+.kind-badge.scenic {
+  background: #3ecf7a;
+}
+
+.kind-badge:empty {
+  display: none;
+}
+
+.compare {
+  left: 16px;
+  bottom: 56px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.compare canvas {
+  display: block;
+  width: 120px;
+  height: 104px;
+}
+
+.compare .rows {
+  width: 220px;
+}
+
+.compare-row {
+  opacity: 0.55;
+  margin-top: 6px;
+}
+
+.compare-row.active {
+  opacity: 1;
+}
+
+.compare-row .figures {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.compare-row .marker {
+  display: none;
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: white;
+  box-shadow: 0 0 0 1px #1b6fe0;
+}
+
+.compare-row.active .marker {
+  display: block;
+}
+
+.compare .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 4px;
 }
 
 .prompt {
