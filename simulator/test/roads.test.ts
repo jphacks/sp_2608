@@ -182,4 +182,24 @@ describe('道幅の中を自由に走る', () => {
     expect(before.edge.name).toBe('橋')
     expect(bridge.keepOnRoad(target, 0, before).position.edge.name).toBe('橋')
   })
+
+  it('脇道の入り口をまっすぐ通っても、脇道へ移らない', () => {
+    // 南北の道を北へ。C の 1m 手前で、西へ 3m 寄っている。西の道の方が近いが、南北の道の幅の中
+    const before = network.keepOnRoad(at(-20, -3), 0).position
+    const kept = network.keepOnRoad(at(-1, -3), 0, before)
+    expect(kept.pushed).toBe(false)
+    expect(kept.position.edge.name).toBe('南北の道')
+    // C を過ぎたら、車の向きに沿う北側の道へ移る
+    const after = network.keepOnRoad(at(5, -3), 0, kept.position)
+    expect(after.position.edge.name).toBe('南北の道')
+    expect(after.pushed).toBe(false)
+  })
+
+  it('ハンドルを切って脇道へ出れば、脇道へ移る', () => {
+    const before = network.keepOnRoad(at(-1, -3), 300).position
+    const kept = network.keepOnRoad(at(1, -8), 270, before)
+    expect(kept.position.edge.name).toBe('西の道')
+    expect(kept.pushed).toBe(false)
+  })
 })
+

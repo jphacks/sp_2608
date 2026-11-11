@@ -128,11 +128,21 @@ export class RoadNetwork {
   /**
    * 自由に動いた車の位置 target を、道幅の中へ収める。道の端を越えていたら端まで戻し、pushed を返す。
    * 交差点では、いちばん近い道が入れ替わるので、ハンドルを切った先の道へそのまま入っていける。
-   * from（直前にいた道）を渡すと、その道と、その道の両端でつながる道だけから選ぶ。
+   * from（直前にいた道）を渡すと、その道と、その道の両端でつながる道だけから選び、脇道へ勝手に移らない。
    * 橋の下をくぐる道のように、地図の上で重なるだけでつながっていない道へは移らない。
    */
   keepOnRoad(target: LatLon, headingDegrees: number, from?: RoadPosition): { at: LatLon; position: RoadPosition; pushed: boolean } {
     const among = from && new Set([from.edge, ...this.junctions.get(from.edge.from) ?? [], ...this.junctions.get(from.edge.to) ?? []])
+    if (from && among) {
+      // 幅の中に車がいる道。今の道の幅の中にいる間は、今の道のまま（脇道の入り口を通っても、そちらへ移らない）。
+      // 今の道を出たら、車の向きにいちばん沿う道へ移る
+      const inside = [...among].map((edge) => this.locate(target, headingDegrees, [edge]))
+        .filter((found) => found.distance <= found.position.edge.halfWidth)
+      const off = (found: { position: RoadPosition }) => Math.abs(turnAngle(headingDegrees, headingAt(found.position)))
+      const chosen = inside.find((found) => found.position.edge === from.edge)
+        ?? inside.sort((a, b) => off(a) - off(b))[0]
+      if (chosen) return { at: target, position: chosen.position, pushed: false }
+    }
     const { position, distance } = this.locate(target, headingDegrees, among)
     const limit = position.edge.halfWidth
     if (distance <= limit) return { at: target, position, pushed: false }
