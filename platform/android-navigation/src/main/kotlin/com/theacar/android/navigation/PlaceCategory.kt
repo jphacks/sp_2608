@@ -1,5 +1,10 @@
 package com.theacar.android.navigation
 
+import com.theacar.route.Destination
+
+/** 画面に出す行き先の名前。検索結果の「札幌市 · city」から、種類の部分を外す */
+val Destination.displayName: String get() = title.substringBefore(" · ")
+
 /** 地名データの種類（OSM のタグの値）を日本語にする。訳のない英語は出さない */
 internal fun placeCategoryLabel(value: String): String? = PlaceCategories[value.trim()]
     ?: value.takeUnless { it.trim().matches(Regex("[a-z_ ]+")) }

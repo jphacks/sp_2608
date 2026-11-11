@@ -55,7 +55,7 @@ class NavigationSessionTest {
         assertEquals(NavigationPhase.PREVIEW, session.state.value.phase)
         assertEquals(plan, session.state.value.route)
         assertFalse(session.state.value.previewImproving)
-        assertEquals(NavigationFailure.NETWORK, session.state.value.failure)
+        assertEquals(NavigationFailure.MORE_ROUTES_UNAVAILABLE, session.state.value.failure)
         session.start(); runCurrent()
         assertEquals(NavigationPhase.GUIDING, session.state.value.phase)
         session.close()

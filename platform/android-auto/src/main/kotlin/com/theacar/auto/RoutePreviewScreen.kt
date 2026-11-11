@@ -2,6 +2,7 @@
 
 package com.theacar.auto
 
+import com.theacar.android.navigation.displayName
 import android.content.Intent
 import android.text.SpannableString
 import android.text.Spanned
@@ -72,7 +73,7 @@ internal class RoutePreviewScreen(carContext: CarContext, runtime: AndroidNaviga
             failure != null -> failure.message()
             else -> sceneryFlow(state)
         }
-        val item = Row.Builder().setTitle(route.destination.title).addText(summary).apply {
+        val item = Row.Builder().setTitle(route.destination.displayName).addText(summary).apply {
             second?.let { addText(it) }
         }.build()
         val start = Action.Builder().setTitle("案内開始").setOnClickListener {
