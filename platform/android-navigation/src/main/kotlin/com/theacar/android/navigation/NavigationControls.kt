@@ -265,9 +265,19 @@ internal fun NavigationControls(
         Column(Modifier.align(if (wide) Alignment.BottomEnd else Alignment.BottomCenter)
             .widthIn(max = if (wide) 340.dp else 600.dp).fillMaxWidth().padding(12.dp)
             .onSizeChanged { bottomHeight = it.height; panelWidth = it.width }, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            MapIconButton(Icons.Rounded.MyLocation, "現在地", onRecenter, Modifier.align(Alignment.End))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                // 地図の出典は、地図の左下の隅に小さく出す
+                Text("© OpenMapTiles © OpenStreetMap", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                    color = Muted, modifier = Modifier.weight(1f))
+                MapIconButton(Icons.Rounded.MyLocation, "現在地", onRecenter)
+            }
             if (state.phase == NavigationPhase.GUIDING) companion?.GuidanceContent()
-            Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
+            // 何も選んでいないときは、空の枠を出さない
+            val panelHasContent = roundTripSheet || selectedDestination != null || state.route != null || state.failure != null ||
+                busy || viaPointCount > 0 || state.previewNeedsRefresh || state.phase != NavigationPhase.IDLE ||
+                !configuration.configured || configuration.mapStyleUrl.isBlank() ||
+                location.usableFix(LocationUse.ROUTE_PREVIEW, locationNow) == null
+            if (panelHasContent) Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
                 Column(Modifier.fillMaxWidth().heightIn(max = maxPanelHeight)) {
                     val panelTitle = selectedDestination?.title ?: state.route?.destination?.title
                     var showRoundTripHelp by rememberSaveable { mutableStateOf(false) }
@@ -352,7 +362,7 @@ internal fun NavigationControls(
                                 }
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Button(onClick = { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
-                                        enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("ここまでのルートを見る") }
+                                        enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("経路") }
                                     // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
                                     Surface(onClick = onClearSelection, modifier = Modifier.size(52.dp), shape = CircleShape,
                                         color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)) {
@@ -441,9 +451,6 @@ internal fun NavigationControls(
                             }
                         }
                     }
-                    // 出典表示は常に見える固定位置に置く
-                    Text("© OpenMapTiles · © OpenStreetMap contributors", style = MaterialTheme.typography.bodySmall,
-                        color = Muted, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 10.dp))
                     if (state.phase == NavigationPhase.PREVIEW && selectedDestination == null) {
                         // 開始ボタンと同じ固定領域に置き、詳細のスクロール位置に関係なく開始前に確認できるようにする。
                         companion?.let { Box(Modifier.padding(horizontal = 16.dp)) { it.PreviewContent() } }
