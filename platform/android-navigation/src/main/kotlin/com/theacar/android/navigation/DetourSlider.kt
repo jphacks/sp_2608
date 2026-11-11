@@ -82,19 +82,20 @@ private val roundTripStages = listOf(
 internal fun RoundTripSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
     val stage = roundTripStages.first { minutes <= it.upTo }
     Column(modifier) {
-        StageHeader(stage, "${minutes}分")
+        // 分数は下の「◯分以内の周遊ルートを探す」に出るので、ここでは呼び名だけにする
+        StageHeader(stage)
         RoadSlider((minutes - RoundTripMin).toFloat(), (RoundTripMax - RoundTripMin).toFloat(),
             { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${stage.name}")
     }
 }
 
-/** 段階のアイコンと呼び名に、小さく長さを添える */
+/** 段階のアイコンと呼び名。[detail] があれば小さく添える */
 @Composable
-private fun StageHeader(stage: DetourStage, detail: String) {
+private fun StageHeader(stage: DetourStage, detail: String? = null) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Icon(stage.icon, contentDescription = null, tint = Spruce)
         Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
-        Text(detail, style = MaterialTheme.typography.bodySmall, color = Muted)
+        detail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Muted) }
     }
 }
 
