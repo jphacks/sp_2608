@@ -17,6 +17,8 @@ const PHOTO_SAMPLE_METERS = 10
 const FOV_DEGREES = 60
 /** 左右の窓が向く角度（度）。窓の幅と同じにして、正面の窓と切れ目なくつなげる。外の端が真横になる */
 const SIDE_DEGREES = FOV_DEGREES
+/** 止まっているときにハンドルを切ると、車は動かさずに見る向きだけを変える。いっぱいに切ったときの角度（度） */
+const LOOK_DEGREES = 90
 const PITCH_DEGREES = -4
 
 const params = new URLSearchParams(location.search)
@@ -220,6 +222,9 @@ function renderCompare(comparison: Comparison | undefined): void {
   compareMap.draw(lines, kind)
 }
 
+/** 見る向きの、車の向きからのずれ（度） */
+let look = 0
+
 function drive(dt: number, now: number): void {
   if (!network || !car) return
   const controls = input.read(dt)
@@ -254,8 +259,11 @@ function drive(dt: number, now: number): void {
     path.push(pointAt(next.position))
     if (next.stopped) break
   }
-  const { a, b, mixB } = feed.update(here, heading, path, now)
-  const view = { heading, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
+  // 止まってアクセルを離している間は、ハンドルで辺りを見回せる。走り出すと正面へ戻る
+  const lookTarget = speed < 0.5 && controls.throttle === 0 ? controls.steer * LOOK_DEGREES : 0
+  look += (lookTarget - look) * Math.min(1, dt * 6)
+  const { a, b, mixB } = feed.update(here, heading + look, path, now)
+  const view = { heading: heading + look, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
   for (const index of [0, 1, 2]) {
     renderer.render({ ...view, heading: view.heading + (index - 1) * SIDE_DEGREES }, a, b, mixB, { index, count: 3 })
   }
