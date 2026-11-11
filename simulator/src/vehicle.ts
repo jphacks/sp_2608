@@ -11,7 +11,7 @@ export interface Controls {
 /** 普通の乗用車くらいの値。ブレーキは体験会で止まりやすいよう、実車より強くしている（社長の指示で 3 倍） */
 export const CAR = {
   maxAcceleration: 3.0,
-  maxBraking: 24.0,
+  maxBraking: 12.0,
   /** アクセルを離したときに自然に落ちる速さ */
   coastDeceleration: 0.4,
   /** 制限速度（社長の指示で 60km/h） */
