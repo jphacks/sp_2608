@@ -82,7 +82,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
 private fun roadColor(t: Float): Color =
     if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Orange, (t - .5f) * 2)
 
-/** 道路に中央の白い破線。車が通った後ろ側だけ色を付ける */
+/** 道路に中央の白い破線。車の前の端より後ろ側だけ色を付ける（車の下に灰色がのぞかないように） */
 @Composable
 private fun RoadTrack(color: Color, passed: Float) {
     Canvas(Modifier.fillMaxWidth().height(16.dp)) {
@@ -92,7 +92,7 @@ private fun RoadTrack(color: Color, passed: Float) {
         val start = Offset(-reach, 0f)
         val r = CornerRadius(size.height / 2)
         drawRoundRect(Asphalt, start, road, r)
-        clipRect(left = -reach, right = size.width * passed) { drawRoundRect(color, start, road, r) }
+        clipRect(left = -reach, right = size.width * passed + reach) { drawRoundRect(color, start, road, r) }
         drawLine(Color.White.copy(alpha = .6f), Offset(-reach + size.height / 2, size.height / 2),
             Offset(size.width + reach - size.height / 2, size.height / 2),
             strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
