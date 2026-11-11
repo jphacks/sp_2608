@@ -18,6 +18,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import com.theacar.ui.Ink
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material.icons.rounded.Umbrella
@@ -83,8 +87,7 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
             Size(((s.range.endMeters - s.range.startMeters) / axisMeters * size.width).toFloat() + 1f, h))
     // 左に短い見出し、右に帯の表。どの行も同じ横位置で、上の時刻と縦にそろう
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (!compact) Text("時刻ごとの環境 · ${environmentSkyLabel(first.sky)} → ${environmentSkyLabel(last.sky)}",
-            style = MaterialTheme.typography.labelMedium)
+        if (!compact) Text("時刻ごとの環境", style = MaterialTheme.typography.labelMedium)
         EnvironmentRow("") {
             BoxWithConstraints(Modifier.fillMaxWidth().height(16.dp)) {
                 listOf(0.0 to first.startTime, ((middle.range.startMeters + middle.range.endMeters) / 2) to middle.arrivalTime,
@@ -109,7 +112,7 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
                 }
             }
         }
-        EnvironmentRow("天気") { WeatherIcons(sections, axisMeters) { selected = it } }
+        WeatherTable(sections) { selected = it }
         if (environment?.bestSpots?.isNotEmpty() == true) EnvironmentRow("見どころ") {
             BoxWithConstraints(Modifier.fillMaxWidth().height(24.dp)) {
                 environment.bestSpots.forEachIndexed { index, item ->
@@ -179,28 +182,40 @@ private fun EnvironmentRow(label: String, content: @Composable () -> Unit) {
     }
 }
 
-/** 天気を、晴れは太陽（夜は月）、曇りは雲、雨は傘、雪は雪の結晶で、続く区間の真ん中に置く */
+/** 天気予報のように、通る時刻ごとに天気・気温・降水確率を並べた表。多いときは横に送る */
 @Composable
-private fun WeatherIcons(sections: List<ScenicEnvironmentSection>, axisMeters: Double, onSelect: (ScenicEnvironmentSection) -> Unit) {
-    val groups = remember(sections) {
-        sections.fold(mutableListOf<MutableList<ScenicEnvironmentSection>>()) { acc, s ->
-            val last = acc.lastOrNull()?.last()
-            if (last != null && last.sky == s.sky && (last.lightPhase == "night") == (s.lightPhase == "night")) acc.last() += s else acc += mutableListOf(s)
-            acc
-        }
+private fun WeatherTable(sections: List<ScenicEnvironmentSection>, onSelect: (ScenicEnvironmentSection) -> Unit) {
+    val columns = remember(sections) {
+        val count = minOf(sections.size, 12)
+        if (count <= 1) sections.take(1) else (0 until count).map { sections[it * (sections.size - 1) / (count - 1)] }.distinct()
     }
-    val size = 22.dp
-    BoxWithConstraints(Modifier.fillMaxWidth().height(size)) {
-        var lastRight = (-1000).dp
-        groups.forEach { group ->
-            val center = maxWidth * (((group.first().range.startMeters + group.last().range.endMeters) / 2 / axisMeters).toFloat())
-            val x = (center - size / 2).coerceIn(0.dp, maxWidth - size)
-            // 狭い区間が続くときは、アイコンが重ならないよう間引く
-            if (x < lastRight) return@forEach
-            lastRight = x + size
-            val section = group[group.size / 2]
-            Icon(weatherIcon(section), contentDescription = environmentSkyLabel(section.sky), tint = weatherTint(section),
-                modifier = Modifier.offset(x = x).size(size).pointerInput(section) { detectTapGestures { onSelect(section) } })
+    Row(Modifier.fillMaxWidth()) {
+        Column(Modifier.width(RowLabelWidth), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("時刻" to 16.dp, "天気" to 28.dp, "気温" to 18.dp, "降水" to 18.dp).forEach { (label, height) ->
+                Box(Modifier.height(height), contentAlignment = Alignment.CenterStart) {
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = Muted)
+                }
+            }
+        }
+        LazyRow(Modifier.weight(1f)) {
+            items(columns) { section ->
+                Column(Modifier.width(52.dp).pointerInput(section) { detectTapGestures { onSelect(section) } },
+                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(Modifier.height(16.dp), contentAlignment = Alignment.Center) {
+                        Text(environmentClock(section.arrivalTime), style = MaterialTheme.typography.labelSmall, color = Muted)
+                    }
+                    Icon(weatherIcon(section), contentDescription = environmentSkyLabel(section.sky), tint = weatherTint(section),
+                        modifier = Modifier.size(28.dp))
+                    Box(Modifier.height(18.dp), contentAlignment = Alignment.Center) {
+                        Text(section.weatherDetails["temperature_2m"]?.let { "${it.roundToInt()}℃" } ?: "–",
+                            style = MaterialTheme.typography.labelLarge, color = Ink)
+                    }
+                    Box(Modifier.height(18.dp), contentAlignment = Alignment.Center) {
+                        Text(section.weatherDetails["precipitation_probability"]?.let { "${it.roundToInt()}%" } ?: "–",
+                            style = MaterialTheme.typography.labelMedium, color = Muted)
+                    }
+                }
+            }
         }
     }
 }
