@@ -55,10 +55,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Peach
+import com.theacar.ui.Dusk
 import com.theacar.ui.Muted
-import com.theacar.ui.Sky
+import com.theacar.ui.Sunset
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.jost
 
@@ -88,16 +88,16 @@ internal fun ActionWithClose(label: String, onClick: () -> Unit, onClose: () -> 
 private val CloseBackground = Color(0xFFEDEDED)
 
 @Composable
-internal fun tabiChipColors(selected: Color = Sky, selectedLabel: Color = Ink): SelectableChipColors = FilterChipDefaults.filterChipColors(
+internal fun tabiChipColors(selected: Color = Sunset, selectedLabel: Color = Ink): SelectableChipColors = FilterChipDefaults.filterChipColors(
     containerColor = SurfaceColor, labelColor = Ink,
     selectedContainerColor = selected, selectedLabelColor = selectedLabel,
 )
 
 // 選んでいないチップは白抜きに、選んだときの色の細い縁。選んだチップは塗りだけ
-internal fun tabiChipBorder(selected: Boolean, color: Color = Sky): BorderStroke? = if (selected) null else BorderStroke(1.dp, color)
+internal fun tabiChipBorder(selected: Boolean, color: Color = Sunset): BorderStroke? = if (selected) null else BorderStroke(1.dp, color)
 
 @Composable
-internal fun mistButtonColors(): ButtonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Mist, contentColor = Ink)
+internal fun mistButtonColors(): ButtonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Peach, contentColor = Ink)
 
 // 開閉の操作は文言を入れ替えず、同じ名前のまま矢印の向きで開閉を示す
 @Composable
@@ -115,8 +115,8 @@ internal fun LabeledSwitch(label: String, checked: Boolean, onCheckedChange: (Bo
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, color = Ink)
         Switch(checked = checked, onCheckedChange = null, colors = SwitchDefaults.colors(
-            checkedTrackColor = Mountains, checkedThumbColor = SurfaceColor,
-            uncheckedTrackColor = Mist, uncheckedThumbColor = Muted, uncheckedBorderColor = Mist))
+            checkedTrackColor = Dusk, checkedThumbColor = SurfaceColor,
+            uncheckedTrackColor = Peach, uncheckedThumbColor = Muted, uncheckedBorderColor = Peach))
     }
 }
 

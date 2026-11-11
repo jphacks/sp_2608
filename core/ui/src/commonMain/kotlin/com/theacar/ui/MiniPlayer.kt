@@ -84,8 +84,8 @@ fun MiniPlayer(
             }
         }
     }
-    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Mountains, content = row)
-    else Surface(modifier = modifier, color = Mountains, content = row)
+    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Ink, content = row)
+    else Surface(modifier = modifier, color = Ink, content = row)
 }
 
 /** 収まらない1行だけを、先頭で間を置いてからゆっくり流す。収まる文字は動かさない。 */

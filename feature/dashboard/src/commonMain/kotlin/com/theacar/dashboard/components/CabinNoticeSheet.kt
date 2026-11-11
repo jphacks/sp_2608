@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.theacar.cabin.CabinNotice
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
+import com.theacar.ui.Peach
 import com.theacar.ui.Muted
 import kotlinx.coroutines.delay
 
@@ -62,7 +62,7 @@ fun CabinNoticeSheet(notice: CabinNotice?, onDismiss: () -> Unit, modifier: Modi
 @Composable
 private fun Sheet(notice: CabinNotice, onDismiss: () -> Unit) {
     Surface(
-        color = Mist,
+        color = Peach,
         shape = RoundedCornerShape(topStart = CardCorner, topEnd = CardCorner),
         shadowElevation = 3.dp,
         modifier = Modifier.fillMaxWidth(),

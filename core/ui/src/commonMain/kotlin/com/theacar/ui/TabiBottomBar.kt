@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.sp
 
 // caption と color は各画面の見出し帯（DRIVE / RECORD）にそろえる。color は選んでいるタブの下地
 enum class Tab(val label: String, internal val caption: String, internal val icon: ImageVector, internal val color: Color) {
-    MAP("マップ", "DRIVE", Icons.Rounded.LocationOn, Sky),
-    RECORD("旅の記録", "RECORD", Icons.Rounded.Album, Sunset),
-    SETTINGS("設定", "SETTINGS", Icons.Rounded.Settings, Mist),
+    MAP("マップ", "DRIVE", Icons.Rounded.LocationOn, Sunset),
+    RECORD("旅の記録", "RECORD", Icons.Rounded.Album, Rose),
+    SETTINGS("設定", "SETTINGS", Icons.Rounded.Settings, Peach),
 }
 
 /** 全画面共通の下部タブバー。キーボード表示中は隠す。 */
@@ -44,7 +44,7 @@ enum class Tab(val label: String, internal val caption: String, internal val ico
 fun TabiBottomBar(selected: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = Modifier) {
     if (WindowInsets.ime.getBottom(LocalDensity.current) > 0) return
     Column(modifier.fillMaxWidth().background(Surface)) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(Mist))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(Peach))
         Row(
             Modifier.fillMaxWidth().navigationBarsPadding().height(64.dp),
             verticalAlignment = Alignment.CenterVertically,

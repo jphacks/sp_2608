@@ -81,8 +81,8 @@ import com.theacar.ui.CardGap
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Peach
+import com.theacar.ui.Dusk
 import com.theacar.ui.Muted
 import com.theacar.ui.Paper
 import com.theacar.ui.Sunglow
@@ -308,7 +308,7 @@ class MemoryActivity : ComponentActivity() {
         Text("プレビュー", style = MaterialTheme.typography.titleLarge)
         val frame = preview
         val frameModifier = Modifier.fillMaxWidth().aspectRatio((STICKER_WIDTH_MM / STICKER_HEIGHT_MM).toFloat())
-            .clip(RoundedCornerShape(CardCorner)).background(Mist)
+            .clip(RoundedCornerShape(CardCorner)).background(Peach)
         if (frame != null) Image(frame.asImageBitmap(), contentDescription = "ステッカーのプレビュー", modifier = frameModifier, contentScale = ContentScale.Fit)
         else Spacer(frameModifier)
         if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -387,8 +387,8 @@ class MemoryActivity : ComponentActivity() {
         val shape = RoundedCornerShape(ChipCorner)
         Text(
             label,
-            Modifier.clip(shape).background(if (selected) Mountains else Surface, shape)
-                .border(1.dp, if (selected) Mountains else Muted, shape).clickable(onClick = onClick)
+            Modifier.clip(shape).background(if (selected) Dusk else Surface, shape)
+                .border(1.dp, if (selected) Dusk else Muted, shape).clickable(onClick = onClick)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             color = if (selected) Surface else Ink,
             style = MaterialTheme.typography.labelLarge,

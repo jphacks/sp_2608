@@ -17,23 +17,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
-// 旅れこのカラートークン。画面の見出し帯ごとに1色（DRIVE=Sky、RECORD=Sunset）。
-val Sky = Color(0xFF75B1A9)
-val Sunglow = Color(0xFFD9B44A)
-val Sunset = Color(0xFFEB6B40)
+// 旅れこのカラートークン。夕焼けのオレンジを主にする。見出し帯はタブごとに1色（DRIVE=Sunset、RECORD=Rose、SETTINGS=Peach）
+val Sunset = Color(0xFFE9743F)
+// 白い文字を載せるボタンなどの濃い夕焼け色。白地の文字にも使える（白と5.4:1）
+val Dusk = Color(0xFFB4471C)
+val Sunglow = Color(0xFFF2B04C)
+val Rose = Color(0xFFD9667A)
 // RECORD の「RECO」に使う、帯と同系色の濃い色
 val SunsetDeep = Color(0xFF6E1F08)
-val Mountains = Color(0xFF4F6457)
-val Mist = Color(0xFFACD0C0)
-val Paper = Color(0xFFF5F3EC)
+val Peach = Color(0xFFF7DCC8)
+val Paper = Color(0xFFFBF5EF)
 val Surface = Color(0xFFFFFFFF)
-val Ink = Color(0xFF1E2A24)
-val Muted = Color(0xFF5C6B63)
+val Ink = Color(0xFF2E2420)
+val Muted = Color(0xFF72625A)
 val Danger = Color(0xFFB3261E)
-// 景色の選び方の色。海沿い=Sea、自然（海と森林と草地の混ぜ合わせ）=Meadow、森林は Sky
+// 景色の分類の色。海沿い=Sea、森林=Forest、自然（海と森林と草地の混ぜ合わせ）=Meadow、湖・川=Lake
 val Sea = Color(0xFF6FA6D6)
+val Forest = Color(0xFF75B1A9)
 val Meadow = Color(0xFFB9C97A)
-// 湖・川
 val Lake = Color(0xFF8FD0D8)
 // エラーの面。Surface と同じ値にすると、白いカードの文字までエラー色になる
 val DangerTint = Color(0xFFFBE9E7)
@@ -103,18 +104,18 @@ fun TheaCarTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalJostTypography provides jostTypography) {
         MaterialTheme(
             colorScheme = lightColorScheme(
-                primary = Mountains, onPrimary = Surface,
-                primaryContainer = Mist, onPrimaryContainer = Ink,
-                secondary = Sky, onSecondary = Ink,
-                secondaryContainer = Sky, onSecondaryContainer = Ink,
+                primary = Dusk, onPrimary = Surface,
+                primaryContainer = Peach, onPrimaryContainer = Ink,
+                secondary = Sunset, onSecondary = Ink,
+                secondaryContainer = Peach, onSecondaryContainer = Ink,
                 tertiary = Sunglow, onTertiary = Ink,
                 error = Danger, onError = Surface,
                 errorContainer = DangerTint, onErrorContainer = Danger,
                 background = Paper, surface = Surface,
                 surfaceContainerLow = Surface, surfaceContainer = Surface,
-                surfaceContainerHigh = Surface, surfaceContainerHighest = Mist,
-                surfaceVariant = Mist, onSurfaceVariant = Muted,
-                outline = Muted, outlineVariant = Mist,
+                surfaceContainerHigh = Surface, surfaceContainerHighest = Peach,
+                surfaceVariant = Peach, onSurfaceVariant = Muted,
+                outline = Muted, outlineVariant = Peach,
                 onBackground = Ink, onSurface = Ink,
             ),
             typography = base.copy(

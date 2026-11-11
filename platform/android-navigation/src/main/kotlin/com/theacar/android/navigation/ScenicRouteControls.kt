@@ -54,16 +54,16 @@ import com.theacar.route.ScenicRoadRank
 import com.theacar.ui.CardCorner
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Peach
+import com.theacar.ui.Dusk
 import com.theacar.ui.Muted
-import com.theacar.ui.Sky
+import com.theacar.ui.Sunset
 import com.theacar.ui.Sea
 import com.theacar.ui.Meadow
 import com.theacar.ui.Lake
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.Sunglow
-import com.theacar.ui.Sunset
+import com.theacar.ui.Forest
 import com.theacar.ui.SunsetDeep
 
 
@@ -84,7 +84,7 @@ internal fun ScenicSearchControls(
     var showQuickSearch by rememberSaveable { mutableStateOf(false) }
     if (showButtons) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(enabled = enabled, onClick = { showPreferenceEditor = true }, modifier = Modifier.weight(1f),
-            border = BorderStroke(1.dp, Mountains), colors = ButtonDefaults.outlinedButtonColors(contentColor = Mountains)) {
+            border = BorderStroke(1.dp, Dusk), colors = ButtonDefaults.outlinedButtonColors(contentColor = Dusk)) {
             Text(if (preference != null && settings.customWeights != null) "好みを調整 · カスタム" else "好みを調整")
         }
         if (onQuickSearch != null) FilledTonalButton(enabled = enabled, onClick = { showQuickSearch = true }, colors = mistButtonColors()) {
@@ -199,9 +199,9 @@ private val RankViolet = Color(0xFF6A4C93)
 
 internal fun categoryColor(category: String) = when (category) {
     "sea" -> Sea
-    "forest" -> Sky
+    "forest" -> Forest
     "inland_water", "lake", "river" -> Lake
-    "valley" -> Mountains
+    "valley" -> Forest
     "open_nature" -> Meadow
     "farmland" -> Sunglow
     "townscape", "urban" -> Muted
@@ -216,7 +216,7 @@ fun categoryLabel(category: String) = when (category) {
 }
 
 internal fun rankColor(rank: ScenicRoadRank) = when (rank) {
-    // 経路線の緑（Mountains）と見分けられる色相にする。文字にも使うので白地で4.5:1以上
+    // 経路線の青と見分けられる色相にする。文字にも使うので白地で4.5:1以上
     ScenicRoadRank.SIGNATURE -> SunsetDeep
     ScenicRoadRank.PANORAMA -> RankGold
     ScenicRoadRank.RECOMMENDED -> RankSea
@@ -314,7 +314,7 @@ private fun ReasonRow(text: String, onMap: () -> Unit) {
     Surface(onClick = onMap, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .45f)) {
         Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Mountains, modifier = Modifier.size(20.dp))
+            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Dusk, modifier = Modifier.size(20.dp))
             Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink, modifier = Modifier.weight(1f))
             Icon(Icons.Rounded.Map, contentDescription = "地図で見る", tint = Muted, modifier = Modifier.size(20.dp))
         }
