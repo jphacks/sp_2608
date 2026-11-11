@@ -225,10 +225,6 @@ internal fun NavigationControls(
                 } else Spacer(Modifier.weight(1f))
                 MapIconButton(Icons.Rounded.Tune, "ナビの設定", { showSettings = true })
             }
-            if (planning && viaPointCount == 0) {
-                ScenicChipRow(scenicPreference, { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
-                    scenicSettings.copy(roundTrip = roundTripMode), updateScenic, enabled = !busy)
-            }
             when (mapState) {
                 MapDisplayState.LOADING -> Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
                     Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically,
@@ -303,7 +299,7 @@ internal fun NavigationControls(
                                 ScenicSearchControls(scenicPreference, extraMinutes,
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
-                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true, showChips = false,
+                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true,
                                     onQuickSearch = if (location.fix != null) { quick ->
                                         location.fix?.let { fix ->
                                             keyboard?.hide()
@@ -352,7 +348,7 @@ internal fun NavigationControls(
                                 if (viaPointCount == 0) ScenicSearchControls(scenicPreference, extraMinutes,
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
-                                    settings = scenicSettings, onSettings = updateScenic, compact = !panelExpanded, showChips = false,
+                                    settings = scenicSettings, onSettings = updateScenic, compact = !panelExpanded,
                                     showButtons = false,
                                     onQuickSearch = { quick ->
                                         keyboard?.hide(); awaitingPreview = true

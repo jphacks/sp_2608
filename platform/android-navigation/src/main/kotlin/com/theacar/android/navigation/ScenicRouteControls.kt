@@ -68,27 +68,6 @@ import com.theacar.ui.SunsetDeep
 
 
 @Composable
-internal fun ScenicChipRow(
-    preference: ScenicPreference?,
-    onPreference: (ScenicPreference?) -> Unit,
-    settings: ScenicOptions,
-    onSettings: (ScenicOptions) -> Unit,
-    enabled: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        SelectableScenery.forEach { item ->
-            val selected = preference == item && settings.customWeights == null
-            val (fill, label) = scenicChipStyle(item)
-            FilterChip(colors = tabiChipColors(fill, label), border = tabiChipBorder(selected, fill), shape = RoundedCornerShape(ChipCorner),
-                selected = selected, onClick = { onPreference(item); onSettings(settings.withPreset(item)) }, enabled = enabled, label = {
-                Text(if (item == ScenicPreference.BALANCED) "自然" else item.label)
-            })
-        }
-    }
-}
-
-@Composable
 internal fun ScenicSearchControls(
     preference: ScenicPreference?,
     extraMinutes: Int,
@@ -99,15 +78,10 @@ internal fun ScenicSearchControls(
     onSettings: (ScenicOptions) -> Unit = {},
     compact: Boolean = false,
     onQuickSearch: ((ScenicOptions) -> Unit)? = null,
-    showChips: Boolean = true,
     showButtons: Boolean = true,
 ) {
     var showPreferenceEditor by rememberSaveable { mutableStateOf(false) }
     var showQuickSearch by rememberSaveable { mutableStateOf(false) }
-    if (showChips) {
-        if (!compact) Text("経路の選び方", style = MaterialTheme.typography.labelLarge)
-        ScenicChipRow(preference, onPreference, settings, onSettings, enabled)
-    }
     if (showButtons) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(enabled = enabled, onClick = { showPreferenceEditor = true }, modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Mountains), colors = ButtonDefaults.outlinedButtonColors(contentColor = Mountains)) {
@@ -332,17 +306,6 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
             }
         }
     }
-}
-
-// 景色の選択肢ごとの塗りの色と、その上の文字色
-private fun scenicChipStyle(item: ScenicPreference): Pair<Color, Color> = when (item) {
-    ScenicPreference.SEA -> Sea to Ink
-    ScenicPreference.FOREST -> Sky to Ink
-    ScenicPreference.BALANCED -> Meadow to Ink
-    ScenicPreference.WATER -> Lake to Ink
-    ScenicPreference.VALLEY -> Mountains to SurfaceColor
-    ScenicPreference.FARMLAND -> Sunglow to Ink
-    ScenicPreference.URBAN -> Muted to SurfaceColor
 }
 
 /** 推薦の理由の1行。文と、その区間を地図で見るボタン */
