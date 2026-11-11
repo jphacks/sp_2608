@@ -30,6 +30,12 @@ import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
 import com.theacar.ui.MiniPlayer
 import com.theacar.ui.PermissionDisclosure
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.Modifier
+import com.theacar.ui.Sky
 import com.theacar.ui.Tab
 import com.theacar.ui.TabiBottomBar
 import com.theacar.ui.TheaCarTheme
@@ -177,12 +183,19 @@ class NavigationActivity : ComponentActivity() {
             }
         }
         layout.addView(controls, FrameLayout.LayoutParams(-1, -1))
-        // 下端のシステムバー分の余白はタブバーが受け持つので、地図とコントロールには渡さない
+        // システムバー分の余白は、上はタブの色の帯が、下はタブバーが受け持つので、地図とコントロールには渡さない
         ViewCompat.setOnApplyWindowInsetsListener(layout) { _, insets ->
             val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val status = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             WindowInsetsCompat.Builder(insets)
                 .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(nav.left, nav.top, nav.right, 0))
+                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(status.left, 0, status.right, status.bottom))
                 .build()
+        }
+        // ほかのタブの見出し帯と色をそろえ、地図の面積は削らないよう、ステータスバーの裏だけに色を敷く
+        val band = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { TheaCarTheme { Box(Modifier.fillMaxWidth().background(Sky).statusBarsPadding()) } }
         }
         val miniPlayer = (application as AndroidNavigationOwner).miniPlayer
         val player = ComposeView(this).apply {
@@ -204,6 +217,7 @@ class NavigationActivity : ComponentActivity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            addView(band, LinearLayout.LayoutParams(-1, -2))
             addView(layout, LinearLayout.LayoutParams(-1, 0, 1f))
             addView(player, LinearLayout.LayoutParams(-1, -2))
             addView(tabBar, LinearLayout.LayoutParams(-1, -2))
