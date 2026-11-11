@@ -281,7 +281,8 @@ internal fun NavigationControls(
                 location.usableFix(LocationUse.ROUTE_PREVIEW, locationNow) == null
             if (panelHasContent) Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
                 Column(Modifier.fillMaxWidth().heightIn(max = maxPanelHeight)) {
-                    val panelTitle = selectedDestination?.title ?: state.route?.destination?.title
+                    // 検索結果の「札幌 · station」の種類の部分は見出しに出さない
+                    val panelTitle = (selectedDestination?.title ?: state.route?.destination?.title)?.substringBefore(" · ")
                     var showRoundTripHelp by rememberSaveable { mutableStateOf(false) }
                     // 目的地を入れずに矢印を押したときだけ、周遊ルートの設定が下から出る
                     AnimatedVisibility(roundTripSheet, modifier = Modifier.weight(1f, fill = false),
