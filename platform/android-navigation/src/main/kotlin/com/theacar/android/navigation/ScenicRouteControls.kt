@@ -1,8 +1,8 @@
 package com.theacar.android.navigation
 
-import androidx.compose.material.icons.rounded.Landscape
+import androidx.compose.material.icons.rounded.Hiking
 
-import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.DirectionsRun
 
 import androidx.compose.material.icons.Icons
 
@@ -131,14 +131,14 @@ internal fun ScenicSearchControls(
     if (preference != null) {
         if (!settings.roundTrip) {
             Text("最短経路からの寄り道 ＋${scenicDetourLabel(extraMinutes)}まで", style = MaterialTheme.typography.bodyMedium)
-            // 左は早く着く、右は景色を多く見る。うさぎと亀のように両端の絵で向きを伝える
+            // 左は走る人（早く着く）、右はハイキングの人（寄り道して景色を楽しむ）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Rounded.Speed, contentDescription = "寄り道なし", tint = Muted)
+                Icon(Icons.Rounded.DirectionsRun, contentDescription = "寄り道なし", tint = Muted)
                 Slider(value = scenicDetourIndex(extraMinutes).toFloat(),
                     onValueChange = { onExtraMinutes(scenicDetourMinutes[it.roundToInt().coerceIn(scenicDetourMinutes.indices)]) },
                     valueRange = 0f..scenicDetourMinutes.lastIndex.toFloat(),
                     steps = scenicDetourMinutes.size - 2, enabled = enabled, modifier = Modifier.weight(1f))
-                Icon(Icons.Rounded.Landscape, contentDescription = "寄り道を多く", tint = Muted)
+                Icon(Icons.Rounded.Hiking, contentDescription = "寄り道を多く", tint = Muted)
             }
             if (!compact) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("寄り道なし", style = MaterialTheme.typography.labelSmall)
