@@ -102,9 +102,9 @@ internal fun ScenicRoadTimeline(blocks: List<ScenicTimelineBlock>, axisMeters: D
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun ScenicRoadRankLegend() {
+internal fun ScenicRoadRankLegend(ranks: List<ScenicRoadRank> = ScenicRoadRank.entries) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        ScenicRoadRank.entries.forEach { rank ->
+        ranks.sortedBy { it.ordinal }.forEach { rank ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Canvas(Modifier.size(7.dp)) { drawCircle(rankColor(rank)) }
                 Text(rank.label, style = MaterialTheme.typography.labelSmall)

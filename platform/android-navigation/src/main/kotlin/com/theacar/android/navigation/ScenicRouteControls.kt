@@ -1,5 +1,11 @@
 package com.theacar.android.navigation
 
+import androidx.compose.ui.graphics.drawscope.clipPath
+
+import androidx.compose.ui.geometry.RoundRect
+
+import androidx.compose.ui.graphics.Path
+
 
 
 import androidx.compose.material.icons.Icons
@@ -184,7 +190,6 @@ internal fun ScenicAlternatives(alternatives: List<RouteAlternative>, selectedId
         val explanation = alternative?.explanation
         if (explanation != null) {
             Column(Modifier.fillMaxWidth().bringIntoViewRequester(detailFocus)) {
-                Text("基準走行 ${(explanation.baselineSeconds + 59) / 60}分との比較", style = MaterialTheme.typography.labelSmall)
                 explanation.reasons.take(2).forEach { reason ->
                     TextButton(onClick = { onHighlight(reason.ranges) }) { Text(shortReason(reason.text) + " · 地図で確認") }
                 }
@@ -205,8 +210,6 @@ internal fun ScenicAlternatives(alternatives: List<RouteAlternative>, selectedId
             }
         }
     }
-    if (!compact) Text("距離は最終経路上の推定値です。根拠がない可視性・施設・天気は理由に使いません。似た候補を水増ししません。",
-        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 private val RankGold = Color(0xFF7A5C00)
@@ -244,7 +247,7 @@ private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
     onHighlight: (List<ScenicRange>) -> Unit, compact: Boolean) {
     val sections = remember(blocks, compact) { scenicTimelineOverview(blocks, if (compact) 24 else 48) }
     val roads = remember(blocks) { scenicRoadHighlights(blocks) }
-    Canvas(Modifier.fillMaxWidth().height(48.dp).semantics {
+    Canvas(Modifier.fillMaxWidth().height(32.dp).semantics {
         contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示します。タップで地図を表示。"
         customActions = sections.filter { it.sourceRanges.isNotEmpty() }.take(6).map { section ->
             CustomAccessibilityAction("${categoryLabel(section.category)}中心の区間を地図で確認") {
@@ -262,12 +265,15 @@ private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
                 ?.takeIf { it.sourceRanges.isNotEmpty() }?.let { onHighlight(it.sourceRanges) }
         }
     }) {
-        val barHeight = (if (compact) 16.dp else 24.dp).toPx()
-        sections.forEach { section ->
-            val left = (section.range.startMeters / total * size.width).toFloat()
-            val width = ((section.range.endMeters - section.range.startMeters) / total * size.width).toFloat()
-            drawRoundRect(categoryColor(section.category), Offset(left, (size.height - barHeight) / 2),
-                Size((width - 1.dp.toPx()).coerceAtLeast(0f), barHeight), CornerRadius(3.dp.toPx()))
+        val barHeight = (if (compact) 14.dp else 20.dp).toPx()
+        val top = (size.height - barHeight) / 2
+        // 区間ごとの角丸と隙間をやめ、一続きの帯にする（細かく区切れて見えて落ち着かなかった）
+        clipPath(Path().apply { addRoundRect(RoundRect(0f, top, size.width, top + barHeight, CornerRadius(barHeight / 2))) }) {
+            sections.forEach { section ->
+                val left = (section.range.startMeters / total * size.width).toFloat()
+                val width = ((section.range.endMeters - section.range.startMeters) / total * size.width).toFloat()
+                drawRect(categoryColor(section.category), Offset(left, top), Size(width + 1f, barHeight))
+            }
         }
         // 名道の区間は帯の上に重ねる
         drawRoadSegments(roads, total, size.height / 2, outline = true)
@@ -281,14 +287,17 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: return
     if (total <= 0) return
     val roads = blocks.flatMap { it.recommendedRoads }.distinctBy { it.id }.sortedBy { it.rank.ordinal }
-    val distances = remember(blocks) { scenicCategoryDistances(blocks).filter { it.second >= 100 || it.first == "sea" && it.second > 0 } }
+    // 分類できなかった区間と1km未満の景色は、凡例に並べても読み取れないので外す
+    val distances = remember(blocks) {
+        scenicCategoryDistances(blocks).filter { it.first !in setOf("unclassified", "unknown") && it.second >= 1000 }
+    }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("主な景観の流れ（推定）", style = MaterialTheme.typography.labelSmall)
+            Text("景観の流れ", style = MaterialTheme.typography.labelMedium)
             Text("全${scenicDistanceLabel(total)}", style = MaterialTheme.typography.labelSmall)
         }
         ScenicTimelineBar(blocks, total, onHighlight, compact)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp),
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth()) {
             distances.forEach { (category, meters) ->
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -297,7 +306,7 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
                 }
             }
         }
-        if (roads.isNotEmpty()) ScenicRoadRankLegend()
+        if (roads.isNotEmpty()) ScenicRoadRankLegend(roads.map { it.rank }.distinct())
         ScenicEnvironmentTimeline(environment, total, onHighlight, compact)
         if (!compact) {
             blocks.filter { it.range.endMeters - it.range.startMeters >= 300 }.take(6).forEach { block ->

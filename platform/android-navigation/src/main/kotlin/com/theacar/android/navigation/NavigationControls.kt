@@ -419,7 +419,8 @@ internal fun NavigationControls(
                                     Text("旅の記録を保存できませんでした。端末の空き容量を確認してください。", style = MaterialTheme.typography.bodySmall)
                                     TextButton(onClick = onRetryMemorySave) { Text("記録の保存を再試行") }
                                 }
-                                if (panelExpanded || state.phase != NavigationPhase.PREVIEW) Row(Modifier.fillMaxWidth(),
+                                // 経路を見ている間は、バツと設定の音声案内と重なるので出さない。案内中だけ出す
+                                if (state.phase != NavigationPhase.PREVIEW) Row(Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                     LabeledSwitch("音声案内", voiceEnabled, onVoiceChanged)
                                     TextButton(onClick = if (state.phase == NavigationPhase.PREVIEW) onInvalidatePreview else onStop, enabled = state.phase != NavigationPhase.STOPPING) {
