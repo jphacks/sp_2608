@@ -25,7 +25,7 @@ DEFAULT_CONFIG = DIRECTORY / '.routing.json'
 FILES = {
     'SCENIC_DATABASE': 'scenic-hokkaido.sqlite',
     'PLACES_DATABASE': 'places.sqlite',
-    'SCENIC_RECOMMENDED_ROADS': 'road-recommendations-research-20261018-v7.sqlite',
+    'SCENIC_RECOMMENDED_ROADS': 'road-recommendations-research-20261111-v8.sqlite',
     'SCENIC_LANDSCAPES': 'landscapes-hokkaido-v4.sqlite',
     'SCENIC_TERRAIN': 'terrain-hokkaido-v1.sqlite',
     'SCENIC_CONTEXT': 'context-hokkaido-v1.sqlite',

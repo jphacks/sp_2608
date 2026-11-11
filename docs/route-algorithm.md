@@ -190,7 +190,7 @@ region.osm.pbf
  └─ context-hokkaido-v1.sqlite    → 道路追加属性・未検証POI
 
 公式の道路紹介 + OSM対応付け
- └─ road-recommendations-research-20261018-v7.sqlite → 本登録道路・区間対応
+ └─ road-recommendations-research-20261111-v8.sqlite → 本登録道路・区間対応
 
 国土地理院DEM → terrain-hokkaido-v1.sqlite        → 標高・谷・地形遮蔽
 ESA WorldCover → landcover-hokkaido-v3.sqlite      → 森林等の補完
