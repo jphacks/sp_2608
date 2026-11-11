@@ -21,7 +21,19 @@ export interface Comparison {
   scenic: ComparedRoute
 }
 
-export async function loadComparison(id: string): Promise<Comparison | undefined> {
+const comparisons = new Map<string, Promise<Comparison | undefined>>()
+
+/** 一度読んだ道は使い回す */
+export function loadComparison(id: string): Promise<Comparison | undefined> {
+  let loading = comparisons.get(id)
+  if (!loading) {
+    loading = fetchComparison(id)
+    comparisons.set(id, loading)
+  }
+  return loading
+}
+
+async function fetchComparison(id: string): Promise<Comparison | undefined> {
   try {
     const response = await fetch(`/compare/${id}.json`)
     // 無い道は、開発サーバーが index.html を返す
@@ -30,6 +42,11 @@ export async function loadComparison(id: string): Promise<Comparison | undefined
   } catch {
     return undefined
   }
+}
+
+/** 景色の帯の上で、[from, to] の区間が占める位置 */
+export function rangeOnStrip([from, to]: [number, number], length: number): { left: string; width: string } {
+  return { left: `${(from / length * 100).toFixed(2)}%`, width: `${((to - from) / length * 100).toFixed(2)}%` }
 }
 
 export function kindLabel(kind: RouteKind, route: ComparedRoute): string {
