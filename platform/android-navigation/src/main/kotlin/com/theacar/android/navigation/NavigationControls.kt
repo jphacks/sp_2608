@@ -365,8 +365,8 @@ internal fun NavigationControls(
                                 // 寄り道の分数はスライダーの上ではなく、ここに出す
                                 val routeLabel = when {
                                     viaPointCount > 0 -> "経路"
-                                    extraMinutes == 0 -> "最短の経路を探す"
-                                    else -> "寄り道＋${scenicDetourLabel(extraMinutes)}で経路を探す"
+                                    extraMinutes == 0 -> "最短の経路"
+                                    else -> "寄り道＋${scenicDetourLabel(extraMinutes)}の経路"
                                 }
                                 ActionWithClose(routeLabel, { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
                                     onClearSelection, "目的地の選択を取り消す", enabled = !busy)
