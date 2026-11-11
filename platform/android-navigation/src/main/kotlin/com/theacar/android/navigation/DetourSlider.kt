@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -33,8 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.theacar.ui.Ink
 import com.theacar.ui.Mountains
@@ -73,9 +72,9 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
             enabled = enabled,
             thumb = {
                 Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
-                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
+                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(CarWidth))
             },
-            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) }, modifier = Modifier.overhang(20.dp))
+            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
     }
 }
 
@@ -87,13 +86,20 @@ private fun roadColor(t: Float): Color =
 @Composable
 private fun RoadTrack(color: Color, passed: Float) {
     Canvas(Modifier.fillMaxWidth().height(16.dp)) {
+        // スライダーは車の半分の幅だけ道を内側に縮めるので、その分だけ外へ伸ばして描く（車は枠からはみ出さない）
+        val reach = CarWidth.toPx() / 2
+        val road = Size(size.width + reach * 2, size.height)
+        val start = Offset(-reach, 0f)
         val r = CornerRadius(size.height / 2)
-        drawRoundRect(Asphalt, cornerRadius = r)
-        clipRect(right = size.width * passed) { drawRoundRect(color, cornerRadius = r) }
-        drawLine(Color.White.copy(alpha = .6f), Offset(size.height / 2, size.height / 2), Offset(size.width - size.height / 2, size.height / 2),
+        drawRoundRect(Asphalt, start, road, r)
+        clipRect(left = -reach, right = size.width * passed) { drawRoundRect(color, start, road, r) }
+        drawLine(Color.White.copy(alpha = .6f), Offset(-reach + size.height / 2, size.height / 2),
+            Offset(size.width + reach - size.height / 2, size.height / 2),
             strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
     }
 }
+
+private val CarWidth = 40.dp
 
 private val Asphalt = Color(0xFF7D8480)
 // 動かしても目に障らないよう、くすませた緑と橙にする
@@ -107,10 +113,3 @@ private fun sideCar(body: Color): ImageVector = ImageVector.Builder("SideCar", 4
     .addPath(addPathNodes("M44.28,80H156.69l32,32H23Z"), fill = SolidColor(Color.White))
     .addPath(addPathNodes("M64,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48ZM192,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48Z"), fill = SolidColor(Color.White))
     .build()
-
-/** スライダーは車の半分の幅だけ道を内側に縮めるので、その分だけ左右にはみ出させて道を長く見せる */
-private fun Modifier.overhang(each: Dp) = layout { measurable, constraints ->
-    val extra = each.roundToPx() * 2
-    val placeable = measurable.measure(constraints.copy(minWidth = constraints.minWidth + extra, maxWidth = constraints.maxWidth + extra))
-    layout(placeable.width - extra, placeable.height) { placeable.place(-extra / 2, 0) }
-}

@@ -49,6 +49,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.rounded.Close
@@ -76,9 +77,10 @@ internal fun MapIconButton(icon: ImageVector, description: String, onClick: () -
 internal fun ActionWithClose(label: String, onClick: () -> Unit, onClose: () -> Unit, closeDescription: String,
     modifier: Modifier = Modifier, enabled: Boolean = true) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = onClick, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text(label) }
-        Surface(onClick = onClose, modifier = Modifier.size(52.dp), shape = CircleShape, color = CloseBackground) {
-            Icon(Icons.Rounded.Close, contentDescription = closeDescription, tint = Ink, modifier = Modifier.padding(14.dp))
+        Button(onClick = onClick, enabled = enabled, modifier = Modifier.weight(1f).height(44.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)) { Text(label) }
+        Surface(onClick = onClose, modifier = Modifier.size(44.dp), shape = CircleShape, color = CloseBackground) {
+            Icon(Icons.Rounded.Close, contentDescription = closeDescription, tint = Ink, modifier = Modifier.padding(11.dp))
         }
     }
 }
