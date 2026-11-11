@@ -478,9 +478,10 @@ private fun coordinateLabel(destination: Destination): String =
 
 @Composable
 private fun RouteMetric(value: String, unit: String) {
-    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(value, style = MaterialTheme.jost.stat.copy(fontSize = 32.sp, lineHeight = 36.sp))
-        Text(unit, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(bottom = 4.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    // 数字と単位を文字の下の線でそろえる
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(value, style = MaterialTheme.jost.stat.copy(fontSize = 32.sp, lineHeight = 36.sp), modifier = Modifier.alignByBaseline())
+        Text(unit, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline(), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
