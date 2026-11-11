@@ -89,7 +89,7 @@ data class DriveBgmLine(
  */
 fun driveBgmLine(state: DriveBgmState, now: NowPlaying?, connected: Boolean, guiding: Boolean): DriveBgmLine {
     if (!connected || state.readiness == DriveBgmReadiness.LOGIN_REQUIRED) {
-        return DriveBgmLine("Spotifyと連携して音楽を流す", null, false, false, "連携", DriveBgmAction.CONNECT)
+        return DriveBgmLine("景色に合わせて曲を流す", null, false, false, "連携", DriveBgmAction.CONNECT)
     }
     if (guiding && state.readiness == DriveBgmReadiness.PLAYLIST_REQUIRED) {
         return DriveBgmLine("プレイリストを選んでください", "音楽画面で取り込めます", false, false, "選ぶ", DriveBgmAction.CONNECT)

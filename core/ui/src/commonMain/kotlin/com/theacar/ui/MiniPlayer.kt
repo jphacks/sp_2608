@@ -6,6 +6,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MarqueeSpacing
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +63,8 @@ fun MiniPlayer(
     val row: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            // ロゴは文の一部にせず単独で置き、文との間にマークの高さの半分以上をあける
+            Image(SpotifyFullLogoWhite, contentDescription = "Spotify", modifier = Modifier.width(72.dp).padding(end = 6.dp))
             if (showIndicator) EqualizerBars(isPlaying, Sunglow)
             Column(Modifier.weight(1f)) {
                 Text(title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, modifier = Modifier.slowMarquee())
@@ -84,9 +90,21 @@ fun MiniPlayer(
             }
         }
     }
-    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Ink, content = row)
-    else Surface(modifier = modifier, color = Ink, content = row)
+    val background = Modifier.background(SpotifyGlow)
+    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
+    else Surface(modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
 }
+
+// 上の深い緑から、Spotify が再生中の背景に指定している #191414 へ。上の方で早く暗くなるよう、段を不均等に置く
+private val SpotifyBase = Color(0xFF191414)
+private val SpotifyGreen = Color(0xFF2F6B3E)
+private val SpotifyGlow = Brush.verticalGradient(
+    0f to SpotifyGreen,
+    .2f to lerp(SpotifyGreen, SpotifyBase, .35f),
+    .45f to lerp(SpotifyGreen, SpotifyBase, .75f),
+    .75f to lerp(SpotifyGreen, SpotifyBase, .95f),
+    1f to SpotifyBase,
+)
 
 /** 収まらない1行だけを、先頭で間を置いてからゆっくり流す。収まる文字は動かさない。 */
 private fun Modifier.slowMarquee() = basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 2_000,
