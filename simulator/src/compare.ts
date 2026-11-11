@@ -175,16 +175,67 @@ function projector(points: LatLon[], width: number, height: number, margin: numb
   return (p) => [left + (p.lon - west) * lonScale * scale, top + (north - p.lat) * scale]
 }
 
-/** 道を選ぶ画面の地図。ふつうの道は灰色、おすすめの道は景色の色で描く。 */
-export function drawPreview(canvas: HTMLCanvasElement, comparison: Comparison): void {
+/** 国土地理院の空中写真（地理院タイルの「全国最新写真（シームレス）」）。使うときは出典を画面に出す */
+const AERIAL = 'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto'
+export const AERIAL_CREDIT = '空中写真：国土地理院'
+const aerialTiles = new Map<string, HTMLImageElement>()
+/** 地図を描き直す関数。空中写真のタイルが届くたびに呼ぶ */
+const painters = new WeakMap<HTMLCanvasElement, () => void>()
+
+/**
+ * 道を選ぶ画面の地図。国土地理院の空中写真の上に、ふつうの道を白い点線で、おすすめの道を景色の色で描く。
+ * focus を渡すと、その道を目立たせ、もう一方を薄くする。labels は出発地と目的地の名前。
+ */
+export function drawPreview(canvas: HTMLCanvasElement, comparison: Comparison, focus?: RouteKind, labels?: [string, string]): void {
   const ratio = window.devicePixelRatio || 1
   const width = canvas.width = canvas.clientWidth * ratio
   const height = canvas.height = canvas.clientHeight * ratio
   const normal = new RouteLine(comparison.normal)
   const scenic = new RouteLine(comparison.scenic)
-  const project = projector([...normal.points, ...scenic.points], width, height, 16 * ratio)
+  const all = [...normal.points, ...scenic.points]
+  const project = projector(all, width, height, 40 * ratio)
+  // 画面の端が地図のどこにあたるか（projector は経度・緯度について1次式なので、2点から戻せる）
+  const north = Math.max(...all.map((p) => p.lat))
+  const south = Math.min(...all.map((p) => p.lat))
+  const west = Math.min(...all.map((p) => p.lon))
+  const east = Math.max(...all.map((p) => p.lon))
+  const [x1, y1] = project({ lat: north, lon: west })
+  const [x2, y2] = project({ lat: south, lon: east })
+  const lonAt = (x: number) => west + (x - x1) / (x2 - x1 || 1) * (east - west)
+  const latAt = (y: number) => north + (y - y1) / (y2 - y1 || 1) * (south - north)
+  const middle = (north + south) / 2 * Math.PI / 180
+  const metersPerPixel = (lonAt(width) - lonAt(0)) * 111_320 * Math.cos(middle) / width
+  const zoom = Math.max(10, Math.min(18, Math.ceil(Math.log2(156_543 * Math.cos(middle) / metersPerPixel))))
+  const n = 2 ** zoom
+  const tileX = (lon: number) => Math.floor((lon + 180) / 360 * n)
+  const tileY = (lat: number) => {
+    const phi = lat * Math.PI / 180
+    return Math.floor((1 - Math.log(Math.tan(phi) + 1 / Math.cos(phi)) / Math.PI) / 2 * n)
+  }
+  const tileLon = (x: number) => x / n * 360 - 180
+  const tileLat = (y: number) => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI
+  const tiles: { url: string; nw: [number, number]; se: [number, number] }[] = []
+  for (let x = tileX(lonAt(0)); x <= tileX(lonAt(width)); x++) {
+    for (let y = tileY(latAt(0)); y <= tileY(latAt(height)); y++) {
+      tiles.push({
+        url: `${AERIAL}/${zoom}/${x}/${y}.jpg`,
+        nw: project({ lat: tileLat(y), lon: tileLon(x) }),
+        se: project({ lat: tileLat(y + 1), lon: tileLon(x + 1) }),
+      })
+    }
+  }
+  for (const tile of tiles) {
+    let image = aerialTiles.get(tile.url)
+    if (!image) {
+      image = new Image()
+      image.src = tile.url
+      aerialTiles.set(tile.url, image)
+    }
+    if (!image.complete) image.addEventListener('load', () => painters.get(canvas)?.(), { once: true })
+  }
+
   const context = canvas.getContext('2d')!
-  context.lineJoin = context.lineCap = 'round'
+  const scale = canvas.clientWidth > 600 ? 1.6 : 1
   const stroke = (line: RouteLine, from: number, to: number, color: string, lineWidth: number) => {
     context.beginPath()
     for (let i = from; i <= to; i++) {
@@ -193,27 +244,61 @@ export function drawPreview(canvas: HTMLCanvasElement, comparison: Comparison): 
       else context.lineTo(x, y)
     }
     context.strokeStyle = color
-    context.lineWidth = lineWidth * ratio
+    context.lineWidth = lineWidth * ratio * scale
     context.stroke()
   }
-  stroke(normal, 0, normal.points.length - 1, '#a9b0aa', 3)
-  stroke(scenic, 0, scenic.points.length - 1, '#4f6457', 5)
-  for (let i = 1; i < scenic.points.length; i++) {
-    const here = scenic.sceneryAt((scenic.along[i - 1] + scenic.along[i]) / 2)
-    if (here && here.label !== '街') stroke(scenic, i - 1, i, here.color, 5)
+  const paint = () => {
+    context.fillStyle = '#1f2a24'
+    context.fillRect(0, 0, width, height)
+    for (const tile of tiles) {
+      const image = aerialTiles.get(tile.url)!
+      if (!image.complete || image.naturalWidth === 0) continue
+      // 継ぎ目に隙間が出ないよう、少し重ねて描く
+      context.drawImage(image, tile.nw[0], tile.nw[1], tile.se[0] - tile.nw[0] + 1, tile.se[1] - tile.nw[1] + 1)
+    }
+    // 道の線が写真に埋もれないよう、写真を暗くする
+    context.fillStyle = 'rgba(16, 24, 20, 0.42)'
+    context.fillRect(0, 0, width, height)
+    context.lineJoin = context.lineCap = 'round'
+
+    context.globalAlpha = focus === 'scenic' ? 0.45 : 1
+    context.setLineDash(focus === 'normal' ? [] : [8 * ratio * scale, 7 * ratio * scale])
+    stroke(normal, 0, normal.points.length - 1, '#f5f3ec', focus === 'normal' ? 5 : 3)
+    context.setLineDash([])
+    context.globalAlpha = focus === 'normal' ? 0.35 : 1
+    stroke(scenic, 0, scenic.points.length - 1, '#acd0c0', 6)
+    for (let i = 1; i < scenic.points.length; i++) {
+      const here = scenic.sceneryAt((scenic.along[i - 1] + scenic.along[i]) / 2)
+      if (here && here.label !== '街') stroke(scenic, i - 1, i, here.color, 6)
+    }
+    context.globalAlpha = 1
+
+    const dot = (p: LatLon, fill: string, label?: string) => {
+      const [x, y] = project(p)
+      context.beginPath()
+      context.arc(x, y, 7 * ratio * scale, 0, Math.PI * 2)
+      context.fillStyle = fill
+      context.fill()
+      context.lineWidth = 2.5 * ratio * scale
+      context.strokeStyle = '#1e2a24'
+      context.stroke()
+      if (!label) return
+      context.font = `700 ${15 * ratio * scale}px "Noto Sans JP", sans-serif`
+      const right = x < width * 0.7
+      context.textAlign = right ? 'left' : 'right'
+      context.textBaseline = 'middle'
+      const tx = x + (right ? 14 : -14) * ratio * scale
+      context.lineWidth = 5 * ratio
+      context.strokeStyle = 'rgba(16, 24, 20, 0.85)'
+      context.strokeText(label, tx, y)
+      context.fillStyle = '#f5f3ec'
+      context.fillText(label, tx, y)
+    }
+    dot(scenic.points[0], '#ffffff', labels?.[0])
+    dot(scenic.points.at(-1)!, '#eb6b40', labels?.[1])
   }
-  const dot = (p: LatLon, fill: string) => {
-    const [x, y] = project(p)
-    context.beginPath()
-    context.arc(x, y, 5 * ratio, 0, Math.PI * 2)
-    context.fillStyle = fill
-    context.fill()
-    context.lineWidth = 2 * ratio
-    context.strokeStyle = '#1e2a24'
-    context.stroke()
-  }
-  dot(scenic.points[0], '#ffffff')
-  dot(scenic.points.at(-1)!, '#eb6b40')
+  painters.set(canvas, paint)
+  paint()
 }
 
 /** 2本の道と車の位置を、小さな地図に描く。 */

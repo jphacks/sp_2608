@@ -290,149 +290,8 @@ html, body {
   color: var(--ink);
 }
 
-.sheet header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.sheet .lead {
-  margin: 0;
-  font-size: 15px;
-  color: var(--muted);
-}
-
 .sheet .sub {
   color: var(--muted);
-}
-
-.routes {
-  margin: 20px 0 16px;
-  border-top: 1px solid rgba(30, 42, 36, 0.14);
-}
-
-.route-card {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 24px;
-  align-items: center;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(30, 42, 36, 0.14);
-}
-
-.route-card canvas,
-.route-card .no-preview {
-  width: 200px;
-  height: 132px;
-  border-radius: 12px;
-  background: #e9e6db;
-}
-
-.routes .name {
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.routes .arrow {
-  margin: 0 10px;
-  color: var(--sky);
-}
-
-.routes .pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.routes button {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 12px;
-  row-gap: 2px;
-  align-items: center;
-  text-align: left;
-  font: inherit;
-  color: var(--ink);
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 2px solid rgba(30, 42, 36, 0.2);
-  background: transparent;
-  cursor: pointer;
-}
-
-.routes button.scenic {
-  border-color: var(--mountains);
-  background: var(--mountains);
-  color: var(--paper);
-}
-
-.routes button:hover,
-.routes button:focus-visible {
-  border-color: var(--sunset);
-  outline: none;
-}
-
-.routes .key {
-  grid-row: span 2;
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  border: 1.5px solid currentColor;
-  display: grid;
-  place-items: center;
-  font-family: 'Jost', sans-serif;
-  font-size: 16px;
-  opacity: 0.6;
-}
-
-.routes .key:empty {
-  visibility: hidden;
-}
-
-.routes .kind {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.routes .figures {
-  font-size: 13px;
-}
-
-.routes .figures b {
-  font-family: 'Jost', sans-serif;
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0 2px 0 8px;
-}
-
-.routes .figures b:first-child {
-  margin-left: 0;
-}
-
-.routes .strip {
-  grid-column: 1 / -1;
-  display: block;
-  height: 12px;
-  border-radius: 6px;
-  margin: 8px 0 4px;
-}
-
-.routes .chips {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 12px;
-  font-size: 13px;
-  min-height: 20px;
-}
-
-.routes .chip i {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 5px;
 }
 
 .strip {
@@ -584,16 +443,212 @@ html, body {
   box-sizing: border-box;
 }
 
-.routes .strip {
-  position: relative;
+/*
+ * 道を選ぶ画面。1つの目的地を大きく出す。左に空中写真の地図、右に目的地と2本の道
+ */
+#menu.menu {
+  background: #141c18;
+  overflow: hidden;
 }
 
-.routes .figures {
+#menu.menu .sheet {
+  position: relative;
+  width: min(1240px, calc(100vw - 64px));
+  max-height: calc(100vh - 32px);
+  background: transparent;
+  color: var(--paper);
+  padding: 0;
+  border-radius: 0;
+}
+
+#menu.menu .sheet > .sub,
+#menu.menu .credit {
+  position: relative;
+  color: var(--mist);
+  opacity: 0.75;
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+.course {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.course-map {
+  position: relative;
+  margin: 0;
+  height: min(64vh, 600px);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #1f2a24;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.course-map canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.course-map figcaption {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 11px;
+  color: rgba(245, 243, 236, 0.8);
+}
+
+.course-from {
+  font-size: 18px;
+  color: var(--mist);
+}
+
+#menu .course-to {
+  margin: 2px 0 0;
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+  text-wrap: balance;
+}
+
+.course-via {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--sunglow);
+}
+
+.course-options {
+  display: grid;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 14px;
+  text-align: left;
+  font: inherit;
+  color: var(--paper);
+  padding: 16px 20px 14px;
+  border-radius: 16px;
+  border: 2px solid rgba(172, 208, 192, 0.35);
+  background: rgba(20, 28, 24, 0.55);
+  cursor: pointer;
+}
+
+.option.scenic {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--ink);
+}
+
+.option:hover,
+.option:focus-visible {
+  border-color: var(--sunglow);
+  outline: none;
+}
+
+.option .key {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-items: center;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.option-name {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.option-figures {
+  font-size: 15px;
   white-space: nowrap;
 }
 
-.routes .demo {
+.option-figures b {
+  font-family: 'Jost', sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  margin-right: 2px;
+}
+
+.option-figures small {
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
   margin-left: 10px;
+  opacity: 0.7;
+}
+
+.option .strip {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  margin: 12px 0 0;
+}
+
+.option .chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
   font-size: 13px;
-  opacity: 0.8;
+  margin-top: 7px;
+}
+
+.option .chip i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.course-tabs {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.course-tabs button {
+  font: inherit;
+  font-size: 15px;
+  color: var(--mist);
+  background: rgba(20, 28, 24, 0.5);
+  border: 1.5px solid rgba(172, 208, 192, 0.3);
+  border-radius: 999px;
+  padding: 6px 18px;
+  cursor: pointer;
+}
+
+.course-tabs button.current {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.course-hint {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--mist);
+  opacity: 0.75;
 }

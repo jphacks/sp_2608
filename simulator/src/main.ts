@@ -1,5 +1,5 @@
 import { CalibrationView } from './calibrationView'
-import { CompareMap, RouteLine, drawPreview, kindLabel, loadComparison, sceneryKm, sceneryStrip, type ComparedRoute, type Comparison, type RouteKind } from './compare'
+import { AERIAL_CREDIT, CompareMap, RouteLine, drawPreview, kindLabel, loadComparison, sceneryKm, sceneryStrip, type ComparedRoute, type Comparison, type RouteKind } from './compare'
 import { distanceMeters, offset, type LatLon } from './geo'
 import { Input } from './input'
 import { LinkClient } from './link'
@@ -98,46 +98,77 @@ let lastFrame: { view: View; a?: PanoramaLayer; b?: PanoramaLayer } | undefined
   return result
 }
 
-/** 道ごとに、ふつうの道とおすすめの道の2つを並べる。走り比べのデータが無い道は、1つだけ出す。 */
+/** 道を選ぶ画面で出している道（ROUTES の番号）。← → で切り替える */
+let course = 0
+
+/** 「万代町 → 函館駅（ともえ大橋）」を、出発地・目的地・通る所に分ける。 */
+function splitName(name: string): { from: string; to: string; via?: string } {
+  const match = name.match(/^(.+?) → (.+?)(?:（(.+)）)?$/)
+  return match ? { from: match[1], to: match[2], via: match[3] } : { from: '', to: name }
+}
+
+/** 道を選ぶ画面。1つの目的地を大きく出し、空中写真の地図の上で2本の道を比べる。← → で目的地を変える。 */
 async function renderMenu(): Promise<void> {
-  await Promise.all(ROUTES.map(async (r) => comparisons.set(r.id, await loadComparison(r.id))))
-  let number = 0
-  // 数字キーで選べるのは9番まで
-  const key = () => `<span class="key">${++number <= 9 ? number : ''}</span>`
-  const option = (r: DemoRoute, optionKind: RouteKind, compared: ComparedRoute) => {
+  await Promise.all(ROUTES.map(async (r) => comparisons.has(r.id) || comparisons.set(r.id, await loadComparison(r.id))))
+  const r = ROUTES[course]
+  const comparison = comparisons.get(r.id)
+  const { from, to, via } = splitName(r.name)
+  const option = (optionKind: RouteKind, compared: ComparedRoute, number: number) => {
     const parts = sceneryKm(compared).slice(0, 3).map((part) => `<span class="chip"><i style="background: ${part.color}"></i>${part.label} ${part.km.toFixed(1)}km</span>`).join('')
     const demo = r.demo?.[optionKind]
     const range = demo && demoRange(demo, compared.timeline.at(-1)?.[1] ?? compared.km * 1000)
     return `
-      <button type="button" class="${optionKind}" data-route-id="${r.id}" data-kind="${optionKind}">
-        ${key()}
-        <span class="kind">${optionKind === 'scenic' ? '景色のいい道' : 'ふつうの道'}</span>
-        <span class="figures"><b>${compared.km.toFixed(1)}</b>km<b>${compared.minutes}</b>分${demo ? `<span class="demo">走るのは ${((demo[1] - demo[0]) / 1000).toFixed(1)}km</span>` : ''}</span>
-        <span class="strip" style="background: ${sceneryStrip(compared)}">${demo ? `<span class="demo-range" style="left: ${range!.left}; width: ${range!.width}"></span>` : ''}</span>
+      <button type="button" class="option ${optionKind}" data-route-id="${r.id}" data-kind="${optionKind}">
+        <span class="key">${number}</span>
+        <span class="option-name">${optionKind === 'scenic' ? '景色のいい道' : 'ふつうの道'}</span>
+        <span class="option-figures"><b>${compared.minutes}</b>分<small>${compared.km.toFixed(1)}km</small></span>
+        <span class="strip" style="background: ${sceneryStrip(compared)}">${range ? `<span class="demo-range" style="left: ${range.left}; width: ${range.width}"></span>` : ''}</span>
         <span class="chips">${parts || '<span class="chip"><i style="background: #8c8c8c"></i>街なか</span>'}</span>
       </button>`
   }
-  $('[data-routes]').innerHTML = ROUTES.map((r) => {
-    const comparison = comparisons.get(r.id)
-    const [from, to] = r.name.split(' → ')
-    return `
-    <div class="route-card">
-      ${comparison ? `<canvas data-preview="${r.id}"></canvas>` : '<div class="no-preview"></div>'}
-      <div class="body">
-        <div class="name">${from}<span class="arrow">→</span>${to}</div>
-        ${comparison
-          ? `<div class="pair">${option(r, 'normal', comparison.normal)}${option(r, 'scenic', comparison.scenic)}</div>`
-          : `<div class="pair"><button type="button" class="normal" data-route-id="${r.id}" data-kind="normal">${key()}<span class="kind">この道を走る</span><span class="figures"><b>${r.km.toFixed(1)}</b>km</span></button></div>`}
+  $('[data-routes]').innerHTML = `
+    <div class="course">
+      <figure class="course-map">
+        ${comparison ? `<canvas data-preview="${r.id}"></canvas>` : ''}
+        <figcaption>${AERIAL_CREDIT}</figcaption>
+      </figure>
+      <div class="course-info">
+        <div class="course-from">${from}から</div>
+        <h1 class="course-to">${to}</h1>
+        ${via ? `<div class="course-via">${via}</div>` : ''}
+        <div class="course-options">
+          ${comparison
+            ? option('normal', comparison.normal, 1) + option('scenic', comparison.scenic, 2)
+            : `<button type="button" class="option normal" data-route-id="${r.id}" data-kind="normal"><span class="key">1</span><span class="option-name">この道を走る</span></button>`}
+        </div>
       </div>
-    </div>`
-  }).join('')
-  for (const canvas of document.querySelectorAll<HTMLCanvasElement>('[data-preview]')) {
-    drawPreview(canvas, comparisons.get(canvas.dataset.preview!)!)
+    </div>
+    <nav class="course-tabs">
+      ${ROUTES.map((each, i) => `<button type="button" data-course="${i}"${i === course ? ' class="current"' : ''}>${splitName(each.name).to}</button>`).join('')}
+      <span class="course-hint">← → 目的地　1 2 道を選ぶ</span>
+    </nav>`
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-preview]')
+  const paintMap = (focus?: RouteKind) => {
+    if (canvas && comparison) drawPreview(canvas, comparison, focus, [from, to])
   }
+  paintMap()
+  // 地図の地名の書体が読み込まれる前に描くと、別の書体になる
+  void document.fonts.ready.then(() => paintMap())
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-route-id]')) {
     button.addEventListener('click', () => choose(button.dataset.routeId!, button.dataset.kind as RouteKind))
+    // 選びかけている道を、地図の上で目立たせる
+    for (const type of ['mouseenter', 'focus']) button.addEventListener(type, () => paintMap(button.dataset.kind as RouteKind))
+    for (const type of ['mouseleave', 'blur']) button.addEventListener(type, () => paintMap())
+  }
+  for (const tab of document.querySelectorAll<HTMLButtonElement>('[data-course]')) {
+    tab.addEventListener('click', () => showCourse(Number(tab.dataset.course)))
   }
   renderWheelStatus()
+}
+
+function showCourse(index: number): void {
+  course = (index + ROUTES.length) % ROUTES.length
+  void renderMenu()
 }
 
 /** 景色の帯の上で、デモで走る区間が占める位置。 */
@@ -379,7 +410,9 @@ window.addEventListener('keydown', (event) => {
   }
   if (event.code === 'KeyM') {
     menu.hidden = !menu.hidden
-    if (!menu.hidden) renderWheelStatus()
+    if (!menu.hidden) showCourse(route ? ROUTES.indexOf(route) : course)
+  } else if (!menu.hidden && (event.code === 'ArrowLeft' || event.code === 'ArrowRight')) {
+    showCourse(course + (event.code === 'ArrowRight' ? 1 : -1))
   } else if (event.code === 'KeyC') {
     calibration.open()
   } else if (event.code === 'KeyU') {
