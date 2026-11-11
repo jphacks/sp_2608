@@ -13,7 +13,24 @@
   const status = document.getElementById('editor-status');
   const upload = document.getElementById('sticker-upload');
   const key = 'tabireco-stickers-v1:' + location.pathname;
-  const symbols = Array.from(panel.querySelectorAll('[data-sticker]'), b => b.dataset.sticker);
+  const stampArt = {
+    '🚗': ['車', 'blue', '<path d="M12 32v-7l6-3 5-8h14l7 8 6 3v7h-6m-23 0h14m-16-10h25"/><circle cx="18" cy="33" r="4"/><circle cx="40" cy="33" r="4"/>'],
+    '🏕️': ['キャンプ', 'green', '<path d="M12 35h36L30 12 12 35Zm12 0 6-11 6 11M26 12l4 5 4-5"/>'],
+    '🎵': ['音符', 'blue', '<path d="M24 34V15l17-4v19M24 21l17-4"/><ellipse cx="19" cy="34" rx="5" ry="3.5" transform="rotate(-18 19 34)"/><ellipse cx="36" cy="30" rx="5" ry="3.5" transform="rotate(-18 36 30)"/>'],
+    '☀️': ['太陽', 'ochre', '<circle cx="30" cy="24" r="8"/><path d="M30 10V7m0 34v-3M16 24h-3m34 0h-3M20 14l-3-3m26 26-3-3m0-20 3-3M17 37l3-3"/>'],
+    '🌼': ['花', 'green', '<path d="M30 30v10m0-4q-5-5-10-3 3 6 10 5m0-2q5-5 10-3-3 6-10 5M26 21c-10 0-8-11 0-8 0-9 11-9 10 0 8-3 10 8 0 8 6 7-4 12-6 5-5 7-12 0-4-5Z"/><circle cx="30" cy="17" r="2"/>'],
+    '❤️': ['ハート', 'red', '<path d="M30 36c-4-3-15-10-15-17 0-8 10-10 15-2 5-8 15-6 15 2 0 7-11 14-15 17Z"/>'],
+  };
+  const stampButtons = Array.from(panel.querySelectorAll('[data-sticker]'));
+  const symbols = stampButtons.map(b => b.dataset.sticker);
+  function stamp(symbol) {
+    const [, color, art] = stampArt[symbol];
+    const badge = document.createElement('span');
+    badge.className = 'ink-sticker ink-sticker--' + color;
+    badge.setAttribute('aria-hidden', 'true');
+    badge.innerHTML = '<svg viewBox="8 4 44 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + art + '</svg>';
+    return badge;
+  }
   const imagePresets = Array.from(panel.querySelectorAll('[data-sticker-image]'), b => b.dataset.stickerImage);
   let items = [], selected = null, drag = null;
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -42,11 +59,11 @@
     items.forEach(item => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'placed-sticker'; b.dataset.id = item.id;
-      b.setAttribute('aria-label', item.kind === 'image' ? (imagePresets.includes(item.value) ? (Array.from(panel.querySelectorAll('[data-sticker-image]')).find(p => p.dataset.stickerImage === item.value)?.title || 'ステッカー') + '。矢印キーで移動' : '追加した写真。矢印キーで移動') : item.value + ' ステッカー。矢印キーで移動');
+      b.setAttribute('aria-label', item.kind === 'image' ? (imagePresets.includes(item.value) ? (Array.from(panel.querySelectorAll('[data-sticker-image]')).find(p => p.dataset.stickerImage === item.value)?.title || 'ステッカー') + '。矢印キーで移動' : '追加した写真。矢印キーで移動') : stampArt[item.value][0] + 'のステッカー。矢印キーで移動');
       b.setAttribute('aria-pressed', String(selected === item.id));
       if (item.kind === 'image') {
         const img = document.createElement('img'); img.src = item.value; img.alt = ''; img.draggable = false; b.append(img);
-      } else b.textContent = item.value;
+      } else b.append(stamp(item.value));
       position(b, item);
       b.addEventListener('click', () => select(item.id));
       b.addEventListener('pointerdown', e => {
@@ -86,7 +103,10 @@
     items = items.filter(i => i.id !== selected); select(null); render(); save();
     upload.focus();
   }
-  panel.querySelectorAll('[data-sticker]').forEach(b => b.addEventListener('click', () => add('emoji', b.dataset.sticker)));
+  stampButtons.forEach(b => {
+    b.replaceChildren(stamp(b.dataset.sticker));
+    b.addEventListener('click', () => add('emoji', b.dataset.sticker));
+  });
   panel.querySelectorAll('[data-sticker-image]').forEach(b => b.addEventListener('click', () => add('image', b.dataset.stickerImage)));
   for (const input of [size, angle]) input.addEventListener('input', () => {
     const item = items.find(i => i.id === selected); if (!item) return;
