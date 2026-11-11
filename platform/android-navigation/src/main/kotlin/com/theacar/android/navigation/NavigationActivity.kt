@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.graphics.Insets
@@ -24,17 +23,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.theacar.model.Coordinate
 import com.theacar.location.LocationStatus
 import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
-import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.MiniPlayer
 import com.theacar.ui.PermissionDisclosure
-import com.theacar.ui.Sky
 import com.theacar.ui.Tab
 import com.theacar.ui.TabiBottomBar
 import com.theacar.ui.TheaCarTheme
@@ -47,7 +42,6 @@ class NavigationActivity : ComponentActivity() {
     private var mapController: NavigationMapController? = null
     private val viaPoints = mutableStateListOf<Coordinate>()
     private var selectedDestination by mutableStateOf<Destination?>(null)
-    private var bandShown = true
     private val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         runtime.locations.acquire(this)
     }
@@ -183,28 +177,12 @@ class NavigationActivity : ComponentActivity() {
             }
         }
         layout.addView(controls, FrameLayout.LayoutParams(-1, -1))
-        // 下端のシステムバー分の余白はタブバーが受け持つので、地図とコントロールには渡さない。
-        // 上端も、見出し帯を出している間は帯が受け持つ
+        // 下端のシステムバー分の余白はタブバーが受け持つので、地図とコントロールには渡さない
         ViewCompat.setOnApplyWindowInsetsListener(layout) { _, insets ->
             val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val status = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             WindowInsetsCompat.Builder(insets)
                 .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(nav.left, nav.top, nav.right, 0))
-                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(status.left, if (bandShown) 0 else status.top, status.right, status.bottom))
                 .build()
-        }
-        val band = ComposeView(this).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { TheaCarTheme { CompactHeaderBand("DRIVE", Sky) } }
-        }
-        // 案内中は案内カードに場所を譲るため、帯を隠す
-        lifecycleScope.launch {
-            runtime.session.state.map { it.phase != NavigationPhase.GUIDING && it.phase != NavigationPhase.ARRIVED }
-                .distinctUntilChanged().collect { shown ->
-                    bandShown = shown
-                    band.visibility = if (shown) View.VISIBLE else View.GONE
-                    ViewCompat.requestApplyInsets(layout)
-                }
         }
         val miniPlayer = (application as AndroidNavigationOwner).miniPlayer
         val player = ComposeView(this).apply {
@@ -226,7 +204,6 @@ class NavigationActivity : ComponentActivity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(band, LinearLayout.LayoutParams(-1, -2))
             addView(layout, LinearLayout.LayoutParams(-1, 0, 1f))
             addView(player, LinearLayout.LayoutParams(-1, -2))
             addView(tabBar, LinearLayout.LayoutParams(-1, -2))
