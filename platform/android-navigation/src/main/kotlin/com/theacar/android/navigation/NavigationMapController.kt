@@ -34,6 +34,9 @@ import org.maplibre.android.maps.Style
 
 enum class MapDisplayState { LOADING, READY, ERROR, DISABLED }
 
+/** 地図で選んだ、名前の無い場所の呼び方 */
+internal const val PICKED_PLACE_TITLE = "指定した地点"
+
 class NavigationMapController(context: Context, private val runtime: AndroidNavigationRuntime, private val scope: CoroutineScope) {
     val view: MapView
     var onLongClick: ((Coordinate) -> Unit)? = null
@@ -201,7 +204,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
                 }
         }
         follow = false
-        onDestinationSelected?.invoke(Destination("map:${point.latitude},${point.longitude}", name ?: "地図で選択した場所", Coordinate(point.latitude, point.longitude)))
+        onDestinationSelected?.invoke(Destination("map:${point.latitude},${point.longitude}", name ?: PICKED_PLACE_TITLE, Coordinate(point.latitude, point.longitude)))
     }
 
     fun showSelectedDestination(destination: Destination?) {

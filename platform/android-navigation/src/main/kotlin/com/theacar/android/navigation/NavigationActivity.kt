@@ -63,7 +63,7 @@ class NavigationActivity : ComponentActivity() {
         }
         savedInstanceState?.getDoubleArray("selectedDestination")?.takeIf { it.size == 2 }?.let { point ->
             selectedDestination = Destination("map:${point[0]},${point[1]}",
-                savedInstanceState.getString("selectedDestinationTitle") ?: "地図で選択した場所", Coordinate(point[0], point[1]))
+                savedInstanceState.getString("selectedDestinationTitle") ?: PICKED_PLACE_TITLE, Coordinate(point[0], point[1]))
         }
         val layout = FrameLayout(this)
         mapController = NavigationMapController(this, runtime, lifecycleScope).also { controller ->
@@ -93,7 +93,7 @@ class NavigationActivity : ComponentActivity() {
                 val savedMemoryId = recording?.lastSavedId?.collectAsState()?.value
                 val memorySaveFailed = recording?.saveFailed?.collectAsState()?.value == true
                 val mapState = mapController?.displayState?.collectAsState()?.value ?: MapDisplayState.DISABLED
-                TheaCarTheme {
+                TheaCarTheme { MapOverlayText {
                     NavigationControls(state, location, runtime.configuration, voice, viaPoints.size,
                         selectedDestination = selectedDestination,
                         mapState = mapState,
@@ -179,7 +179,7 @@ class NavigationActivity : ComponentActivity() {
                         onMapInsetsChanged = { top, right, bottom -> mapController?.setPadding(0, top, right, bottom) },
                         companion = companion,
                     )
-                }
+                } }
             }
         }
         layout.addView(controls, FrameLayout.LayoutParams(-1, -1))
