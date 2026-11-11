@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,35 +66,38 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
             Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}まで",
                 style = MaterialTheme.typography.bodySmall, color = Muted)
         }
+        val color = roadColor(position / last)
         Slider(value = position, onValueChange = { onMinutes(scenicDetourMinutesAt(it)) }, valueRange = 0f..last,
             enabled = enabled,
             thumb = {
-                Icon(SideCar, contentDescription = "寄り道 ${stage.name}", tint = if (enabled) Sunset else PlainRoad,
-                    modifier = Modifier.size(40.dp))
+                Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
+                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
             },
-            track = { state -> RoadTrack((state.value - state.valueRange.start) / (state.valueRange.endInclusive - state.valueRange.start)) })
+            track = { RoadTrack(if (enabled) color else PlainRoad) })
     }
 }
 
-/** アスファルトの道に中央の白い破線。車が通った所は、道の縁が景色の色になる */
+/** 寄り道が増えるほど、道の色が灰色 → 緑 → 橙と変わる */
+private fun roadColor(t: Float): Color =
+    if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Sunset, (t - .5f) * 2)
+
+/** 道路に中央の白い破線 */
 @Composable
-private fun RoadTrack(passed: Float) {
+private fun RoadTrack(color: Color) {
     Canvas(Modifier.fillMaxWidth().height(16.dp)) {
-        val r = CornerRadius(size.height / 2)
-        drawRoundRect(Asphalt, cornerRadius = r)
-        val verge = 2.5.dp.toPx()
-        clipRect(right = size.width * passed) {
-            drawRoundRect(Sky, cornerRadius = r)
-            drawRoundRect(Asphalt, topLeft = Offset(0f, verge), size = Size(size.width, size.height - verge * 2), cornerRadius = r)
-        }
+        drawRoundRect(color, cornerRadius = CornerRadius(size.height / 2))
         drawLine(Color.White.copy(alpha = .85f), Offset(size.height / 2, size.height / 2), Offset(size.width - size.height / 2, size.height / 2),
             strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
     }
 }
 
-private val Asphalt = Color(0xFF555C58)
+private val Asphalt = Color(0xFF7D8480)
+private val Green = Color(0xFF3E9E64)
 
-// 右を向いた横向きの車（Phosphor Icons「car-profile」fill、MIT）
-private val SideCar: ImageVector = ImageVector.Builder("SideCar", 40.dp, 40.dp, 256f, 256f)
-    .addPath(addPathNodes("M240,112H211.31L168,68.69A15.86,15.86,0,0,0,156.69,64H44.28A16,16,0,0,0,31,71.12L1.34,115.56A8.07,8.07,0,0,0,0,120v48a16,16,0,0,0,16,16H33a32,32,0,0,0,62,0h66a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V128A16,16,0,0,0,240,112ZM44.28,80H156.69l32,32H23ZM64,192a16,16,0,1,1,16-16A16,16,0,0,1,64,192Zm128,0a16,16,0,1,1,16-16A16,16,0,0,1,192,192Z"), fill = SolidColor(Color.Black))
+// 右を向いた横向きの車（Phosphor Icons「car-profile」fill、MIT）。車体は道と同じ色、窓とタイヤは白
+private fun sideCar(body: Color): ImageVector = ImageVector.Builder("SideCar", 40.dp, 40.dp, 256f, 256f)
+    .addPath(addPathNodes("M240,112H211.31L168,68.69A15.86,15.86,0,0,0,156.69,64H44.28A16,16,0,0,0,31,71.12L1.34,115.56A8.07,8.07,0,0,0,0,120v48a16,16,0,0,0,16,16H33a32,32,0,0,0,62,0h66a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V128A16,16,0,0,0,240,112Z"),
+        fill = SolidColor(body), stroke = SolidColor(Color.White), strokeLineWidth = 10f)
+    .addPath(addPathNodes("M44.28,80H156.69l32,32H23Z"), fill = SolidColor(Color.White))
+    .addPath(addPathNodes("M64,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48ZM192,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48Z"), fill = SolidColor(Color.White))
     .build()
