@@ -809,7 +809,7 @@ html, body {
   height: 52px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 0.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
