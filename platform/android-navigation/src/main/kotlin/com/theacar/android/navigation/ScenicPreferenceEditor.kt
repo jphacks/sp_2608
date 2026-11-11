@@ -51,10 +51,11 @@ internal fun ScenicPreferenceEditor(settings: ScenicOptions, enabled: Boolean, c
             Text("バーは相対的な優先度です。合計100にする必要はありません。0はその特徴を目的にしない設定で、通行禁止ではありません。",
                 style = MaterialTheme.typography.bodySmall)
             if (valid) Text("評価の比率 · ${scenicWeightSummary(result())}", style = MaterialTheme.typography.labelMedium)
-            ScenicLandscape.entries.forEach { item ->
+            // 渓谷は判定が実際の景色と合わないので、画面では選ばせない
+            (ScenicLandscape.entries - ScenicLandscape.VALLEY).forEach { item ->
                 PreferenceSlider(item.label, weights[item.code] ?: 0.0, enabled) { weights = weights + (item.code to it) }
             }
-            Text("海・湖・川は近さの推定です。渓谷は地形・地図からの推定で眺望は未確認、市街地は建物密度です。",
+            Text("海・湖・川は近さの推定です。市街地は建物密度です。",
                 style = MaterialTheme.typography.bodySmall)
             HorizontalDivider()
             Text("体験の好み", style = MaterialTheme.typography.titleSmall)
