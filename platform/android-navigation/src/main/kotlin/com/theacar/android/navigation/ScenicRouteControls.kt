@@ -186,14 +186,14 @@ internal fun ScenicAlternatives(alternatives: List<RouteAlternative>, selectedId
             Column(Modifier.fillMaxWidth().bringIntoViewRequester(detailFocus)) {
                 Text("基準走行 ${(explanation.baselineSeconds + 59) / 60}分との比較", style = MaterialTheme.typography.labelSmall)
                 explanation.reasons.take(2).forEach { reason ->
-                    TextButton(onClick = { onHighlight(reason.ranges) }) { Text(reason.text + " · 地図で確認") }
+                    TextButton(onClick = { onHighlight(reason.ranges) }) { Text(shortReason(reason.text) + " · 地図で確認") }
                 }
                 ScenicTimeline(explanation.timeline, onHighlight, environment = explanation.environment)
                 var details by rememberSaveable(alternative?.plan?.id) { mutableStateOf(false) }
                 TextButton(onClick = { details = !details }) { Text(if (details) "根拠・注意を閉じる" else "根拠・注意を確認") }
                 if (details) {
                     explanation.reasons.drop(2).forEach { reason ->
-                        TextButton(onClick = { onHighlight(reason.ranges) }) { Text(reason.text + " · 地図で確認") }
+                        TextButton(onClick = { onHighlight(reason.ranges) }) { Text(shortReason(reason.text) + " · 地図で確認") }
                     }
                     Text("景観の根拠と運転負荷は別の推定です。負荷指標 ${"%.2f".format(explanation.load)}", style = MaterialTheme.typography.bodySmall)
                     explanation.warnings.distinct().forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
@@ -243,22 +243,16 @@ internal fun rankColor(rank: ScenicRoadRank) = when (rank) {
 private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
     onHighlight: (List<ScenicRange>) -> Unit, compact: Boolean) {
     val sections = remember(blocks, compact) { scenicTimelineOverview(blocks, if (compact) 24 else 48) }
-    val seaRanges = remember(blocks) { scenicSeaRanges(blocks) }
     Canvas(Modifier.fillMaxWidth().height(48.dp).semantics {
-        contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示し、下端の青線は海に近い区間を示します。タップで地図を表示。"
+        contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示します。タップで地図を表示。"
         customActions = sections.filter { it.sourceRanges.isNotEmpty() }.take(6).map { section ->
             CustomAccessibilityAction("${categoryLabel(section.category)}中心の区間を地図で確認") {
                 onHighlight(section.sourceRanges); true
             }
         }
-    }.pointerInput(sections, seaRanges, total) {
+    }.pointerInput(sections, total) {
         detectTapGestures { tap ->
             val distance = tap.x / size.width.coerceAtLeast(1) * total
-            val sea = seaRanges.firstOrNull { distance >= it.startMeters && distance <= it.endMeters }
-            if (sea != null) {
-                onHighlight(listOf(sea))
-                return@detectTapGestures
-            }
             sections.firstOrNull { distance >= it.range.startMeters && distance <= it.range.endMeters }
                 ?.takeIf { it.sourceRanges.isNotEmpty() }?.let { onHighlight(it.sourceRanges) }
         }
@@ -269,11 +263,6 @@ private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
             val width = ((section.range.endMeters - section.range.startMeters) / total * size.width).toFloat()
             drawRoundRect(categoryColor(section.category), Offset(left, (size.height - barHeight) / 2),
                 Size((width - 1.dp.toPx()).coerceAtLeast(0f), barHeight), CornerRadius(3.dp.toPx()))
-        }
-        seaRanges.forEach { range ->
-            drawRect(categoryColor("sea"),
-                Offset((range.startMeters / total * size.width).toFloat(), (size.height + barHeight) / 2 - 3.dp.toPx()),
-                Size(((range.endMeters - range.startMeters) / total * size.width).toFloat(), 3.dp.toPx()))
         }
     }
 }
@@ -307,8 +296,6 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
         }
         ScenicEnvironmentTimeline(environment, total, onHighlight, compact)
         if (!compact) {
-            Text("棒は区間ごとの主な景観です。下端の青線は短い海沿いも示します。海の眺望を保証するものではありません。タップで地図を確認できます。",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             blocks.filter { it.range.endMeters - it.range.startMeters >= 300 }.take(6).forEach { block ->
                 TextButton(onClick = { onHighlight(listOf(block.range)) }) {
                     Text("${categoryLabel(block.category)} · ${(block.range.startMeters / 100).toInt() / 10.0}〜${(block.range.endMeters / 100).toInt() / 10.0}km")

@@ -74,27 +74,16 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
                             style = MaterialTheme.typography.bodySmall)
                         SceneryStrip(route.explanation?.timeline.orEmpty(), normalized = true, axisMeters = 1.0,
                             modifier = Modifier.fillMaxWidth().height(12.dp))
-                        // 名道の無い候補でも同じ高さを取り、横に送ったとき枠の高さが変わらないようにする
-                        Box(Modifier.fillMaxWidth().height(24.dp)) {
-                            ScenicRoadTimeline(route.explanation?.timeline.orEmpty(),
-                                route.explanation?.timeline?.maxOfOrNull { it.range.endMeters } ?: 0.0,
-                                onHighlight = { showRoad(route.plan.id, it) })
-                        }
                         Text(traits.getValue(route.plan.id).joinToString(" · "), style = MaterialTheme.typography.labelSmall,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
         }
-        if (routes.any { route -> route.explanation?.timeline?.any { it.recommendedRoads.isNotEmpty() } == true }) {
-            ScenicRoadRankLegend()
-        }
         highlighted?.takeIf { it.first == selectedId }?.second?.let { road ->
             Text("${road.road.rank.label} · ${road.road.name}", color = rankColor(road.road.rank),
                 style = MaterialTheme.typography.bodySmall)
         }
-        Text("帯は全体を100%にそろえた景観の流れ。下端の青線は海に近い区間です", style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (comparing) ScenicRouteComparisonDialog(routes, selectedId,
         onSelect = { onSelect(it); comparing = false }, onDismiss = { comparing = false }, onHighlightRoad = showRoad)
@@ -299,7 +288,6 @@ private fun SceneryLegend(blocks: List<ScenicTimelineBlock>) {
 @Composable
 internal fun SceneryStrip(blocks: List<ScenicTimelineBlock>, normalized: Boolean, axisMeters: Double, modifier: Modifier = Modifier) {
     val sections = remember(blocks) { scenicTimelineOverview(blocks, 32) }
-    val seaRanges = remember(blocks) { scenicSeaRanges(blocks) }
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: 0.0
     val axis = sceneryAxisMeters(blocks, normalized, axisMeters)
     val background = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -311,11 +299,6 @@ internal fun SceneryStrip(blocks: List<ScenicTimelineBlock>, normalized: Boolean
             val width = ((section.range.endMeters - section.range.startMeters) / axis * size.width).toFloat()
             drawRoundRect(categoryColor(section.category), topLeft = Offset(x, 0f),
                 size = Size((width - 1.dp.toPx()).coerceAtLeast(0f), size.height), cornerRadius = CornerRadius(2.dp.toPx()))
-        }
-        seaRanges.forEach { range ->
-            drawRect(categoryColor("sea"),
-                Offset((range.startMeters / axis * size.width).toFloat(), size.height - 3.dp.toPx()),
-                Size(((range.endMeters - range.startMeters) / axis * size.width).toFloat(), 3.dp.toPx()))
         }
         if (!normalized && total > 0) {
             val end = (total / axis * size.width).toFloat().coerceIn(0f, (size.width - 1f).coerceAtLeast(0f))

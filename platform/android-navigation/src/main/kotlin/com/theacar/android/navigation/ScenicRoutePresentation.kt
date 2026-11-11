@@ -76,3 +76,8 @@ internal fun sceneryAxisMeters(blocks: List<ScenicTimelineBlock>, normalized: Bo
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: 0.0
     return if (normalized) total.coerceAtLeast(1.0) else maxOf(commonAxis, total, 1.0)
 }
+
+/** 推薦の理由の文から、かっこの補足と「基準より〜」の比較を外す */
+internal fun shortReason(text: String): String =
+    text.replace(Regex("（[^）]*）"), "").split("。").filter { it.isNotBlank() && !it.startsWith("基準より") }
+        .joinToString("。")
