@@ -164,6 +164,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             if (closed) return@setStyle
             styleLoaded = true
             applyTabiMapColors(it, dark)
+            applyTabiMapLabels(it)
             if (runtime.configuration.mapStyleUrl.isBlank()) {
                 loadTimeout?.cancel()
                 mutableDisplayState.value = MapDisplayState.DISABLED

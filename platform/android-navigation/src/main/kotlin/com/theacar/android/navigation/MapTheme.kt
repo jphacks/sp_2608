@@ -8,7 +8,7 @@ import org.maplibre.android.style.layers.LineLayer
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.SymbolLayer
 
-// 地図の配信元（OpenFreeMap liberty）の色を、旅れこのテーマ色（paper・mist・sky・sunglow・ink）に寄せて塗り替える。
+// 地図の配信元（OpenFreeMap liberty）の色を、読みやすい塗り分けに塗り替える。
 // [dark] のときは車載画面の夜の表示に合わせ、同じ塗り分けを暗い色で行う
 internal fun applyTabiMapColors(style: Style, dark: Boolean = false) {
     val c = if (dark) DarkColors else LightColors
@@ -17,19 +17,32 @@ internal fun applyTabiMapColors(style: Style, dark: Boolean = false) {
         when (layer) {
             is BackgroundLayer -> layer.setProperties(PropertyFactory.backgroundColor(c.land))
             is FillExtrusionLayer -> layer.setProperties(PropertyFactory.fillExtrusionColor(c.building))
-            is FillLayer -> fillColor(id, c)?.let { layer.setProperties(PropertyFactory.fillColor(it)) }
+            is FillLayer -> fillColor(id, c)?.let {
+                layer.setProperties(PropertyFactory.fillColor(it))
+                // 元のスタイルは森や草地を薄く透かしているので、緑がはっきり見えるようにする
+                if (id in GreenLayers) layer.setProperties(PropertyFactory.fillOpacity(1f))
+            }
             is LineLayer -> lineColor(id, c)?.let { layer.setProperties(PropertyFactory.lineColor(it)) }
             is SymbolLayer -> layer.setProperties(
-                PropertyFactory.textColor(if (id.startsWith("label_") || id.startsWith("water")) c.ink else c.muted),
+                PropertyFactory.textColor(
+                    when {
+                        id.startsWith("water") -> c.waterText
+                        id.startsWith("label_") -> c.ink
+                        else -> c.muted
+                    },
+                ),
                 PropertyFactory.textHaloColor(c.land),
             )
         }
     }
 }
 
+private val GreenLayers = setOf("park", "landcover_wood", "landcover_grass", "landcover_wetland")
+
 private fun fillColor(id: String, c: MapColors): String? = when {
     id == "water" -> c.water
-    id == "park" || id in setOf("landcover_wood", "landcover_grass", "landcover_wetland") -> c.green
+    id == "landcover_wood" -> c.wood
+    id in GreenLayers -> c.green
     id == "landuse_residential" -> c.residential
     id == "landcover_sand" -> c.sand
     id == "building" -> c.building
@@ -50,26 +63,29 @@ private fun lineColor(id: String, c: MapColors): String? = when {
 }
 
 private class MapColors(
-    val land: String, val residential: String, val facility: String, val building: String, val green: String,
+    val land: String, val residential: String, val facility: String, val building: String, val green: String, val wood: String,
     val water: String, val waterLine: String, val sand: String, val majorRoad: String, val road: String,
-    val casing: String, val rail: String, val ink: String, val muted: String,
+    val casing: String, val rail: String, val ink: String, val muted: String, val waterText: String,
 )
 
+// Google マップのような塗り分け：地は薄いベージュ、道はグレー、緑は緑、水は水色
 private val LightColors = MapColors(
-    land = "#F5F3EC", // paper
-    residential = "#EFECE3",
-    facility = "#ECE8DE",
-    building = "#E5E1D6",
-    green = "#D6E7DE", // mist を薄めた色
-    water = "#BCDAD6", // sky を薄めた色
-    waterLine = "#9FC9C3",
-    sand = "#EFE6CC",
-    majorRoad = "#F1DC9C", // sunglow を薄めた色
-    road = "#FFFFFF", // surface
-    casing = "#DDD8CB",
-    rail = "#B8BDB5",
-    ink = "#1E2A24",
-    muted = "#5C6B63",
+    land = "#F3EFE6",
+    residential = "#EEEAE0",
+    facility = "#EAE6DC",
+    building = "#E3DFD5",
+    green = "#D3EBC8",
+    wood = "#BFDEAE",
+    water = "#AAD3EE",
+    waterLine = "#8EC2E6",
+    sand = "#F3E8C6",
+    majorRoad = "#C9CDD2",
+    road = "#DDE0E3",
+    casing = "#C2C6CB",
+    rail = "#BDBFC2",
+    ink = "#3C4043",
+    muted = "#5F6368",
+    waterText = "#3E7BB0",
 )
 
 // 夜は ink を地にして、緑・水・幹線の色味だけを残す。文字は paper に寄せる
@@ -79,6 +95,7 @@ private val DarkColors = MapColors(
     facility = "#222C27",
     building = "#2A3530",
     green = "#1F3A30",
+    wood = "#1B3429",
     water = "#173439",
     waterLine = "#2B5A5F",
     sand = "#3A3526",
@@ -88,4 +105,5 @@ private val DarkColors = MapColors(
     rail = "#55605A",
     ink = "#E8ECE6",
     muted = "#A9B5AE",
+    waterText = "#8FC3E8",
 )
