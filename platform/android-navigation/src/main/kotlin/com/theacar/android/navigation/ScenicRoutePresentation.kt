@@ -37,7 +37,9 @@ internal fun routeChoiceTitle(route: RouteAlternative, all: List<RouteAlternativ
     return when {
         metrics.seaMeters >= metrics.forestMeters && metrics.seaMeters >= 300 -> "海の近くを走るルート"
         metrics.forestMeters >= 300 -> "森林を走るルート"
-        else -> "景色を組み合わせるルート"
+        // 目立つ景色が無い候補は、景色ではなく時間で呼ぶ
+        metrics.extraSeconds <= 60 -> "最短に近いルート"
+        else -> "寄り道するルート"
     }
 }
 
