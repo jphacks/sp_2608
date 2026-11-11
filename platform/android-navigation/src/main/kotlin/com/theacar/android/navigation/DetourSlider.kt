@@ -63,26 +63,38 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
     val position = scenicDetourPosition(minutes)
     // 寄り道の段階はアイコンだけで見せる
     Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(stage.icon, contentDescription = null, tint = Spruce)
-            Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
-            Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.bodySmall, color = Muted)
-        }
+        StageHeader(stage, if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}")
         RoadSlider(position, last, { onMinutes(scenicDetourMinutesAt(it)) }, enabled, "寄り道 ${stage.name}")
     }
 }
 
-/** 周遊全体の長さを選ぶ、寄り道と同じ道路のスライダー。10分刻み */
+// 周遊の長さごとの呼び名。寄り道と同じく、動かすたびに旅の気分が変わる
+private val roundTripStages = listOf(
+    DetourStage(40, "ちょっとひと回り", Icons.Rounded.DirectionsWalk),
+    DetourStage(90, "近くをぐるり", Icons.Rounded.Hiking),
+    DetourStage(180, "景色を楽しむ", Icons.Rounded.Landscape),
+    DetourStage(270, "ぶらり旅", Icons.Rounded.Loop),
+    DetourStage(Int.MAX_VALUE, "大冒険", Icons.Rounded.Explore),
+)
+
+/** 周遊の長さを選ぶ、寄り道と同じ道路のスライダー。10分刻み */
 @Composable
 internal fun RoundTripSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
+    val stage = roundTripStages.first { minutes <= it.upTo }
     Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(Icons.Rounded.Loop, contentDescription = null, tint = Spruce)
-            Text("${minutes}分の周遊", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
-            Text("休憩込み", style = MaterialTheme.typography.bodySmall, color = Muted)
-        }
+        StageHeader(stage, "${minutes}分")
         RoadSlider((minutes - RoundTripMin).toFloat(), (RoundTripMax - RoundTripMin).toFloat(),
-            { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${minutes}分")
+            { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${stage.name}")
+    }
+}
+
+/** 段階のアイコンと呼び名に、小さく長さを添える */
+@Composable
+private fun StageHeader(stage: DetourStage, detail: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(stage.icon, contentDescription = null, tint = Spruce)
+        Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
+        Text(detail, style = MaterialTheme.typography.bodySmall, color = Muted)
     }
 }
 
