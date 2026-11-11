@@ -3,6 +3,7 @@ package com.theacar.android.navigation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.DirectionsWalk
@@ -11,7 +12,9 @@ import androidx.compose.material.icons.rounded.Hiking
 import androidx.compose.material.icons.rounded.Landscape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.theacar.ui.Mountains
+import com.theacar.ui.Muted
 import com.theacar.ui.Sky
 import com.theacar.ui.Sunset
 
@@ -65,6 +70,8 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
                     contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
             },
             track = { RoadTrack(if (enabled) color else PlainRoad, position / last) }, modifier = Modifier.weight(1f))
+        Text(if (minutes == 0) "＋0分" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.labelMedium,
+            color = Muted, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
     }
 }
 
