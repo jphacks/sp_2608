@@ -34,7 +34,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -90,21 +92,25 @@ fun MiniPlayer(
             }
         }
     }
-    val background = Modifier.background(SpotifyGlow)
+    val background = Modifier.drawBehind { spotifyGlow() }
     if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
     else Surface(modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
 }
 
-// 上の深い緑から、Spotify が再生中の背景に指定している #191414 へ。上の方で早く暗くなるよう、段を不均等に置く
+// Spotify が再生中の背景に指定している #191414 の上に、帯の外から差し込む深い緑の光を円く重ねる
 private val SpotifyBase = Color(0xFF191414)
-private val SpotifyGreen = Color(0xFF2F6B3E)
-private val SpotifyGlow = Brush.verticalGradient(
-    0f to SpotifyGreen,
-    .2f to lerp(SpotifyGreen, SpotifyBase, .35f),
-    .45f to lerp(SpotifyGreen, SpotifyBase, .75f),
-    .75f to lerp(SpotifyGreen, SpotifyBase, .95f),
-    1f to SpotifyBase,
-)
+private val SpotifyGreen = Color(0xFF2F7A45)
+
+private fun DrawScope.spotifyGlow() {
+    drawRect(SpotifyBase)
+    // ロゴの左上の外に中心を置き、弧を描いて暗くなるようにする
+    drawGlow(Offset(size.width * .12f, -size.height * .6f), size.width * .75f, 1f)
+    drawGlow(Offset(size.width * .95f, -size.height * .9f), size.width * .45f, .55f)
+}
+
+private fun DrawScope.drawGlow(center: Offset, radius: Float, strength: Float) = drawRect(Brush.radialGradient(
+    0f to SpotifyGreen.copy(alpha = strength), .45f to SpotifyGreen.copy(alpha = strength * .45f),
+    .8f to SpotifyGreen.copy(alpha = strength * .08f), 1f to Color.Transparent, center = center, radius = radius))
 
 /** 収まらない1行だけを、先頭で間を置いてからゆっくり流す。収まる文字は動かさない。 */
 private fun Modifier.slowMarquee() = basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 2_000,
