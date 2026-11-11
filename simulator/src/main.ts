@@ -13,7 +13,10 @@ import { nextSpeed, yawRate, type Controls } from './vehicle'
 /** 写真を探す地点の間隔（panoramaFeed の SAMPLE_EVERY_METERS と同じ） */
 const PHOTO_SAMPLE_METERS = 10
 /** 横の視野角と、少し見下ろす角度 */
-const FOV_DEGREES = 75
+/** 画面を縦に3つに割り、正面と左右の窓を並べる。1つの窓の横の視野角（度） */
+const FOV_DEGREES = 60
+/** 左右の窓が向く角度（度）。窓の幅と同じにして、正面の窓と切れ目なくつなげる。外の端が真横になる */
+const SIDE_DEGREES = FOV_DEGREES
 const PITCH_DEGREES = -4
 
 const params = new URLSearchParams(location.search)
@@ -253,7 +256,9 @@ function drive(dt: number, now: number): void {
   }
   const { a, b, mixB } = feed.update(here, heading, path, now)
   const view = { heading, pitch: PITCH_DEGREES, fov: FOV_DEGREES }
-  renderer.render(view, a, b, mixB)
+  for (const index of [0, 1, 2]) {
+    renderer.render({ ...view, heading: view.heading + (index - 1) * SIDE_DEGREES }, a, b, mixB, { index, count: 3 })
+  }
   lastFrame = { view, a, b }
   link.update(now, here, heading, speed)
   renderHud(controls, here)

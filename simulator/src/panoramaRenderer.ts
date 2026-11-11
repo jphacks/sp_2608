@@ -174,15 +174,17 @@ export class PanoramaRenderer {
     gl.texSubImage2D(gl.TEXTURE_2D, 0, x * TILE_SIZE, y * TILE_SIZE, gl.RGBA, gl.UNSIGNED_BYTE, image)
   }
 
-  render(view: View, a: PanoramaLayer | undefined, b: PanoramaLayer | undefined, mixB: number): void {
+  /** pane を渡すと、画面を横に count 等分したうちの左から index 番目だけに描く。 */
+  render(view: View, a: PanoramaLayer | undefined, b: PanoramaLayer | undefined, mixB: number, pane = { index: 0, count: 1 }): void {
     const { gl, canvas } = this
-    const width = canvas.clientWidth
     const height = canvas.clientHeight
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width
+    if (canvas.width !== canvas.clientWidth || canvas.height !== height) {
+      canvas.width = canvas.clientWidth
       canvas.height = height
     }
-    gl.viewport(0, 0, width, height)
+    const left = Math.round(canvas.width * pane.index / pane.count)
+    const width = Math.round(canvas.width * (pane.index + 1) / pane.count) - left
+    gl.viewport(left, 0, width, height)
     gl.useProgram(this.program)
     const radians = Math.PI / 180
     this.set('yaw', view.heading * radians)

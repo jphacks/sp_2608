@@ -6,8 +6,8 @@ import type { PanoMeta, StreetViewApi } from './streetviewApi'
 export const ZOOM = 3
 /** いちばん細かい zoom。写真全体の大きさは、ここから1段粗くなるごとに半分になる */
 const MAX_ZOOM = 5
-/** 進む向きの左右これだけを読む。視野（75 度）＋ハンドルで見る向き（10 度）＋余裕 */
-const VIEW_HALF_DEGREES = 55
+/** 進む向きの左右これだけを読む。左右の窓の外の端（90 度）＋ハンドルで見る向き（10 度） */
+const VIEW_HALF_DEGREES = 100
 /** 写真を探す地点の間隔と、先読みする距離 */
 const SAMPLE_EVERY_METERS = 10
 export const LOOK_AHEAD_METERS = 160
