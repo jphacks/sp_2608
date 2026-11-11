@@ -1,26 +1,44 @@
 import { scenery, type ComparedRoute } from './compare'
 
 /**
- * 道のレコード。旅れこのモチーフのレコードに、道を刻む。
- * 旅れこの道路台帳（docs/scenic-road-registry.md）に本登録された、名のある道だけをレコードにする。
- * - 溝：景色のいい道の景色を、外周（出発地）から内側（目的地）へ、その色でうっすら染める
- * - ラベル：道の写真をもとにした黒一色のイラストと、太い英字の名前
- * 色は旅れこのアプリと同じ（style.css の :root）。
+ * 台帳に本登録された名のある道のレコード。溝に道の景色、ラベルに道の絵と名前
  */
 const RECORDS: Record<string, { title: string; place: string; label: string; image: string }> = {
   'hakodate-tomoe': {
     title: 'TOMOE BRIDGE',
     place: 'HAKODATE · HOKKAIDO',
     label: 'var(--sunglow)',
-    // 背景と同じ写真（Ryo FUKAsawa、CC BY 2.0、Wikimedia Commons）をもとに、Canva の画像生成で黒一色のイラストにしたもの
-    image: '/records/hakodate-tomoe.png',
+    // 絵の元：Ryo FUKAsawa（CC BY 2.0）
+    image: '/records/art/hakodate-tomoe.png',
   },
   'onuma-lake': {
     title: 'LAKE ONUMA',
     place: 'NANAE · HOKKAIDO',
     label: 'var(--mist)',
-    // 東大沼キャンプ場の湖の写真（Photos of Japan、CC0、Wikimedia Commons）https://commons.wikimedia.org/wiki/File:Lake_%C5%8Cnuma_East_Camping_Ground.jpg をもとに、Canva の画像生成で黒一色のイラストにしたもの
-    image: '/records/onuma-lake.png',
+    // 絵の元：Photos of Japan（CC0）
+    image: '/records/art/onuma-lake.png',
+  },
+  // ここから下は見本（preview/records.html）だけで使う
+  ororon: {
+    title: 'ORORON LINE',
+    place: 'TESHIO – WAKKANAI',
+    label: 'var(--sunset)',
+    // 絵の元：S30改（CC BY 3.0）
+    image: '/records/art/ororon.png',
+  },
+  'selected-07': {
+    title: 'SOYA HILLS',
+    place: 'WAKKANAI · HOKKAIDO',
+    label: 'var(--paper)',
+    // 絵の元：chatani（CC BY 3.0）
+    image: '/records/art/selected-07.png',
+  },
+  'shiretoko-crossing': {
+    title: 'SHIRETOKO PASS',
+    place: 'SHARI – RAUSU',
+    label: 'var(--sky)',
+    // 絵の元：690 Noda（CC BY 3.0）
+    image: '/records/art/shiretoko-crossing.png',
   },
 }
 
@@ -52,9 +70,9 @@ export function roadRecord(id: string, scenic?: ComparedRoute): string | undefin
     const at = (deg: number) => `${(C + DISC * Math.cos(deg * Math.PI / 180)).toFixed(1)} ${(C + DISC * Math.sin(deg * Math.PI / 180)).toFixed(1)}`
     return `M${C} ${C} L${at(from)} A${DISC} ${DISC} 0 0 1 ${at(to)} Z`
   }
-  // 名前を書く円弧。上は左から右へ、下は文字が逆さにならないよう左から右へ下側を回る
+  // 下の円弧も左から右へ回し、文字が逆さにならないようにする
   const ring = (LABEL + PICTURE) / 2
-  // 上の名前は円弧の外側へ文字が伸びるので、絵の縁のすぐ外を文字の下端にして、ラベルからはみ出さないようにする
+  // 上の名前はラベルからはみ出さないよう、絵の縁に寄せる
   const topRing = PICTURE + 4
   return `
     <svg class="course-badge" viewBox="0 0 200 200" role="img" aria-label="${record.title}">

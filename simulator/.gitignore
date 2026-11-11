@@ -4,3 +4,4 @@ dist/
 .env.local
 # ストリートビューを読んだ枚数の記録
 logs/
+__pycache__/
