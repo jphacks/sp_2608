@@ -49,6 +49,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
 import com.theacar.ui.Ink
 import com.theacar.ui.Mist
 import com.theacar.ui.Mountains
@@ -66,6 +70,20 @@ internal fun MapIconButton(icon: ImageVector, description: String, onClick: () -
         Icon(icon, contentDescription = description, tint = Ink, modifier = Modifier.size(48.dp).padding(12.dp))
     }
 }
+
+/** 決めるボタンと、その横の取り消すバツ。経路を探す・案内を始める枠で同じ形にそろえる */
+@Composable
+internal fun ActionWithClose(label: String, onClick: () -> Unit, onClose: () -> Unit, closeDescription: String,
+    modifier: Modifier = Modifier, enabled: Boolean = true) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Button(onClick = onClick, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text(label) }
+        Surface(onClick = onClose, modifier = Modifier.size(52.dp), shape = CircleShape, color = CloseBackground) {
+            Icon(Icons.Rounded.Close, contentDescription = closeDescription, tint = Ink, modifier = Modifier.padding(14.dp))
+        }
+    }
+}
+
+private val CloseBackground = Color(0xFFEDEDED)
 
 @Composable
 internal fun tabiChipColors(selected: Color = Sky, selectedLabel: Color = Ink): SelectableChipColors = FilterChipDefaults.filterChipColors(

@@ -363,16 +363,9 @@ internal fun NavigationControls(
                                     Text("目的地 · ${coordinateLabel(selectedDestination)}", style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Button(onClick = { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
-                                        enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("経路") }
-                                    // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
-                                    Surface(onClick = onClearSelection, modifier = Modifier.size(52.dp), shape = CircleShape,
-                                        color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)) {
-                                        Icon(Icons.Rounded.Close, contentDescription = "目的地の選択を取り消す", tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.padding(14.dp))
-                                    }
-                                }
+                                // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
+                                ActionWithClose("経路", { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
+                                    onClearSelection, "目的地の選択を取り消す", enabled = !busy)
                                 if (panelExpanded) TextButton(onClick = onAddViaPoint, enabled = !busy && viaPointCount < 126) { Text("寄り道に追加") }
                             } else if (canPlan && state.route == null && !busy) {
                                 if (viaPointCount > 0) {
@@ -458,17 +451,8 @@ internal fun NavigationControls(
                     if (state.phase == NavigationPhase.PREVIEW && selectedDestination == null) {
                         // 開始ボタンと同じ固定領域に置き、詳細のスクロール位置に関係なく開始前に確認できるようにする。
                         companion?.let { Box(Modifier.padding(horizontal = 16.dp)) { it.PreviewContent() } }
-                        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, bottom = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Button(onClick = onStart, enabled = canGuide,
-                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
-                                Text(if (canGuide) "案内を開始" else "現在地を確認中…")
-                            }
-                            Spacer(Modifier.width(10.dp))
-                            Surface(onClick = onInvalidatePreview, modifier = Modifier.size(48.dp), shape = CircleShape, color = Color(0xFFEDEDED)) {
-                                Icon(Icons.Rounded.Close, contentDescription = "経路を選び直す", tint = Ink, modifier = Modifier.padding(12.dp))
-                            }
-                        }
+                        ActionWithClose(if (canGuide) "案内を開始" else "現在地を確認中…", onStart, onInvalidatePreview, "経路を選び直す",
+                            Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp), enabled = canGuide)
                     }
                 }
             }
