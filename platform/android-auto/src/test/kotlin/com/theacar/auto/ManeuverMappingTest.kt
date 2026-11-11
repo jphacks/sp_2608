@@ -15,6 +15,11 @@ class ManeuverMappingTest {
         assertEquals(Maneuver.TYPE_U_TURN_RIGHT, ManeuverMapping.carType(12))
     }
 
+    @Test fun cueIsShortWord() {
+        assertEquals("左折", ManeuverMapping.shortCue(Maneuver.TYPE_TURN_NORMAL_LEFT, "左方向です。その先500mで右方向です。"))
+        assertEquals("国道5号に入ります", ManeuverMapping.shortCue(Maneuver.TYPE_UNKNOWN, "国道5号に入ります。その先右です。"))
+    }
+
     @Test fun mapsStartDestinationAndStraight() {
         assertEquals(Maneuver.TYPE_DEPART, ManeuverMapping.carType(2))
         assertEquals(Maneuver.TYPE_DESTINATION_LEFT, ManeuverMapping.carType(6))
