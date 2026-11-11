@@ -27,7 +27,7 @@ import androidx.compose.material.icons.rounded.Search
 import com.theacar.route.Destination
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Peach
+import com.theacar.ui.Navajo
 
 @Composable
 internal fun DestinationSearchDialog(
@@ -99,7 +99,7 @@ internal fun DestinationSearchDialog(
             }
         }
         // 目的地を入れずに探すと周遊になることを、検索の画面でも知らせる
-        Surface(color = Peach, shape = RoundedCornerShape(CardCorner),
+        Surface(color = Navajo, shape = RoundedCornerShape(CardCorner),
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
             Text("目的地を入力せずに矢印ボタンを押すと周遊モードに切り替わり、決めた時間で現在地に戻れるドライブルートを作れます。",
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -121,7 +121,7 @@ private fun DestinationResult(destination: Destination, onClick: () -> Unit) {
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(shape = CircleShape, color = Peach) {
+        Surface(shape = CircleShape, color = Navajo) {
             Icon(Icons.Rounded.Place, contentDescription = null,
                 modifier = Modifier.padding(10.dp).size(20.dp), tint = Ink)
         }

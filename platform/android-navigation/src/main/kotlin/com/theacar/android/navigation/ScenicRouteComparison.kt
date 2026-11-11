@@ -28,8 +28,8 @@ import com.theacar.route.*
 import com.theacar.ui.CardCorner
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Dusk
-import com.theacar.ui.Sunset
+import com.theacar.ui.Spruce
+import com.theacar.ui.Regent
 import com.theacar.ui.jost
 
 @Composable
@@ -196,13 +196,13 @@ private fun RouteComparisonCard(index: Int, route: RouteAlternative, all: List<R
     val difference = reference?.let(summary::differenceFrom)
     Surface(shape = RoundedCornerShape(CardCorner),
         border = BorderStroke(if (selected) 2.dp else 1.dp,
-            if (selected) Sunset else MaterialTheme.colorScheme.outlineVariant)) {
+            if (selected) Regent else MaterialTheme.colorScheme.outlineVariant)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${index + 1}", style = MaterialTheme.typography.titleLarge.copy(fontFamily = MaterialTheme.jost.statUnit.fontFamily), color = Dusk,
+                Text("${index + 1}", style = MaterialTheme.typography.titleLarge.copy(fontFamily = MaterialTheme.jost.statUnit.fontFamily), color = Spruce,
                     modifier = Modifier.padding(end = 10.dp))
                 Text(routeChoiceTitle(route, all), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                if (selected) Text("選択中", style = MaterialTheme.typography.labelMedium, color = Dusk)
+                if (selected) Text("選択中", style = MaterialTheme.typography.labelMedium, color = Spruce)
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 routeChoiceTraits(route, all).forEach { trait ->
@@ -214,7 +214,7 @@ private fun RouteComparisonCard(index: Int, route: RouteAlternative, all: List<R
             Text(jostNumbers("走行${routeMinutes(summary.drivingSeconds)} · 休憩${routeMinutes(summary.stopSeconds)} · ${routeDistance(summary.distanceMeters)}"),
                 style = MaterialTheme.typography.bodyMedium)
             if (difference != null) Text(jostNumbers("通常ルートより ${routeTimeDelta(difference.drivingSeconds)} / ${routeDistanceDelta(difference.distanceMeters)}"),
-                style = MaterialTheme.typography.bodySmall, color = Dusk)
+                style = MaterialTheme.typography.bodySmall, color = Spruce)
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 if (reference != null) {
                     Text("通常ルート", style = MaterialTheme.typography.labelSmall)

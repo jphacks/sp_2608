@@ -81,11 +81,12 @@ import com.theacar.ui.CardGap
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.Ink
-import com.theacar.ui.Peach
-import com.theacar.ui.Dusk
+import com.theacar.ui.Navajo
+import com.theacar.ui.Spruce
 import com.theacar.ui.Muted
 import com.theacar.ui.Paper
 import com.theacar.ui.Sunglow
+import com.theacar.ui.Asparagus
 import com.theacar.ui.Surface
 import com.theacar.ui.TheaCarTheme
 import kotlinx.coroutines.Dispatchers
@@ -175,7 +176,7 @@ class MemoryActivity : ComponentActivity() {
                 val edit = editor?.state?.collectAsState()?.value
                 val current = edit?.memory
                 Column(Modifier.fillMaxSize().background(Paper)) {
-                    CompactHeaderBand("STICKER", Sunglow)
+                    CompactHeaderBand("STICKER", Asparagus)
                     if (current == null) {
                         Text(if (loading) "読み込み中…" else "記録が見つかりません", Modifier.padding(20.dp), style = MaterialTheme.typography.bodyLarge)
                     } else {
@@ -308,7 +309,7 @@ class MemoryActivity : ComponentActivity() {
         Text("プレビュー", style = MaterialTheme.typography.titleLarge)
         val frame = preview
         val frameModifier = Modifier.fillMaxWidth().aspectRatio((STICKER_WIDTH_MM / STICKER_HEIGHT_MM).toFloat())
-            .clip(RoundedCornerShape(CardCorner)).background(Peach)
+            .clip(RoundedCornerShape(CardCorner)).background(Navajo)
         if (frame != null) Image(frame.asImageBitmap(), contentDescription = "ステッカーのプレビュー", modifier = frameModifier, contentScale = ContentScale.Fit)
         else Spacer(frameModifier)
         if (busy) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -387,8 +388,8 @@ class MemoryActivity : ComponentActivity() {
         val shape = RoundedCornerShape(ChipCorner)
         Text(
             label,
-            Modifier.clip(shape).background(if (selected) Dusk else Surface, shape)
-                .border(1.dp, if (selected) Dusk else Muted, shape).clickable(onClick = onClick)
+            Modifier.clip(shape).background(if (selected) Spruce else Surface, shape)
+                .border(1.dp, if (selected) Spruce else Muted, shape).clickable(onClick = onClick)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             color = if (selected) Surface else Ink,
             style = MaterialTheme.typography.labelLarge,

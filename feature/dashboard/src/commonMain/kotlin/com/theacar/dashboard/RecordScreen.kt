@@ -34,7 +34,7 @@ import com.theacar.ui.CardCorner
 import com.theacar.ui.CardGap
 import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.Muted
-import com.theacar.ui.Rose
+import com.theacar.ui.FadedOrange
 import com.theacar.ui.SunsetDeep
 import com.theacar.ui.jost
 import com.theacar.ui.Surface as SurfaceWhite
@@ -53,7 +53,7 @@ data class TripRecord(
 fun RecordScreen(trips: List<TripRecord>, onOpen: (TripRecord) -> Unit, modifier: Modifier = Modifier,
     loadPhoto: suspend (TripRecord) -> ImageBitmap? = { null }) {
     Column(modifier) {
-        CompactHeaderBand("RECORD", Rose, recoColor = SunsetDeep)
+        CompactHeaderBand("RECORD", FadedOrange, recoColor = SunsetDeep)
         LazyColumn(contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(CardGap)) {
             if (trips.isEmpty()) {
@@ -79,7 +79,7 @@ private fun TripCard(trip: TripRecord, image: ImageBitmap?, onClick: () -> Unit)
     Surface(color = SurfaceWhite, shape = RoundedCornerShape(CardCorner), modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column {
             val bandShape = RoundedCornerShape(topStart = CardCorner, topEnd = CardCorner)
-            Box(Modifier.fillMaxWidth().height(96.dp).clip(bandShape).background(Rose)) {
+            Box(Modifier.fillMaxWidth().height(96.dp).clip(bandShape).background(FadedOrange)) {
                 image?.let { Image(it, contentDescription = null, Modifier.fillMaxWidth().height(96.dp), contentScale = ContentScale.Crop) }
             }
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

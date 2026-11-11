@@ -54,10 +54,10 @@ import com.theacar.route.ScenicRoadRank
 import com.theacar.ui.CardCorner
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Peach
-import com.theacar.ui.Dusk
+import com.theacar.ui.Navajo
+import com.theacar.ui.Spruce
 import com.theacar.ui.Muted
-import com.theacar.ui.Sunset
+import com.theacar.ui.Regent
 import com.theacar.ui.Sea
 import com.theacar.ui.Meadow
 import com.theacar.ui.Lake
@@ -84,7 +84,7 @@ internal fun ScenicSearchControls(
     var showQuickSearch by rememberSaveable { mutableStateOf(false) }
     if (showButtons) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(enabled = enabled, onClick = { showPreferenceEditor = true }, modifier = Modifier.weight(1f),
-            border = BorderStroke(1.dp, Dusk), colors = ButtonDefaults.outlinedButtonColors(contentColor = Dusk)) {
+            border = BorderStroke(1.dp, Spruce), colors = ButtonDefaults.outlinedButtonColors(contentColor = Spruce)) {
             Text(if (preference != null && settings.customWeights != null) "好みを調整 · カスタム" else "好みを調整")
         }
         if (onQuickSearch != null) FilledTonalButton(enabled = enabled, onClick = { showQuickSearch = true }, colors = mistButtonColors()) {
@@ -314,7 +314,7 @@ private fun ReasonRow(text: String, onMap: () -> Unit) {
     Surface(onClick = onMap, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .45f)) {
         Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Dusk, modifier = Modifier.size(20.dp))
+            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Spruce, modifier = Modifier.size(20.dp))
             Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink, modifier = Modifier.weight(1f))
             Icon(Icons.Rounded.Map, contentDescription = "地図で見る", tint = Muted, modifier = Modifier.size(20.dp))
         }

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.theacar.ui.Dusk
+import com.theacar.ui.Spruce
 import com.theacar.ui.Ink
 import com.theacar.ui.Muted
 
@@ -25,7 +25,7 @@ fun AtmosphereControl(value: Float, onValueChange: (Float) -> Unit, onCoverSound
                 Text("車内のにぎわい", color = Ink, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 Text("会話が増えると音楽をそっと下げます", color = Muted, fontSize = 10.sp)
             }
-            Text("特殊音テスト", color = Dusk, fontSize = 11.sp, modifier = Modifier.clickable(onClick = onCoverSound))
+            Text("特殊音テスト", color = Spruce, fontSize = 11.sp, modifier = Modifier.clickable(onClick = onCoverSound))
         }
         Slider(value = value, onValueChange = onValueChange)
     }

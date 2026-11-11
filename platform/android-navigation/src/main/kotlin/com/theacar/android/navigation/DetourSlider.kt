@@ -37,9 +37,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 import com.theacar.ui.Ink
-import com.theacar.ui.Dusk
+import com.theacar.ui.Spruce
 import com.theacar.ui.Muted
-import com.theacar.ui.Sunset
+import com.theacar.ui.Regent
 
 private class DetourStage(val upTo: Int, val name: String, val icon: ImageVector)
 
@@ -64,7 +64,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
     // 寄り道の段階はアイコンだけで見せる
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(stage.icon, contentDescription = null, tint = Dusk)
+            Icon(stage.icon, contentDescription = null, tint = Spruce)
             Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
             Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.bodySmall, color = Muted)
         }

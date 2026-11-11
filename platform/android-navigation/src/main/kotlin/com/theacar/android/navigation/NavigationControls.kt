@@ -51,7 +51,8 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.ui.unit.sp
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Dusk
+import com.theacar.ui.Spruce
+import com.theacar.ui.Cream
 import com.theacar.ui.Muted
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.jost
@@ -218,9 +219,9 @@ internal fun NavigationControls(
                             if (selectedDestination == null && viaPointCount == 0) { keyboard?.hide(); showRoundTrip = true }
                             else startRouteSearch()
                         }, enabled = !busy && (selectedDestination != null || viaPointCount == 0 || location.fix != null),
-                        modifier = Modifier.size(48.dp), shape = CircleShape, color = Dusk) {
+                        modifier = Modifier.size(48.dp), shape = CircleShape, color = Spruce) {
                         Icon(Icons.Rounded.ArrowForward, contentDescription = "経路を探す",
-                            tint = SurfaceColor, modifier = Modifier.size(48.dp).padding(12.dp))
+                            tint = Cream, modifier = Modifier.size(48.dp).padding(12.dp))
                     }
                 } else Spacer(Modifier.weight(1f))
                 MapIconButton(Icons.Rounded.Tune, "ナビの設定", { showSettings = true })
@@ -308,7 +309,7 @@ internal fun NavigationControls(
                                         }
                                     } else null)
                                 Button(onClick = startRouteSearch, enabled = !busy && location.fix != null,
-                                    shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Dusk, contentColor = SurfaceColor),
+                                    shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Spruce, contentColor = Cream),
                                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("${totalMinutes}分以内の周遊ルートを探す") }
                                 if (location.fix == null) Text("現在地を取得すると周遊ルートを探せます", style = MaterialTheme.typography.bodySmall, color = Muted)
                             }
@@ -438,7 +439,7 @@ internal fun NavigationControls(
                                 }
                                 if (it == NavigationFailure.SCENIC_UNAVAILABLE && retryWithoutScenic != null) {
                                     TextButton(onClick = retryWithoutScenic, enabled = !busy,
-                                        colors = ButtonDefaults.textButtonColors(contentColor = Dusk)) { Text("景観なしで探す") }
+                                        colors = ButtonDefaults.textButtonColors(contentColor = Spruce)) { Text("景観なしで探す") }
                                 }
                             }
                             if (configuration.mapStyleUrl.isBlank()) {

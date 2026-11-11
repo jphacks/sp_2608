@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
-import com.theacar.ui.Sunset
+import com.theacar.ui.Regent
 import com.theacar.ui.Tab
 import com.theacar.ui.TabiBottomBar
 import com.theacar.ui.TheaCarTheme
@@ -195,7 +195,7 @@ class NavigationActivity : ComponentActivity() {
         // ほかのタブの見出し帯と色をそろえ、地図の面積は削らないよう、ステータスバーの裏だけに色を敷く
         val band = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { TheaCarTheme { Box(Modifier.fillMaxWidth().background(Sunset).statusBarsPadding()) } }
+            setContent { TheaCarTheme { Box(Modifier.fillMaxWidth().background(Regent).statusBarsPadding()) } }
         }
         val miniPlayer = (application as AndroidNavigationOwner).miniPlayer
         val player = ComposeView(this).apply {
