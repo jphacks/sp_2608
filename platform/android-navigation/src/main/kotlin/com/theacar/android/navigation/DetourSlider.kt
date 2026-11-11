@@ -1,7 +1,6 @@
 package com.theacar.android.navigation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -12,9 +11,7 @@ import androidx.compose.material.icons.rounded.Hiking
 import androidx.compose.material.icons.rounded.Landscape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,11 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.theacar.ui.Ink
 import com.theacar.ui.Mountains
-import com.theacar.ui.Muted
 import com.theacar.ui.Sky
 import com.theacar.ui.Sunset
 
@@ -53,20 +47,16 @@ private val stages = listOf(
 
 private val PlainRoad = Color(0xFFC4C7C5)
 
-/** 寄り道の長さを選ぶ無段階のスライダー。つまみは右へ走る車で、バーは道路 */
+/** 寄り道の長さを選ぶ無段階のスライダー。左に段階のアイコン、つまみは右へ走る車、バーは道路 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
     val stage = stages.first { minutes <= it.upTo }
     val last = scenicDetourMinutes.lastIndex.toFloat()
     val position = scenicDetourPosition(minutes)
-    Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(stage.icon, contentDescription = null, tint = Mountains)
-            Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
-            Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}まで",
-                style = MaterialTheme.typography.bodySmall, color = Muted)
-        }
+    // 寄り道の段階はアイコンだけで見せる
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(stage.icon, contentDescription = stage.name, tint = Mountains)
         val color = roadColor(position / last)
         Slider(value = position, onValueChange = { onMinutes(scenicDetourMinutesAt(it)) }, valueRange = 0f..last,
             enabled = enabled,
@@ -74,7 +64,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
                 Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
                     contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
             },
-            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
+            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) }, modifier = Modifier.weight(1f))
     }
 }
 
