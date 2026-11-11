@@ -10,5 +10,7 @@
                 <action android:name="com.theacar.debug.DRIVE" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.theacar.android.debug.DepartureTimeReceiver" android:exported="true"
+            android:permission="android.permission.DUMP" />
     </application>
 </manifest>
