@@ -449,8 +449,6 @@ internal fun NavigationControls(
                         }
                     }
                     if (state.phase == NavigationPhase.PREVIEW && selectedDestination == null) {
-                        // 開始ボタンと同じ固定領域に置き、詳細のスクロール位置に関係なく開始前に確認できるようにする。
-                        companion?.let { Box(Modifier.padding(horizontal = 16.dp)) { it.PreviewContent() } }
                         ActionWithClose(if (canGuide) "案内を開始" else "現在地を確認中…", onStart, onInvalidatePreview, "経路を選び直す",
                             Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp), enabled = canGuide)
                     }
