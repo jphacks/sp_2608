@@ -352,6 +352,7 @@ internal fun NavigationControls(
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
                                     settings = scenicSettings, onSettings = updateScenic, compact = !panelExpanded, showChips = false,
+                                    showButtons = false,
                                     onQuickSearch = { quick ->
                                         keyboard?.hide(); awaitingPreview = true
                                         onPreview(selectedDestination, options.copy(scenic = quick))
@@ -479,7 +480,8 @@ internal fun NavigationControls(
             avoidHighways, { if (avoidHighways != it) onInvalidatePreview(); avoidHighways = it }, voiceEnabled, onVoiceChanged, canPlan, { showSettings = false },
             tokenLoaded = routingTokenLoaded, tokenError = routingTokenError,
             tokenFromBuild = routingTokenFromBuild, routingUrl = configuration.routingUrl,
-            builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged)
+            builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged,
+            scenic = scenicSettings, onScenicChanged = updateScenic)
     }
     if (showSearch && canPlan) {
         DestinationSearchDialog(state, true, onSearch,

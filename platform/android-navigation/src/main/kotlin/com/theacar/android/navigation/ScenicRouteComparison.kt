@@ -1,5 +1,7 @@
 package com.theacar.android.navigation
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -33,7 +35,8 @@ import com.theacar.ui.jost
 @Composable
 internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId: String, onSelect: (String) -> Unit,
     onHighlightRoad: (ScenicRoadHighlight) -> Unit) {
-    val routes = alternatives.filter { it.scenic != null }
+    var sortBy by rememberSaveable { mutableStateOf<ScenicPreference?>(null) }
+    val routes = sortRoutes(alternatives.filter { it.scenic != null }, sortBy)
     val titles = remember(routes) { routes.associate { it.plan.id to routeChoiceTitle(it, routes) } }
     val traits = remember(routes) { routes.associate { it.plan.id to routeChoiceTraits(it, routes) } }
     var comparing by rememberSaveable { mutableStateOf(false) }
@@ -47,11 +50,15 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("${routes.size}案の特徴", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            ScenicSortButton(sortBy) { sortBy = it }
             TextButton(onClick = { comparing = true }, contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Text("通常ルート・候補を比較")
+                Text("比較")
             }
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        val listState = rememberLazyListState()
+        // 並べ替えたら、1番目の候補が見えるように左端へ戻す
+        LaunchedEffect(sortBy) { listState.scrollToItem(0) }
+        LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(routes, key = { _, route -> route.plan.id }) { index, route ->
                 val selected = route.plan.id == selectedId
                 Surface(onClick = { onSelect(route.plan.id) }, shape = RoundedCornerShape(CardCorner),

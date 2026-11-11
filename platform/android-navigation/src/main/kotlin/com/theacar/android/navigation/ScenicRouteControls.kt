@@ -82,6 +82,7 @@ internal fun ScenicSearchControls(
     compact: Boolean = false,
     onQuickSearch: ((ScenicOptions) -> Unit)? = null,
     showChips: Boolean = true,
+    showButtons: Boolean = true,
 ) {
     var showPreferenceEditor by rememberSaveable { mutableStateOf(false) }
     var showQuickSearch by rememberSaveable { mutableStateOf(false) }
@@ -89,7 +90,7 @@ internal fun ScenicSearchControls(
         if (!compact) Text("経路の選び方", style = MaterialTheme.typography.labelLarge)
         ScenicChipRow(preference, onPreference, settings, onSettings, enabled)
     }
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    if (showButtons) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(enabled = enabled, onClick = { showPreferenceEditor = true }, modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Mountains), colors = ButtonDefaults.outlinedButtonColors(contentColor = Mountains)) {
             Text(if (preference != null && settings.customWeights != null) "好みを調整 · カスタム" else "好みを調整")
