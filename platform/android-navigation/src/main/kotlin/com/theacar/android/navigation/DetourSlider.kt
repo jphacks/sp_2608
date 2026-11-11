@@ -3,7 +3,7 @@ package com.theacar.android.navigation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.DirectionsWalk
@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,8 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.theacar.ui.Ink
 import com.theacar.ui.Mountains
 import com.theacar.ui.Muted
 import com.theacar.ui.Sky
@@ -52,7 +55,7 @@ private val stages = listOf(
 
 private val PlainRoad = Color(0xFFC4C7C5)
 
-/** 寄り道の長さを選ぶ無段階のスライダー。左に段階のアイコン、つまみは右へ走る車、バーは道路 */
+/** 寄り道の長さを選ぶ無段階のスライダー。上に段階の呼び名、つまみは右へ走る車、バーは道路 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
@@ -60,8 +63,12 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
     val last = scenicDetourMinutes.lastIndex.toFloat()
     val position = scenicDetourPosition(minutes)
     // 寄り道の段階はアイコンだけで見せる
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Icon(stage.icon, contentDescription = stage.name, tint = Mountains)
+    Column(modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(stage.icon, contentDescription = null, tint = Mountains)
+            Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
+            Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.bodySmall, color = Muted)
+        }
         val color = roadColor(position / last)
         Slider(value = position, onValueChange = { onMinutes(scenicDetourMinutesAt(it)) }, valueRange = 0f..last,
             enabled = enabled,
@@ -69,9 +76,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
                 Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
                     contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
             },
-            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) }, modifier = Modifier.weight(1f))
-        Text(if (minutes == 0) "＋0分" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.labelMedium,
-            color = Muted, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
+            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) }, modifier = Modifier.overhang(20.dp))
     }
 }
 
@@ -101,3 +106,10 @@ private fun sideCar(body: Color): ImageVector = ImageVector.Builder("SideCar", 4
     .addPath(addPathNodes("M44.28,80H156.69l32,32H23Z"), fill = SolidColor(Color.White))
     .addPath(addPathNodes("M64,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48ZM192,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48Z"), fill = SolidColor(Color.White))
     .build()
+
+/** スライダーは車の半分の幅だけ道を内側に縮めるので、その分だけ左右にはみ出させて道を長く見せる */
+private fun Modifier.overhang(each: Dp) = layout { measurable, constraints ->
+    val extra = each.roundToPx() * 2
+    val placeable = measurable.measure(constraints.copy(minWidth = constraints.minWidth + extra, maxWidth = constraints.maxWidth + extra))
+    layout(placeable.width - extra, placeable.height) { placeable.place(-extra / 2, 0) }
+}
