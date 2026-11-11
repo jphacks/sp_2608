@@ -28,7 +28,9 @@ import com.theacar.route.ScenicPreference
 internal fun sortRoutes(routes: List<RouteAlternative>, by: ScenicPreference?): List<RouteAlternative> {
     if (by == null) return routes
     return routes.sortedByDescending { route ->
-        val meters = route.scenic?.categoryMeters.orEmpty()
+        // 海と森は categoryMeters ではなく別の項目に入っている
+        val metrics = route.scenic
+        val meters = metrics?.let { it.categoryMeters + mapOf("sea" to it.seaMeters, "forest" to it.forestMeters) }.orEmpty()
         by.weights.entries.sumOf { (category, weight) -> (meters[category] ?: 0) * weight }
     }
 }
