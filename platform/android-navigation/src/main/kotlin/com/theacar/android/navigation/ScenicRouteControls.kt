@@ -77,7 +77,7 @@ internal fun ScenicChipRow(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        ScenicPreference.entries.forEach { item ->
+        SelectableScenery.forEach { item ->
             val selected = preference == item && settings.customWeights == null
             val (fill, label) = scenicChipStyle(item)
             FilterChip(colors = tabiChipColors(fill, label), border = tabiChipBorder(selected, fill), shape = RoundedCornerShape(ChipCorner),

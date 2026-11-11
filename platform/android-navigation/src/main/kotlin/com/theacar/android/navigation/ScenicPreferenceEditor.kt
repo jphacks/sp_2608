@@ -102,7 +102,7 @@ internal fun ScenicQuickSearch(settings: ScenicOptions, enabled: Boolean,
                 style = MaterialTheme.typography.bodySmall)
             listOf(ScenicPreference.BALANCED to "いろんな自然を楽しむ", ScenicPreference.SEA to "海沿いを楽しむ",
                 ScenicPreference.FOREST to "森の道を走る", ScenicPreference.WATER to "湖や川を楽しむ",
-                ScenicPreference.VALLEY to "渓谷を探す", ScenicPreference.FARMLAND to "田園を走る",
+                ScenicPreference.FARMLAND to "田園を走る",
                 ScenicPreference.URBAN to "街なかを走る").forEach { (preset, title) ->
                 FilledTonalButton(enabled = enabled, onClick = { onSelect(settings.withPreset(preset)) },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(title) }

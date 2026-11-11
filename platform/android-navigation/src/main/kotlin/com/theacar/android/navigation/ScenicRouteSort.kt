@@ -35,6 +35,9 @@ internal fun sortRoutes(routes: List<RouteAlternative>, by: ScenicPreference?): 
     }
 }
 
+/** 画面で選べる景色。渓谷は判定が実際の景色と合わないので出さない */
+internal val SelectableScenery = ScenicPreference.entries - ScenicPreference.VALLEY
+
 /** 候補の並べ替えを選ぶボタン */
 @Composable
 internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?) -> Unit) {
@@ -52,7 +55,7 @@ internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?)
         // 「〜が多い順」は見出しに1回だけ書き、選択肢は景色の名前だけにする
         Text("景色が多い順", style = MaterialTheme.typography.labelSmall, color = Muted,
             modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 4.dp))
-        ScenicPreference.entries.forEach { preference ->
+        SelectableScenery.forEach { preference ->
             DropdownMenuItem(text = { Text(sceneryName(preference)) }, onClick = { onSort(preference); open = false })
         }
     }

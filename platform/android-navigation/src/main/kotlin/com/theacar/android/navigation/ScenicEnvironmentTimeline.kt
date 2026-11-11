@@ -139,7 +139,6 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
                 Text(environmentSkyLabel(section.sky) + (section.cloudCover?.let { " · 雲量${it.toInt()}%" } ?: ""))
                 Text("街度（周辺の建物被覆率） ${section.urbanRatio?.let { "%.1f%%".format(it * 100) } ?: "未取得"}")
                 Text("湖・池 ${section.features["lake"]?.let { if (it >= .35) "近い" else "対応する地物なし" } ?: "未取得"} / 川 ${section.features["river"]?.let { if (it >= .35) "近い" else "対応する地物なし" } ?: "未取得"}")
-                Text("渓谷・谷 ${section.features["valley"]?.let { if (it >= .35) "特徴あり" else "特徴の検出なし" } ?: "未取得"}（${if (section.terrainDerived) "地形と地図から推定" else "地図の登録から推定"}）")
                 section.elevationMeters?.let { Text("地表の標高 約${it.toInt()}m（道路・橋面の高さとは異なる場合があります）") }
                 section.weatherDetails.forEach { (key, value) ->
                     val label = environmentWeatherDetail(key, value)
