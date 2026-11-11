@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,7 +74,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
                 Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
                     contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(40.dp))
             },
-            track = { RoadTrack(if (enabled) color else PlainRoad) })
+            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
     }
 }
 
@@ -81,11 +82,13 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
 private fun roadColor(t: Float): Color =
     if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Sunset, (t - .5f) * 2)
 
-/** 道路に中央の白い破線 */
+/** 道路に中央の白い破線。車が通った後ろ側だけ色を付ける */
 @Composable
-private fun RoadTrack(color: Color) {
+private fun RoadTrack(color: Color, passed: Float) {
     Canvas(Modifier.fillMaxWidth().height(16.dp)) {
-        drawRoundRect(color, cornerRadius = CornerRadius(size.height / 2))
+        val r = CornerRadius(size.height / 2)
+        drawRoundRect(Asphalt, cornerRadius = r)
+        clipRect(right = size.width * passed) { drawRoundRect(color, cornerRadius = r) }
         drawLine(Color.White.copy(alpha = .85f), Offset(size.height / 2, size.height / 2), Offset(size.width - size.height / 2, size.height / 2),
             strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
     }
