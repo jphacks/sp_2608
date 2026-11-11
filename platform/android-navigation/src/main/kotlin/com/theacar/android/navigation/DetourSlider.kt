@@ -40,7 +40,6 @@ import com.theacar.ui.Ink
 import com.theacar.ui.Mountains
 import com.theacar.ui.Muted
 import com.theacar.ui.Sky
-import com.theacar.ui.Sunset
 
 private class DetourStage(val upTo: Int, val name: String, val icon: ImageVector)
 
@@ -82,7 +81,7 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
 
 /** 寄り道が増えるほど、道の色が灰色 → 緑 → 橙と変わる */
 private fun roadColor(t: Float): Color =
-    if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Sunset, (t - .5f) * 2)
+    if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Orange, (t - .5f) * 2)
 
 /** 道路に中央の白い破線。車が通った後ろ側だけ色を付ける */
 @Composable
@@ -91,13 +90,15 @@ private fun RoadTrack(color: Color, passed: Float) {
         val r = CornerRadius(size.height / 2)
         drawRoundRect(Asphalt, cornerRadius = r)
         clipRect(right = size.width * passed) { drawRoundRect(color, cornerRadius = r) }
-        drawLine(Color.White.copy(alpha = .85f), Offset(size.height / 2, size.height / 2), Offset(size.width - size.height / 2, size.height / 2),
+        drawLine(Color.White.copy(alpha = .6f), Offset(size.height / 2, size.height / 2), Offset(size.width - size.height / 2, size.height / 2),
             strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())))
     }
 }
 
 private val Asphalt = Color(0xFF7D8480)
-private val Green = Color(0xFF3E9E64)
+// 動かしても目に障らないよう、くすませた緑と橙にする
+private val Green = Color(0xFF7FA58A)
+private val Orange = Color(0xFFCF9A74)
 
 // 右を向いた横向きの車（Phosphor Icons「car-profile」fill、MIT）。車体は道と同じ色、窓とタイヤは白
 private fun sideCar(body: Color): ImageVector = ImageVector.Builder("SideCar", 40.dp, 40.dp, 256f, 256f)
