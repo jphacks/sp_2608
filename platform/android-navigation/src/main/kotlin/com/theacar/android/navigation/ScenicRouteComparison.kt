@@ -74,9 +74,12 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
                             style = MaterialTheme.typography.bodySmall)
                         SceneryStrip(route.explanation?.timeline.orEmpty(), normalized = true, axisMeters = 1.0,
                             modifier = Modifier.fillMaxWidth().height(12.dp))
-                        ScenicRoadTimeline(route.explanation?.timeline.orEmpty(),
-                            route.explanation?.timeline?.maxOfOrNull { it.range.endMeters } ?: 0.0,
-                            onHighlight = { showRoad(route.plan.id, it) })
+                        // 名道の無い候補でも同じ高さを取り、横に送ったとき枠の高さが変わらないようにする
+                        Box(Modifier.fillMaxWidth().height(24.dp)) {
+                            ScenicRoadTimeline(route.explanation?.timeline.orEmpty(),
+                                route.explanation?.timeline?.maxOfOrNull { it.range.endMeters } ?: 0.0,
+                                onHighlight = { showRoad(route.plan.id, it) })
+                        }
                         Text(traits.getValue(route.plan.id).joinToString(" · "), style = MaterialTheme.typography.labelSmall,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
