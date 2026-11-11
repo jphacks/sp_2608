@@ -5,6 +5,7 @@ import { Input } from './input'
 import { LinkClient } from './link'
 import { RoadNetwork, headingAt, pointAt, turnAngle, type RoadData, type RoadPosition } from './roads'
 import { ROUTES, type DemoRoute } from './routes'
+import { roadRecord } from './badges'
 import { drawGuide } from './guide'
 import { LOOK_AHEAD_METERS as PHOTO_LOOK_AHEAD, PanoramaFeed } from './panoramaFeed'
 import { PanoramaRenderer, type PanoramaLayer, type View } from './panoramaRenderer'
@@ -135,8 +136,10 @@ async function renderMenu(): Promise<void> {
       </figure>
       <div class="course-info">
         <div class="course-from">${from}から</div>
-        <h1 class="course-to">${to}</h1>
-        ${via ? `<div class="course-via">${via}</div>` : ''}
+        <div class="course-title">
+          <h1 class="course-to">${to}</h1>
+          ${roadRecord(r.id, comparison?.scenic) ?? (via ? `<span class="course-via">${via}</span>` : '')}
+        </div>
         <div class="course-options">
           ${comparison
             ? option('normal', comparison.normal, 1) + option('scenic', comparison.scenic, 2)
