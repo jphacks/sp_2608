@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material.icons.rounded.Hiking
 import androidx.compose.material.icons.rounded.Landscape
+import androidx.compose.material.icons.rounded.Loop
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -54,8 +55,7 @@ private val stages = listOf(
 
 private val PlainRoad = Color(0xFFC4C7C5)
 
-/** 寄り道の長さを選ぶ無段階のスライダー。上に段階の呼び名、つまみは右へ走る車、バーは道路 */
-@OptIn(ExperimentalMaterial3Api::class)
+/** 寄り道の長さを選ぶ無段階のスライダー。上に段階の呼び名 */
 @Composable
 internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
     val stage = stages.first { minutes <= it.upTo }
@@ -68,16 +68,39 @@ internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boole
             Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
             Text(if (minutes == 0) "寄り道なし" else "＋${scenicDetourLabel(minutes)}", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
-        val color = roadColor(position / last)
-        Slider(value = position, onValueChange = { onMinutes(scenicDetourMinutesAt(it)) }, valueRange = 0f..last,
-            enabled = enabled,
-            thumb = {
-                Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
-                    // 車体の高さを道に合わせ、道が車体に隠れて屋根とタイヤだけ少しはみ出すようにする
-                    contentDescription = "寄り道 ${stage.name}", modifier = Modifier.size(CarWidth).offset(y = (-3).dp))
-            },
-            track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
+        RoadSlider(position, last, { onMinutes(scenicDetourMinutesAt(it)) }, enabled, "寄り道 ${stage.name}")
     }
+}
+
+/** 周遊全体の長さを選ぶ、寄り道と同じ道路のスライダー。10分刻み */
+@Composable
+internal fun RoundTripSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(Icons.Rounded.Loop, contentDescription = null, tint = Spruce)
+            Text("${minutes}分の周遊", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
+            Text("休憩込み", style = MaterialTheme.typography.bodySmall, color = Muted)
+        }
+        RoadSlider((minutes - RoundTripMin).toFloat(), (RoundTripMax - RoundTripMin).toFloat(),
+            { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${minutes}分")
+    }
+}
+
+internal const val RoundTripMin = 30
+internal const val RoundTripMax = 360
+
+/** つまみは右へ走る車、バーは道路の無段階スライダー。進むほど道の色が変わる */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RoadSlider(position: Float, last: Float, onPosition: (Float) -> Unit, enabled: Boolean, description: String) {
+    val color = roadColor(position / last)
+    Slider(value = position, onValueChange = onPosition, valueRange = 0f..last, enabled = enabled,
+        thumb = {
+            Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
+                // 車体の高さを道に合わせ、道が車体に隠れて屋根とタイヤだけ少しはみ出すようにする
+                contentDescription = description, modifier = Modifier.size(CarWidth).offset(y = (-3).dp))
+        },
+        track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
 }
 
 /** 寄り道が増えるほど、道の色が灰色 → 緑 → 橙と変わる */

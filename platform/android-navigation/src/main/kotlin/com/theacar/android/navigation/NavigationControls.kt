@@ -300,7 +300,7 @@ internal fun NavigationControls(
                                 ScenicSearchControls(scenicPreference, extraMinutes,
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
-                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true,
+                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true, showButtons = false,
                                     onQuickSearch = if (location.fix != null) { quick ->
                                         location.fix?.let { fix ->
                                             keyboard?.hide()
@@ -317,7 +317,7 @@ internal fun NavigationControls(
                     }
                     if (showRoundTripHelp) AlertDialog(onDismissRequest = { showRoundTripHelp = false },
                         title = { Text("周遊ルート") },
-                        text = { Text("目的地を入れずに矢印を押すと、現在地から出発して現在地に戻るルートを探します。長さは「周遊全体の上限」で決められます。目的地を入れると、目的地までのルートを探します。") },
+                        text = { Text("目的地を入れずに矢印を押すと、現在地から出発して現在地に戻るルートを探します。長さ（休憩込み）はスライダーで決められます。目的地を入れると、目的地までのルートを探します。") },
                         confirmButton = { TextButton(onClick = { showRoundTripHelp = false }) { Text("閉じる") } })
                     if (panelTitle != null || state.route != null) {
                         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {

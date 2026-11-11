@@ -119,10 +119,7 @@ internal fun ScenicSearchControls(
             DetourSlider(extraMinutes, onExtraMinutes, enabled)
             if (!compact) Text("同じ道路条件の通常ルートと比較します。休憩時間は別です。", style = MaterialTheme.typography.bodySmall)
         } else {
-            Text("周遊全体の上限 ${settings.totalSeconds / 60}分（休憩込み）", style = MaterialTheme.typography.bodyMedium)
-            Slider(value = (settings.totalSeconds / 60).toFloat(), onValueChange = {
-                onSettings(settings.copy(totalSeconds = ((it / 30).toInt() * 30).coerceIn(30, 360) * 60))
-            }, valueRange = 30f..360f, steps = 10, enabled = enabled)
+            RoundTripSlider(settings.totalSeconds / 60, { onSettings(settings.copy(totalSeconds = it.coerceIn(RoundTripMin, RoundTripMax) * 60)) }, enabled)
         }
     }
     if (preference != null && !compact) {
