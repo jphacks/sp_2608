@@ -1,6 +1,11 @@
 package com.theacar.android.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -9,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.theacar.route.RouteAlternative
 import com.theacar.route.ScenicPreference
 
@@ -25,7 +32,11 @@ internal fun sortRoutes(routes: List<RouteAlternative>, by: ScenicPreference?): 
 @Composable
 internal fun ScenicSortButton(by: ScenicPreference?, onSort: (ScenicPreference?) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    TextButton(onClick = { open = true }) { Text(by?.let { "${it.label}の順" } ?: "おすすめ順") }
+    // 下向きの小さな三角で、押すと選べることを示す
+    TextButton(onClick = { open = true }, contentPadding = PaddingValues(start = 8.dp, end = 4.dp)) {
+        Text(by?.let { "${it.label}の順" } ?: "おすすめ順")
+        Icon(Icons.Rounded.ArrowDropDown, contentDescription = null, modifier = Modifier.size(20.dp))
+    }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
         DropdownMenuItem(text = { Text("おすすめ順") }, onClick = { onSort(null); open = false })
         ScenicPreference.entries.forEach { preference ->
