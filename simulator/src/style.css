@@ -36,6 +36,12 @@ html, body {
   height: 100%;
 }
 
+/* 路面に引く、走る道の線 */
+#world canvas[data-guide] {
+  position: absolute;
+  inset: 0;
+}
+
 /* Google の表記。消したり隠したりしない（Map Tiles API のポリシー） */
 .credit-google {
   position: absolute;

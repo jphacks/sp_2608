@@ -5,6 +5,7 @@ import { Input } from './input'
 import { LinkClient } from './link'
 import { RoadNetwork, headingAt, pointAt, turnAngle, type RoadData, type RoadPosition } from './roads'
 import { ROUTES, type DemoRoute } from './routes'
+import { drawGuide } from './guide'
 import { LOOK_AHEAD_METERS as PHOTO_LOOK_AHEAD, PanoramaFeed } from './panoramaFeed'
 import { PanoramaRenderer, type PanoramaLayer, type View } from './panoramaRenderer'
 import { StreetViewApi } from './streetviewApi'
@@ -54,6 +55,7 @@ if (!googleKey) {
 const api = await StreetViewApi.create(googleKey)
 const renderer = new PanoramaRenderer($<HTMLCanvasElement>('#world canvas'))
 const feed = new PanoramaFeed(api, renderer)
+const guide = $<HTMLCanvasElement>('[data-guide]')
 const input = new Input()
 const link = new LinkClient()
 const calibration = new CalibrationView(() => input.gamepad(), () => input.reloadMapping())
@@ -267,6 +269,7 @@ function drive(dt: number, now: number): void {
   for (const index of [0, 1, 2]) {
     renderer.render({ ...view, heading: view.heading + (index - 1) * SIDE_DEGREES }, a, b, mixB, { index, count: 3 })
   }
+  if (line) drawGuide(guide, line, along, here, view, SIDE_DEGREES, 3, kind === 'scenic' ? 'rgba(62, 207, 122, 0.75)' : 'rgba(240, 199, 94, 0.75)')
   lastFrame = { view, a, b }
   link.update(now, here, heading, speed)
   renderHud(controls, here)
