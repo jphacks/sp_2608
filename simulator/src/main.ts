@@ -106,12 +106,14 @@ async function renderMenu(): Promise<void> {
   const key = () => `<span class="key">${++number <= 9 ? number : ''}</span>`
   const option = (r: DemoRoute, optionKind: RouteKind, compared: ComparedRoute) => {
     const parts = sceneryKm(compared).slice(0, 3).map((part) => `<span class="chip"><i style="background: ${part.color}"></i>${part.label} ${part.km.toFixed(1)}km</span>`).join('')
+    const demo = r.demo?.[optionKind]
+    const range = demo && demoRange(demo, compared.timeline.at(-1)?.[1] ?? compared.km * 1000)
     return `
       <button type="button" class="${optionKind}" data-route-id="${r.id}" data-kind="${optionKind}">
         ${key()}
         <span class="kind">${optionKind === 'scenic' ? '景色のいい道' : 'ふつうの道'}</span>
-        <span class="figures"><b>${compared.km.toFixed(1)}</b>km<b>${compared.minutes}</b>分</span>
-        <span class="strip" style="background: ${sceneryStrip(compared)}"></span>
+        <span class="figures"><b>${compared.km.toFixed(1)}</b>km<b>${compared.minutes}</b>分${demo ? `<span class="demo">走るのは ${((demo[1] - demo[0]) / 1000).toFixed(1)}km</span>` : ''}</span>
+        <span class="strip" style="background: ${sceneryStrip(compared)}">${demo ? `<span class="demo-range" style="left: ${range!.left}; width: ${range!.width}"></span>` : ''}</span>
         <span class="chips">${parts || '<span class="chip"><i style="background: #8c8c8c"></i>街なか</span>'}</span>
       </button>`
   }
@@ -136,6 +138,11 @@ async function renderMenu(): Promise<void> {
     button.addEventListener('click', () => choose(button.dataset.routeId!, button.dataset.kind as RouteKind))
   }
   renderWheelStatus()
+}
+
+/** 景色の帯の上で、デモで走る区間が占める位置。 */
+function demoRange([from, to]: [number, number], length: number): { left: string; width: string } {
+  return { left: `${(from / length * 100).toFixed(2)}%`, width: `${((to - from) / length * 100).toFixed(2)}%` }
 }
 
 function renderWheelStatus(): void {
@@ -184,14 +191,16 @@ async function spawn(next: DemoRoute, nextKind: RouteKind): Promise<void> {
   feed.prefetch = at === undefined ? feed.prefetch : 0
   // 道の始まりが駅前の広場など、道路のデータにない道のことがある。そのまま近い道へ乗せると、反対向きの車線に乗ることがある。
   // データにある道の上で、その道を走れる向きが選んだ道の向きと合う所まで進めて、そこから出る
-  let from = at ?? 0
+  // デモで走る区間が決まっている道は、その始まりから出る
+  const start = at ?? next.demo?.[kind][0] ?? 0
+  let from = start
   if (line && at === undefined) {
     const fits = (meters: number) => {
       const snapped = network!.snap(line.pointAt(meters), line.headingAt(meters + 10))
       return distanceMeters(pointAt(snapped), line.pointAt(meters)) <= 8
         && Math.abs(turnAngle(headingAt(snapped), line.headingAt(meters + 10))) < 45
     }
-    while (from < 600 && !fits(from)) from += 10
+    while (from < start + 600 && !fits(from)) from += 10
   }
   position = line
     ? network.snap(line.pointAt(from), line.headingAt(from + 10))
@@ -220,6 +229,10 @@ function renderCompare(comparison: Comparison | undefined): void {
     row.classList.toggle('active', each === kind)
     row.querySelector('.figures')!.textContent = `${each === 'scenic' ? 'おすすめ' : 'ふつう'}　${comparison[each].km.toFixed(1)}km・約${comparison[each].minutes}分`
     row.querySelector<HTMLElement>('.strip')!.style.background = sceneryStrip(comparison[each])
+    const range = row.querySelector<HTMLElement>('.demo-range')!
+    const demo = route?.demo?.[each]
+    range.hidden = !demo
+    if (demo) Object.assign(range.style, demoRange(demo, lines[each].length))
   }
   compareMap.draw(lines, kind)
 }
@@ -251,7 +264,8 @@ function drive(dt: number, now: number): void {
     const at = line.locate(car)
     along = at.along
     offRoute = at.distance > 40
-    arrived = line.length - along < 40
+    // デモで走る区間の終わりも、到着として扱う
+    arrived = line.length - along < 40 || (!params.has('at') && along >= (route?.demo?.[kind][1] ?? Infinity))
     compareMap.update(car)
   }
   // 道なりの先の地点。この辺りの写真を先に読んでおく
@@ -294,7 +308,7 @@ function renderHud(controls: Controls, here: { lat: number; lon: number }): void
     ? turnAngle(line.headingAt(along + junction.distance - 20), line.headingAt(along + junction.distance + 25))
     : undefined
   hud.junction.textContent = arrived
-    ? '目的地に着きました。T キーで、もう一方の道を走り比べられます'
+    ? `${line && line.length - along >= 40 ? '見どころはここまでです' : '目的地に着きました'}。T キーで、もう一方の道を走り比べられます`
     : deadEnd
       ? '行き止まりです。U キー（または U ターンのボタン）で向きを変えます'
       : line && offRoute

@@ -14,6 +14,11 @@ export interface DemoRoute {
   /** 最短ルートの距離（キロメートル） */
   km: number
   note: string
+  /**
+   * デモで走る区間。道の始まりからの道のり（メートル）の [始まり, 終わり]。特に見てほしい所だけを走る。
+   * 無ければ道の始まりから目的地まで
+   */
+  demo?: { normal: [number, number]; scenic: [number, number] }
 }
 
 export const ROUTES: readonly DemoRoute[] = [
@@ -26,6 +31,8 @@ export const ROUTES: readonly DemoRoute[] = [
     destination: { name: '函館駅', position: { lat: 41.773436, lon: 140.726639 } },
     km: 2.3,
     note: '約3kmの短い道。おすすめの道は、函館港の上を渡るともえ大橋を通る',
+    // おすすめの道は、橋の上り口から海の上を渡りきるまで。ふつうの道は、同じ辺りの国道5号
+    demo: { normal: [500, 1900], scenic: [500, 1950] },
   },
   {
     id: 'onuma-lake',
@@ -35,6 +42,8 @@ export const ROUTES: readonly DemoRoute[] = [
     destination: { name: '東大沼', position: { lat: 42.0007, lon: 140.7118 } },
     km: 6.5,
     note: '大沼の湖畔。おすすめの道は湖を回る道道338号を通る',
+    // おすすめの道は、湖の区間がいちばん長く続く所。ふつうの道は、林の中を抜ける所
+    demo: { normal: [4300, 5700], scenic: [3100, 4700] },
   },
   {
     id: 'wakkanai-noshappu',

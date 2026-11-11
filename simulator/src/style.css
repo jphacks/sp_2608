@@ -572,3 +572,28 @@ html, body {
   border-color: var(--mountains);
   color: white;
 }
+
+/* 景色の帯の上の、デモで走る区間 */
+.demo-range {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  border: 2px solid white;
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgba(30, 42, 36, 0.6);
+  box-sizing: border-box;
+}
+
+.routes .strip {
+  position: relative;
+}
+
+.routes .figures {
+  white-space: nowrap;
+}
+
+.routes .demo {
+  margin-left: 10px;
+  font-size: 13px;
+  opacity: 0.8;
+}
