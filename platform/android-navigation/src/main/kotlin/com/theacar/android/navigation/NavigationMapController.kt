@@ -28,6 +28,7 @@ import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 
@@ -88,7 +89,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
 
     init {
         MapLibre.getInstance(context)
-        view = MapView(context)
+        // 漢字も同梱の Noto Sans JP で描くため、端末の書体は使わない
+        view = MapView(context, MapLibreMapOptions.createFromAttributes(context).localIdeographFontFamilyEnabled(false))
         view.onCreate(null)
         view.addOnDidFailLoadingMapListener {
             if (!closed) { loadTimeout?.cancel(); mutableDisplayState.value = MapDisplayState.ERROR }
@@ -157,9 +159,17 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             delay(25_000)
             if (!closed && mutableDisplayState.value == MapDisplayState.LOADING) mutableDisplayState.value = MapDisplayState.ERROR
         }
-        val style = if (runtime.configuration.mapStyleUrl.isBlank()) {
-            Style.Builder().fromJson("{\"version\":8,\"sources\":{},\"layers\":[{\"id\":\"background\",\"type\":\"background\",\"paint\":{\"background-color\":\"#e8eeea\"}}]}")
-        } else Style.Builder().fromUri(runtime.configuration.mapStyleUrl)
+        val url = runtime.configuration.mapStyleUrl
+        if (url.isBlank()) {
+            applyStyle(target, Style.Builder().fromJson("{\"version\":8,\"sources\":{},\"layers\":[{\"id\":\"background\",\"type\":\"background\",\"paint\":{\"background-color\":\"#e8eeea\"}}]}"))
+        } else scope.launch {
+            // 読めなければ、配信元の書体のまま出す
+            val json = runCatching { tabiStyleJson(url) }.getOrNull()
+            if (!closed) applyStyle(target, json?.let { Style.Builder().fromJson(it) } ?: Style.Builder().fromUri(url))
+        }
+    }
+
+    private fun applyStyle(target: MapLibreMap, style: Style.Builder) {
         target.setStyle(style) {
             if (closed) return@setStyle
             styleLoaded = true

@@ -5,7 +5,7 @@ import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.SymbolLayer
 
-// 名前は日本語だけ、地名は太字、ほかは斜体をやめてふつうの書体にする
+// 名前は日本語だけにし、縁取りを太くして読みやすくする
 internal fun applyTabiMapLabels(style: Style) {
     style.layers.filterIsInstance<SymbolLayer>()
         .filter { !it.textField.isNull && !it.id.contains("shield") }
@@ -16,6 +16,5 @@ internal fun applyTabiMapLabels(style: Style) {
                 ),
                 PropertyFactory.textHaloWidth(1.6f),
             )
-            layer.setProperties(PropertyFactory.textFont(arrayOf(if (layer.id.startsWith("label_")) "Noto Sans Bold" else "Noto Sans Regular")))
         }
 }
