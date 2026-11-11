@@ -238,7 +238,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val highlighted = ranges.map(index::slice).filter { it.isNotEmpty() }
         highlighted.filter { it.size >= 2 }.forEach { points ->
             evidenceLines += target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-                .color(color).width(8f))
+                .color(color).width(5f))
         }
         evidenceFocus = highlighted.flatten().map { LatLng(it.latitude, it.longitude) }
         if (title != null && evidenceFocus.isNotEmpty()) {
@@ -355,7 +355,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             val points = index.slice(range)
             if (points.size < 2) return@forEach
             sceneryLines += target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-                .color(color).width(10f))
+                .color(color).width(6f))
         }
         // 後から引いた線が上に乗るので、通過済みの線は塗り分けの後に引き直す
         clearTraveled(target)
@@ -392,7 +392,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val points = index.slice(ScenicRange(0.0, traveled))
         if (points.size < 2) return
         traveledLine = target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-            .color(traveledColor()).width(10f))
+            .color(traveledColor()).width(6f))
     }
 
     private fun render() {
@@ -428,10 +428,10 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             clearTraveled(target)
             val routePoints = route?.takeIf { it.geometry.size >= 2 }?.geometry?.map { coordinate -> LatLng(coordinate.latitude, coordinate.longitude) }
             routeCasing = routePoints?.let {
-                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(14f))
+                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(9f))
             }
             routeLine = routePoints?.let {
-                target.addPolyline(PolylineOptions().addAll(it).color(routeColor()).width(10f))
+                target.addPolyline(PolylineOptions().addAll(it).color(routeColor()).width(6f))
             }
             routeKey = key
             if (route != null && state.phase == NavigationPhase.PREVIEW) {
