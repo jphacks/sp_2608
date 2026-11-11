@@ -1,0 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Bungee&family=Shippori+Antique+B1&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+@import './styles/base.css';
+@import './styles/hud.css';
+@import './styles/menu.css';
+@import './styles/record.css';
+@import './styles/calibration.css';

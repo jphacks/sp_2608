@@ -1,0 +1,30 @@
+/* 目的地の横の、道のレコード */
+.course-badge {
+  flex: none;
+  width: 200px;
+  height: auto;
+  font-family: 'Bungee', 'Jost', sans-serif;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+}
+
+.course-badge .disc {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* 景色のいい道を選びかけている間だけ回る */
+.course-info:has(.option.scenic:hover, .option.scenic:focus-visible) .course-badge .disc {
+  animation: record-spin 1.8s linear infinite;
+}
+
+@keyframes record-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-info .course-badge .disc {
+    animation: none !important;
+  }
+}

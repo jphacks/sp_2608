@@ -1,0 +1,350 @@
+/* 道を選ぶ画面 */
+#menu.menu {
+  background: #141c18;
+  overflow: hidden;
+}
+
+#menu.menu .sheet {
+  position: relative;
+  width: min(1240px, calc(100vw - 220px));
+  max-height: calc(100vh - 32px);
+  background: transparent;
+  color: var(--paper);
+  padding: 0;
+  border-radius: 0;
+}
+
+/* 操作する人向けなので小さく薄く */
+.wheel-status {
+  position: fixed;
+  left: 16px;
+  bottom: 10px;
+  margin: 0;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--mist);
+  opacity: 0.5;
+}
+
+.course-photo {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* 右側の文字を読めるように暗くする */
+.course-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(20, 28, 24, 0.2) 0%, rgba(20, 28, 24, 0.55) 50%, rgba(20, 28, 24, 0.85) 100%);
+}
+
+.course {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.course-map {
+  position: relative;
+  margin: 0;
+  height: min(64vh, 600px);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #1f2a24;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.course-map canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.course-map figcaption {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 11px;
+  color: rgba(245, 243, 236, 0.8);
+}
+
+/* 目的地の見出し。点は地図の出発地・目的地と同じ */
+.course-head {
+  --to-size: clamp(38px, 4.6vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.course-route {
+  position: relative;
+  padding-left: 34px;
+}
+
+/* 出発地から目的地への点線 */
+.course-route::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 15px;
+  height: calc(30px + var(--to-size) * 0.58 - 15px);
+  border-left: 2px dashed rgba(245, 243, 236, 0.55);
+}
+
+.course-from {
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  font-size: 18px;
+  color: var(--mist);
+}
+
+.course-from::before,
+#menu .course-to::before {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  box-sizing: border-box;
+}
+
+.course-from::before {
+  left: -33px;
+  top: 7px;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+}
+
+#menu .course-to {
+  position: relative;
+  margin: 0;
+  font-family: 'Shippori Antique B1', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: var(--to-size);
+  line-height: 1.16;
+  /* 小さいかなの前後を詰める */
+  font-feature-settings: 'palt';
+  letter-spacing: 0;
+  color: var(--paper);
+  text-wrap: balance;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+#menu .course-to::before {
+  left: -37px;
+  top: calc(var(--to-size) * 0.58 - 12px);
+  width: 24px;
+  height: 24px;
+  background: var(--sunset);
+}
+
+.course-en {
+  margin-top: 6px;
+  font-family: 'Bungee', 'Jost', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  color: var(--sunglow);
+}
+
+/* 紋章の無い道の、通る所の札 */
+.course-via {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--sunglow);
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+
+.course-options {
+  display: grid;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 14px;
+  text-align: left;
+  font: inherit;
+  color: var(--paper);
+  padding: 16px 20px 14px;
+  border-radius: 16px;
+  border: 2px solid rgba(172, 208, 192, 0.35);
+  background: rgba(20, 28, 24, 0.55);
+  cursor: pointer;
+}
+
+.option.scenic {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--ink);
+}
+
+.option:hover,
+.option:focus-visible {
+  border-color: var(--sunglow);
+  outline: none;
+}
+
+.option .key {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-items: center;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.option-name {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.option-figures {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.option-figures b {
+  font-family: 'Jost', sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  margin-right: 2px;
+}
+
+.option-figures small {
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  margin-left: 10px;
+  opacity: 0.7;
+}
+
+.option .strip {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  margin: 12px 0 0;
+}
+
+.option .chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  margin-top: 7px;
+}
+
+.option .chip i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.course-tabs {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.course-tabs button {
+  font: inherit;
+  font-size: 15px;
+  color: var(--mist);
+  background: rgba(20, 28, 24, 0.5);
+  border: 1.5px solid rgba(172, 208, 192, 0.3);
+  border-radius: 999px;
+  padding: 6px 18px;
+  cursor: pointer;
+}
+
+.course-tabs button.current {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.course-credit {
+  position: fixed;
+  right: 16px;
+  bottom: 10px;
+  font-size: 11px;
+  color: rgba(245, 243, 236, 0.75);
+}
+
+/* 隣の目的地へ移る矢印。名前は乗せたときだけ */
+.course-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 88px;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--paper);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+.course-arrow.previous {
+  left: 8px;
+}
+
+.course-arrow.next {
+  right: 8px;
+}
+
+.course-arrow svg {
+  width: 26px;
+  height: 52px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.course-arrow span {
+  visibility: hidden;
+}
+
+.course-arrow:hover,
+.course-arrow:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.course-arrow:hover span,
+.course-arrow:focus-visible span {
+  visibility: visible;
+}

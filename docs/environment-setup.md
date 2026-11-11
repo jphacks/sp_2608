@@ -134,7 +134,7 @@ OSM・地理計算・DEM画像・GeoTIFFの依存をまとめて入れる。`req
   "files": {
     "SCENIC_DATABASE": "scenic-hokkaido.sqlite",
     "PLACES_DATABASE": "places.sqlite",
-    "SCENIC_RECOMMENDED_ROADS": "road-recommendations-research-20261018-v7.sqlite",
+    "SCENIC_RECOMMENDED_ROADS": "road-recommendations-research-20261111-v8.sqlite",
     "SCENIC_LANDSCAPES": "landscapes-hokkaido-v4.sqlite",
     "SCENIC_TERRAIN": "terrain-hokkaido-v1.sqlite",
     "SCENIC_CONTEXT": "context-hokkaido-v1.sqlite",
@@ -218,7 +218,7 @@ Client IDはアプリの[Spotify設定](spotify-setup.md)と同じもの。Clien
 | 1 | `scenic-hokkaido.sqlite` | 北海道道路、海岸距離、森林・自然・建物の面積率。中間DBも作る |
 | 2 | `places.sqlite` | 地名・施設のローカル検索。元PBFのハッシュを保存 |
 | 3 | `landscapes-hokkaido-v4.sqlite` | 湖・川・谷・水域・田園の近接 |
-| 4 | `road-recommendations-research-20261018-v7.sqlite` | 原稿の出典・形状を検査した名道。本登録・保留を区別。既存設定は自動変更されないため、更新時は[登録DBの適用手順](scenic-road-registry-policy.md#サーバーへの適用と起動)を確認 |
+| 4 | `road-recommendations-research-20261111-v8.sqlite` | 原稿の出典・形状を検査した名道。本登録・保留を区別。既存設定は自動変更されないため、更新時は[登録DBの適用手順](scenic-road-registry-policy.md#サーバーへの適用と起動)を確認 |
 | 5 | `context-hokkaido-v1.sqlite` | 道路属性・未検証の周辺施設 |
 | 6 | `terrain-hokkaido-v1.sqlite` | 地理院標高タイルを取得し、地形特徴を計算 |
 | 7 | `landcover-hokkaido-v3.sqlite` | ESA WorldCover 2021を取得し、土地被覆を計算 |

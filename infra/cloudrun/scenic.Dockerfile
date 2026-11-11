@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 COPY --from=code . /app
 RUN rm -rf /app/test_*.py /app/*.mjs /app/fixtures /app/__pycache__
-COPY --from=data scenic-hokkaido.sqlite places.sqlite road-recommendations-research-20261018-v7.sqlite \
+COPY --from=data scenic-hokkaido.sqlite places.sqlite road-recommendations-research-20261111-v8.sqlite \
      landscapes-hokkaido-v4.sqlite terrain-hokkaido-v1.sqlite context-hokkaido-v1.sqlite landcover-hokkaido-v3.sqlite /data/
 # 推薦ジョブが「どの経路データで計算したか」のハッシュを取るためのファイル。無いものは無いまま扱われる。
 RUN --mount=from=data,target=/d mkdir -p /routing/tiles && cp /d/valhalla.json /routing/ && \

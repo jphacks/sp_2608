@@ -190,7 +190,7 @@ region.osm.pbf
  └─ context-hokkaido-v1.sqlite    → 道路追加属性・未検証POI
 
 公式の道路紹介 + OSM対応付け
- └─ road-recommendations-research-20261018-v7.sqlite → 本登録道路・区間対応
+ └─ road-recommendations-research-20261111-v8.sqlite → 本登録道路・区間対応
 
 国土地理院DEM → terrain-hokkaido-v1.sqlite        → 標高・谷・地形遮蔽
 ESA WorldCover → landcover-hokkaido-v3.sqlite      → 森林等の補完
@@ -212,7 +212,7 @@ ESA WorldCover → landcover-hokkaido-v3.sqlite      → 森林等の補完
 | ESA分類を付与できたサンプル | 2,620,431件 | 2021年の土地被覆分類 |
 | OSM POI | 31,297レコード | node/wayの重複があり、relationsは対象外 |
 | 追加道路属性 | 12,814 way | 全道路で各属性が揃うわけではない |
-| 本登録道路 | 48件 | 秀逸15・絶景12・おすすめ11・景観10。別に保留11件。[道路台帳](scenic-road-registry.md) |
+| 本登録道路 | 49件 | 秀逸15・絶景12・おすすめ11・景観11。別に保留11件。[道路台帳](scenic-road-registry.md) |
 
 データの版・再生成・利用条件・元資料リンクは[公開データ仕様](public-routing-data.md)、道路の実名は[全道路台帳](scenic-road-registry.md)を参照。
 

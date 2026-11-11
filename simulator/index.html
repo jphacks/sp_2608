@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>旅れこ ドライブシミュレータ</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="world"><canvas></canvas><canvas data-guide></canvas></div>
+
+    <section id="hud" hidden>
+      <div class="panel trip">
+        <div data-route class="value"></div>
+        <div data-kind class="kind-badge"></div>
+        <div data-remaining class="sub"></div>
+      </div>
+      <div class="panel status">
+        <div data-phones></div>
+        <div data-notice class="sub"></div>
+        <div data-usage class="sub"></div>
+      </div>
+      <div class="panel road">
+        <div data-road class="road-name"></div>
+        <div data-junction class="junction"></div>
+      </div>
+      <!-- 走り比べ：2本の道の地図と、道の始まりから終わりまでの景色の帯（印は今いる所） -->
+      <div data-compare class="panel compare" hidden>
+        <canvas data-compare-map></canvas>
+        <div class="rows">
+          <div data-compare-row="normal" class="compare-row"><div class="figures"></div><div class="strip"><div class="demo-range" hidden></div><div class="marker"></div></div></div>
+          <div data-compare-row="scenic" class="compare-row"><div class="figures"></div><div class="strip"><div class="demo-range" hidden></div><div class="marker"></div></div></div>
+          <div data-scenery class="sub"></div>
+        </div>
+      </div>
+      <div class="panel controls">
+        <div class="wheel"><div data-steer class="wheel-mark"></div></div>
+        <div class="pedals">
+          <div class="pedal"><span>ブレーキ</span><div class="bar"><div data-brake class="fill brake"></div></div></div>
+          <div class="pedal"><span>アクセル</span><div class="bar"><div data-throttle class="fill throttle"></div></div></div>
+        </div>
+      </div>
+      <div class="panel speed">
+        <span data-speed class="kmh">0</span><span class="unit">km/h</span>
+      </div>
+      <!-- Map Tiles API の決まり：Google Maps の表記と写真ごとの出典、右下に問題を報告するリンク -->
+      <div class="credit-google" aria-label="Google Maps"><span class="gm">Google Maps</span><span data-copyright></span></div>
+      <a data-report class="report" target="_blank" rel="noopener" hidden>この画像の問題を報告</a>
+      <div class="help">止まってハンドルを切ると見回せます　M 道を選ぶ　T 道を切り替える　J 次の見どころへ　C ハンコンの調整　U U ターン　Backspace 出発点へ　キーボード：WASD・矢印キー</div>
+    </section>
+
+    <section id="menu" class="overlay menu">
+      <div class="sheet">
+        <div data-routes></div>
+        <p data-wheel class="wheel-status"></p>
+      </div>
+    </section>
+
+    <section id="calibration" class="overlay" hidden>
+      <div class="sheet">
+        <h1>ハンコンの調整</h1>
+        <p data-prompt class="prompt"></p>
+        <p data-message class="warning"></p>
+        <div data-axes class="axes"></div>
+        <div class="buttons">
+          <button data-cancel type="button">やめる</button>
+          <button data-next type="button" class="primary">次へ（Enter）</button>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

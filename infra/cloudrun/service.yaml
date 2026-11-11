@@ -59,7 +59,7 @@ spec:
             - { name: SCENIC_ROUTING_DIRECTORY, value: /routing }
             - { name: SCENIC_DATABASE, value: /data/scenic-hokkaido.sqlite }
             - { name: PLACES_DATABASE, value: /data/places.sqlite }
-            - { name: SCENIC_RECOMMENDED_ROADS, value: /data/road-recommendations-research-20261018-v7.sqlite }
+            - { name: SCENIC_RECOMMENDED_ROADS, value: /data/road-recommendations-research-20261111-v8.sqlite }
             - { name: SCENIC_LANDSCAPES, value: /data/landscapes-hokkaido-v4.sqlite }
             - { name: SCENIC_TERRAIN, value: /data/terrain-hokkaido-v1.sqlite }
             - { name: SCENIC_CONTEXT, value: /data/context-hokkaido-v1.sqlite }

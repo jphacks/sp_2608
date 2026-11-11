@@ -1,0 +1,263 @@
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.panel {
+  position: absolute;
+  background: var(--glass);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--mist);
+}
+
+.value {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.strong {
+  font-weight: 700;
+  color: var(--sunglow);
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--mist);
+}
+
+.trip {
+  top: 16px;
+  left: 16px;
+  padding: 10px 14px;
+}
+
+.trip .value {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.status {
+  top: 16px;
+  right: 16px;
+  text-align: right;
+  font-size: 18px;
+}
+
+.status .ok {
+  color: var(--mist);
+  font-weight: 700;
+}
+
+.status .ng {
+  color: var(--sunset);
+  font-weight: 700;
+}
+
+.road {
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 360px;
+}
+
+.road-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.junction {
+  font-size: 22px;
+  color: var(--sunglow);
+  margin-top: 4px;
+}
+
+.credit {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.controls {
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.wheel {
+  width: 72px;
+  height: 72px;
+  border: 6px solid var(--paper);
+  border-radius: 50%;
+  position: relative;
+}
+
+.wheel-mark {
+  position: absolute;
+  inset: 0;
+}
+
+.wheel-mark::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 8px;
+  height: 18px;
+  margin-left: -4px;
+  border-radius: 4px;
+  background: var(--sunglow);
+}
+
+.pedals {
+  display: flex;
+  gap: 14px;
+}
+
+.pedal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.bar {
+  width: 18px;
+  height: 64px;
+  border-radius: 9px;
+  background: rgba(245, 243, 236, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+}
+
+.fill.throttle {
+  background: var(--sky);
+}
+
+.fill.brake {
+  background: var(--sunset);
+}
+
+.speed {
+  right: 16px;
+  bottom: 56px;
+}
+
+.kmh {
+  font-family: 'Jost', sans-serif;
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.unit {
+  font-family: 'Jost', sans-serif;
+  font-size: 20px;
+  margin-left: 6px;
+}
+
+.help {
+  position: absolute;
+  bottom: 22px;
+  right: 16px;
+  /* 左下の Google のロゴと出典は隠さない（規約で表示が要る） */
+  font-size: 13px;
+  color: var(--mist);
+  background: var(--glass);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.kind-badge {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin: 4px 0 6px;
+  color: #1c1c1c;
+  background: #f0c75e;
+}
+
+.kind-badge.scenic {
+  background: #3ecf7a;
+}
+
+.kind-badge:empty {
+  display: none;
+}
+
+.compare {
+  left: 16px;
+  bottom: 56px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.compare canvas {
+  display: block;
+  width: 120px;
+  height: 104px;
+}
+
+.compare .rows {
+  width: 220px;
+}
+
+.compare-row {
+  opacity: 0.55;
+  margin-top: 6px;
+}
+
+.compare-row.active {
+  opacity: 1;
+}
+
+.compare-row .figures {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.compare-row .marker {
+  display: none;
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: white;
+  box-shadow: 0 0 0 1px #1b6fe0;
+}
+
+.compare-row.active .marker {
+  display: block;
+}
+
+.compare .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 4px;
+}
