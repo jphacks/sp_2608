@@ -310,7 +310,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val left = contentPadding[0] + margin
         val top = contentPadding[1] + margin
         val right = contentPadding[2] + margin
-        val bottom = contentPadding[3] + margin
+        // 下の枠を広げると見える地図がわずかになり、経路を収めようとして引きすぎるので、下の余白は画面の半分までにする
+        val bottom = minOf(contentPadding[3], view.height / 2) + margin
         if (view.width <= left + right || view.height <= top + bottom) return
         val bounds = LatLngBounds.Builder().includes(route.geometry.map { LatLng(it.latitude, it.longitude) }).build()
         target.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, left, top, right, bottom))
