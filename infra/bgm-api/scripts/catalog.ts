@@ -27,6 +27,7 @@ const SOURCES_PATH = 'catalog/sources.json';
 const STATE_PATH = 'catalog/work/catalog.json';
 const OUT_PATH = 'catalog/out/catalog.sql';
 const SEED_PATH = 'catalog/catalog.jsonl';
+const BPM_PATH = 'catalog/bpm.jsonl'; // scripts/bpm/bpm.py が試聴から解析した BPM
 
 type Group = 'jp' | 'inst' | 'western' | 'kpop';
 const GROUPS: Group[] = ['jp', 'inst', 'western', 'kpop'];
@@ -357,13 +358,19 @@ function exportSql() {
     ts.forEach((t, i) => rankPct.set(t.track_id, ts.length > 1 ? i / (ts.length - 1) : 0.5));
   }
   const now = Date.now();
+  const measured = loadMeasuredBpm();
   const seed: Record<string, unknown>[] = [];
   const lines = done.map((t) => {
     const a = t.annotation!;
     const popularity = round((a.jp_familiarity + rankPct.get(t.track_id)!) / 2);
-    const source = { axes: 'llm', bpm: a.bpm, bpm_source: a.bpm ? 'llm' : null, known: a.known, deezer_id: t.deezer_id, sources: t.sources };
+    // 試聴から解析した BPM（scripts/bpm/bpm.py）があれば、LLM の推定より優先する
+    const m = measured.get(t.track_id);
+    const tempo = m ? round(Math.min(1, Math.max(0, (m.bpm - 60) / 120))) : a.tempo;
+    const source = m
+      ? { axes: 'llm', bpm: m.bpm, bpm_source: m.method, bpm_conf: m.bpm_conf, bpm_llm: a.bpm, known: a.known, deezer_id: t.deezer_id, sources: t.sources }
+      : { axes: 'llm', bpm: a.bpm, bpm_source: a.bpm ? 'llm' : null, known: a.known, deezer_id: t.deezer_id, sources: t.sources };
     const values = [
-      t.track_id, a.title, a.artist, t.duration_ms, a.energy, a.valence, a.tempo, a.acoustic, a.spacious, a.vocal,
+      t.track_id, a.title, a.artist, t.duration_ms, a.energy, a.valence, tempo, a.acoustic, a.spacious, a.vocal,
       a.conf, JSON.stringify(a.tags), JSON.stringify(source), t.model_version, now,
       t.isrc, a.jp_familiarity, t.deezer_rank, popularity, t.group,
     ];
@@ -385,6 +392,20 @@ function exportSql() {
 function loadState(): State {
   if (!fs.existsSync(STATE_PATH)) return { tracks: [], gemini_usage: {} };
   return JSON.parse(fs.readFileSync(STATE_PATH, 'utf8')) as State;
+}
+
+type MeasuredBpm = { bpm: number; bpm_conf: number; method: string };
+
+// scripts/bpm/bpm.py の解析結果。同じ曲が複数行あれば後の行（新しい解析）を使い、失敗した行は無視する
+function loadMeasuredBpm(): Map<string, MeasuredBpm> {
+  const out = new Map<string, MeasuredBpm>();
+  if (!fs.existsSync(BPM_PATH)) return out;
+  for (const line of fs.readFileSync(BPM_PATH, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line) as Partial<MeasuredBpm> & { track_id: string };
+    if (typeof r.bpm === 'number' && r.bpm > 0) out.set(r.track_id, { bpm: r.bpm, bpm_conf: r.bpm_conf ?? 0, method: r.method ?? 'measured' });
+  }
+  return out;
 }
 
 // 書き込み途中で止まっても壊れないよう、一時ファイルに書いてから置き換える

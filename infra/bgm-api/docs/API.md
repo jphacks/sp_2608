@@ -473,7 +473,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | --- | --- | --- |
 | `energy` | 静か | 激しい・高揚 |
 | `valence` | 切ない・暗い | 明るい |
-| `tempo` | 遅い（BPM 60 以下） | 速い（BPM 180 以上）。(BPM − 60) / 120 |
+| `tempo` | 遅い（BPM 60 以下） | 速い（BPM 180 以上）。(BPM − 60) / 120。全曲カタログの BPM は試聴の解析値（[scripts/bpm](../scripts/bpm/README.md)）、`/annotate` で注釈した曲は Gemini の推定 |
 | `acoustic` | 電子音・打ち込み | 生楽器・弾き語り |
 | `spacious` | 密な音像 | 余白・広がり |
 | `vocal` | インスト | ボーカルが前面 |
