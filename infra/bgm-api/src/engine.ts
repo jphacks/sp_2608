@@ -38,6 +38,8 @@ export type TrackFeatures = Vec & {
   conf: number;
   duration_ms?: number | null;
   popularity?: number; // 知名度 0〜1。無い曲は 0（知名度の加点なし）として扱う
+  // 安全のための上限（caps）の判定にだけ使う energy。カタログの曲は LLM と試聴の音のうち高いほう。無ければ energy
+  energy_cap?: number;
 };
 // owners が空（または無い）曲は、所有者に関する項がすべて 0 になる（全曲カタログの曲など）
 export type PoolTrack = TrackFeatures & { owners?: string[] };
@@ -60,8 +62,10 @@ export type RecommendInput = {
 
 // 景観特徴が各軸を動かす量（設計書の初期値）
 const EFFECTS: Record<FeatureKey, Partial<Vec>> = {
-  sea_proximity: { energy: 0.1, valence: 0.2, tempo: 0.05, spacious: 0.15 },
-  sea_visibility: { energy: 0.1, valence: 0.1, spacious: 0.15 },
+  // 海は「明るく爽快な曲」を狙う。spacious は注釈上 energy と強く逆向き（順位相関 −0.86）なので、
+  // 海で spacious を上げると落ち着いた曲に寄ってしまう。開放感は openness に任せ、海では energy と valence を上げる
+  sea_proximity: { energy: 0.2, valence: 0.2, tempo: 0.05, acoustic: -0.05 },
+  sea_visibility: { energy: 0.1, valence: 0.15, spacious: 0.05 },
   openness: { valence: 0.05, spacious: 0.25 },
   forest: { energy: -0.1, tempo: -0.05, acoustic: 0.25, spacious: -0.05, vocal: -0.05 },
   nature: { energy: -0.05, acoustic: 0.15, spacious: 0.05 },
@@ -96,6 +100,13 @@ const FAM_BOOST = 2.5; // 静か・名道区間で「みんな知ってる曲」
 // 点数が高いほど選ばれやすいことは変えない（tau が温度）。返す candidates（再生できなかったときの次点）とは別。
 export const SAMPLE = { maxTracks: 30, scoreWindow: 0.1, tau: 0.06 };
 const MIN_RANGE = 0.2; // プール内の幅がこれ未満の軸は重みを下げる
+// 探索の枠。上のくじ引きは点数の上位（最大30曲）からしか選ばないので、狙いが一度も向かない曲調の曲は
+// 何度ドライブしても流れない。そこで、このドライブの every 曲ごとに1曲は、狙いから maxDistance 以内で
+// 前回までのドライブで流していない曲すべてを対象にして選ぶ（点数が高いほど選ばれやすい。tau が温度）。
+// maxDistance は、全曲がどこかの場面でこの範囲に入るように決めた値（2026-11 のカタログでは 0.35 で 2,346曲、
+// 0.37 で全曲。最後の1曲は Ado「うっせぇわ」で、市街地で入る）。全曲が入ることは test/scenes.spec.ts で確かめている。
+// 名道区間・車内が静かなとき（知っている曲を優先したい場面）は使わない
+export const EXPLORE = { every: 4, maxDistance: 0.37, tau: 0.1 };
 
 // 上限を満たす曲の中で一番近い曲でも、ターゲットとの距離がこれを超えたら、
 // 無理に曲調を寄せず、直前の曲調に近い曲を選んで音量だけを下げる
@@ -148,10 +159,8 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
     for (const a of axes) w[a] = a === 'tempo' ? 0.75 : 1.5;
   }
 
-  if (scene.hour != null) {
-    if (scene.hour >= 19 || scene.hour < 4) t.energy -= 0.1;
-    else if (scene.hour < 9) t.tempo += 0.05;
-  }
+  // 夜は energy を下げない。運転中に眠気を誘う方向へ寄せたくないため（夜は休息中・車内が静かのほうで扱う）
+  if (scene.hour != null && scene.hour >= 4 && scene.hour < 9) t.tempo += 0.05;
 
   if (scene.highlight) {
     t.energy += 0.1;
@@ -235,7 +244,8 @@ export function recommend(input: RecommendInput) {
   const recent = new Set(input.recent_track_ids ?? []);
   const available = input.pool.filter((t) => !played.has(t.track_id));
   const capKeys = Object.keys(plan.caps) as Axis[];
-  const overOf = (t: PoolTrack) => capKeys.reduce((s, a) => s + Math.max(0, t[a] - plan.caps[a]!), 0);
+  const capValue = (t: PoolTrack, a: Axis) => (a === 'energy' ? (t.energy_cap ?? t.energy) : t[a]);
+  const overOf = (t: PoolTrack) => capKeys.reduce((s, a) => s + Math.max(0, capValue(t, a) - plan.caps[a]!), 0);
   let pool = available.filter((t) => M.pool === 'all' || ownersOf(t).length > 0);
 
   // playlist モードで、リストの曲が上限を1曲も満たさないときは、カタログのインスト曲から補う
@@ -254,19 +264,7 @@ export function recommend(input: RecommendInput) {
     return { mode, plan, volume: plan.volume, chosen: null, candidates: [], note: 'no tracks left in pool' };
   }
 
-  // 各軸をプール内の順位（0〜1）に変換する。ターゲットは「プール内のどのあたりか」として解釈する
-  const rel = new Map<string, Vec>(pool.map((t) => [t.track_id, {} as Vec]));
-  const effW: Vec = { ...plan.weights };
-  const ranges = {} as Vec;
-  for (const a of AXES) {
-    const vals = pool.map((t) => t[a]);
-    const p = percentiles(vals);
-    pool.forEach((t, i) => (rel.get(t.track_id)![a] = p[i]));
-    const range = Math.max(...vals) - Math.min(...vals);
-    ranges[a] = round(range);
-    // 似た値ばかりの軸は、順位の差が誇張されるので重みを下げる
-    if (range < MIN_RANGE) effW[a] *= range / MIN_RANGE;
-  }
+  const { rel, effW, ranges } = rankPool(pool, plan.weights);
 
   // 上限（安全制約）：上限を満たす曲が1曲でもあれば、その中からだけ選ぶ。
   // 1曲もないときだけ、はみ出しが小さい順に補う（無音よりはまし、という扱い）
@@ -297,11 +295,7 @@ export function recommend(input: RecommendInput) {
   const share = (o: string) =>
     last10.length ? last10.filter((h) => h.owner_id === o).length / last10.length : 0;
   const recentArtists = new Set(history.slice(-3).map((h) => h.artist).filter(Boolean));
-  const wSum = AXES.reduce((s, a) => s + effW[a], 0) || 1;
-  const distTo = (ref: Vec, t: PoolTrack) => {
-    const r = rel.get(t.track_id)!;
-    return Math.sqrt(AXES.reduce((s, a) => s + effW[a] * (ref[a] - r[a]) ** 2, 0) / wSum);
-  };
+  const distTo = (ref: Vec, t: PoolTrack) => rankDistance(ref, rel.get(t.track_id)!, effW);
 
   // ターゲットに近い曲が上限の範囲に無いときは、直前の曲調を基準にする
   const minTargetDistance = Math.min(...eligible.map((t) => distTo(plan.target, t)));
@@ -347,6 +341,7 @@ export function recommend(input: RecommendInput) {
       return {
         track: t,
         score,
+        exact_distance: d,
         breakdown: {
           distance: round(d),
           over_cap: round(overCap.get(t.track_id) ?? 0),
@@ -364,8 +359,27 @@ export function recommend(input: RecommendInput) {
     .sort((a, b) => b.score - a.score);
 
   const maxScore = scored[0].score;
-  const sample = scored.filter((s) => s.score >= maxScore - SAMPLE.scoreWindow).slice(0, SAMPLE.maxTracks);
-  const weights = sample.map((s) => Math.exp((s.score - maxScore) / SAMPLE.tau));
+  // 探索の枠（EXPLORE）。上限を満たし、直近3曲と同じアーティストでなく、前回までに流していない曲だけ
+  const exploreTurn =
+    plan.famBoost === 1 && !fallback && capMode !== 'nearest' && (history.length + 1) % EXPLORE.every === 0;
+  const explorePool = exploreTurn
+    ? scored.filter(
+        (s) =>
+          s.exact_distance <= EXPLORE.maxDistance &&
+          !recent.has(s.track.track_id) &&
+          s.breakdown.same_artist === 0 &&
+          s.breakdown.over_cap === 0,
+      )
+    : [];
+  const explore = explorePool.length > 0;
+  const sample = explore
+    ? explorePool
+    : scored.filter((s) => s.score >= maxScore - SAMPLE.scoreWindow).slice(0, SAMPLE.maxTracks);
+  // 探索の枠でも、点数（狙いへの近さ・知名度・好みの加点など）が高いほど選ばれやすい。ただし範囲内の曲はどれも 0 にならない
+  const maxExplore = explore ? Math.max(...sample.map((s) => s.score)) : 0;
+  const weights = explore
+    ? sample.map((s) => Math.exp((s.score - maxExplore) / EXPLORE.tau))
+    : sample.map((s) => Math.exp((s.score - maxScore) / SAMPLE.tau));
   const total = weights.reduce((s, p) => s + p, 0);
   const probOf = new Map(sample.map((s, i) => [s.track.track_id, weights[i] / total]));
   const rnd = mulberry32(input.seed ?? Date.now())();
@@ -397,7 +411,9 @@ export function recommend(input: RecommendInput) {
       ? '運転に集中しやすいインスト曲を流します'
       : fallback
         ? `音量を少し下げて、${from}今の流れに近い曲を流します`
-        : `${from}${moodWord(plan.target)}曲を流します`);
+        : explore
+          ? `${from}まだ流していない曲から、${moodWord(plan.target)}曲を流します`
+          : `${from}${moodWord(plan.target)}曲を流します`);
 
   return {
     mode,
@@ -416,6 +432,8 @@ export function recommend(input: RecommendInput) {
       message,
     },
     sample_size: sample.length,
+    explore, // 探索の枠で選んだか
+
     candidates: top.map((s) => ({
       track_id: s.track.track_id,
       title: s.track.title,
@@ -450,6 +468,29 @@ function moodWord(t: Vec): string {
   if (t.acoustic >= 0.65) return '生音が心地いい';
   if (t.valence >= 0.65) return '爽やかな';
   return '今の雰囲気に合う';
+}
+
+// 各軸をプール内の順位（0〜1）に変換する。ターゲットは「プール内のどのあたりか」として解釈する。
+// 似た値ばかりの軸は、順位の差が誇張されるので重みを下げる（effW）
+export function rankPool(pool: TrackFeatures[], weights: Vec) {
+  const rel = new Map<string, Vec>(pool.map((t) => [t.track_id, {} as Vec]));
+  const effW: Vec = { ...weights };
+  const ranges = {} as Vec;
+  for (const a of AXES) {
+    const vals = pool.map((t) => t[a]);
+    const p = percentiles(vals);
+    pool.forEach((t, i) => (rel.get(t.track_id)![a] = p[i]));
+    const range = Math.max(...vals) - Math.min(...vals);
+    ranges[a] = round(range);
+    if (range < MIN_RANGE) effW[a] *= range / MIN_RANGE;
+  }
+  return { rel, effW, ranges };
+}
+
+// ターゲット（順位）と曲（順位）の重みつきの距離
+export function rankDistance(ref: Vec, r: Vec, w: Vec): number {
+  const wSum = AXES.reduce((s, a) => s + w[a], 0) || 1;
+  return Math.sqrt(AXES.reduce((s, a) => s + w[a] * (ref[a] - r[a]) ** 2, 0) / wSum);
 }
 
 function percentiles(values: number[]): number[] {

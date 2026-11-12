@@ -208,7 +208,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `include_catalog` | | boolean | 既定 `true`。`false` にすると全曲カタログを候補に足さない |
 | `cabin` | | `"lively"` \| `"normal"` \| `"quiet"` \| `"resting"` | 車内の状態。省略時 `normal`（[値の一覧](#車内の状態-cabin)） |
 | `history` | | `{track_id, owner_id?, artist?}[]` | **このドライブで流した曲**（古い順）。ここにある曲は候補から外れる。`owner_id` はその曲を選んだときの `chosen.owner_id`（所有者の偏りの計算に使う） |
-| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。候補には残るが減点される |
+| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。通常の回は候補に残るが減点され、探索の枠（下の `explore`）では選ばれない。全曲に順番が回るよう、できるだけ渡す |
 | `previous_target` | | object | 前の曲を選んだときの `plan.target`。曲調が急に飛ばないよう、軸ごとに 0.25 までしか変えない。初回は省略 |
 | `top_k` | | number | 候補の数。既定 5 |
 | `seed` | | number | 乱数のシード。同じ入力とシードなら結果が同じ。省略すると毎回変わる |
@@ -221,7 +221,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `load` | `"normal"` \| `"high"` | 操作の負荷（交差点が密、右左折が連続）。`high` で energy ≤ 0.6 |
 | `curvy` | boolean | カーブが多い・急勾配。energy ≤ 0.65 |
 | `highlight` | boolean | 名道区間。知名度の加点を強め、energy の上限を少し緩める |
-| `hour` | 0〜23 | 時刻。夜（19時以降）は energy を下げ、朝（9時まで）は tempo を上げる |
+| `hour` | 0〜23 | 時刻。朝（4時から9時まで）は tempo を上げる。夜は眠気を誘わないよう energy を下げない |
 
 > **開発用モード**：`pool` を省略すると、カタログ以外の曲（手元で注釈した曲）をメンバーに順番に割り当てて、プレイリストの代わりにします。アプリからは必ず `pool` を送ってください（プレイリストが無いときは `[]`）。
 
@@ -232,8 +232,9 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 
 ```json
 {
-  "pool_size": 2057,
+  "pool_size": 2347,
   "sample_size": 24,
+  "explore": false,
   "missing": [],
   "mode": "blend",
   "volume": 0.6,
@@ -245,7 +246,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
     "artist": "藤井 風",
     "duration_ms": 225000,
     "owner_id": null,
-    "message": "海が近いので、みんなのリストにあるアーティストの、開放感のある曲を流します"
+    "message": "海が近いので、みんなのリストにあるアーティストの、明るくアップテンポな曲を流します"
   },
   "candidates": [
     {
@@ -256,8 +257,8 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
     }
   ],
   "plan": {
-    "target": { "energy": 0.59, "valence": 0.72, "tempo": 0.545, "acoustic": 0.5, "spacious": 0.835, "vocal": 0.5 },
-    "weights": { "energy": 1, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1.5, "vocal": 1 },
+    "target": { "energy": 0.68, "valence": 0.72, "tempo": 0.545, "acoustic": 0.455, "spacious": 0.7, "vocal": 0.5 },
+    "weights": { "energy": 1.5, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1, "vocal": 1 },
     "caps": {},
     "softCaps": {},
     "volume": 0.6,
@@ -265,7 +266,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
     "reasons": ["海が近い", "視界が開けている"]
   },
   "pool_ranges": { "energy": 0.8, "valence": 0.77, "tempo": 1, "acoustic": 0.96, "spacious": 0.72, "vocal": 0.96 },
-  "effective_weights": { "energy": 1, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1.5, "vocal": 1 }
+  "effective_weights": { "energy": 1.5, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1, "vocal": 1 }
 }
 ```
 
@@ -281,7 +282,8 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `volume` | 推奨音量（0.2〜1）。盛り上がり・休息中・運転負荷・下の `fallback` で下がる |
 | `candidates` | 先頭が選んだ曲、そのあとがスコア順の次点（合わせて最大 `top_k` 曲）。Spotify に無かったときの次点に使う |
 | `candidates[].prob` | その曲がくじ引きで選ばれる確率。くじ引きの対象外なら 0 |
-| `sample_size` | くじ引きの対象になった曲数。最高スコアから 0.1 以内の曲を最大 30 曲まで（`src/engine.ts` の `SAMPLE`）。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
+| `explore` | 探索の枠で選んだか。`history` の件数から数えて4曲ごとに1曲は、目標からの距離が 0.37 以内で `recent_track_ids` にない曲すべてを対象に選ぶ（`src/engine.ts` の `EXPLORE`）。点数の上位に入らない曲にも順番を回すため。名道区間・`cabin: quiet` では使わない。このときの `message` は「まだ流していない曲から、…曲を流します」になる |
+| `sample_size` | くじ引きの対象になった曲数。探索の枠では、対象になった曲すべての数。最高スコアから 0.1 以内の曲を最大 30 曲まで（`src/engine.ts` の `SAMPLE`）。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
 | `candidates[].pref` | blend の加点：`"track"`（リストにある曲）、`"artist"`（同じアーティスト）、`null` |
 | `mode` | 実際に使われたモード |
 | `cap_mode` | 安全のための上限の扱い：`none`（上限なし）、`absolute`（上限を満たす曲から選んだ）、`catalog_fill`（playlist モードでカタログのインストから補った）、`nearest`（上限を満たす曲が無く、はみ出しが小さい曲で補った） |

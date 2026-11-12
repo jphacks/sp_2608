@@ -38,7 +38,7 @@ describe('sceneFromScenicRoute', () => {
     const w = sceneFromScenicRoute({ position_m: 0, timeline: timeline([[0, 10000, 'sea']]) });
     expect(w.scene.features.sea_proximity).toMatchObject({ q: 1 });
     // 効果がそのまま効く（confidence 0.3 を掛けると 3割に弱まってしまう）
-    expect(computeTarget(w.scene).target.spacious).toBeCloseTo(0.65, 3);
+    expect(computeTarget(w.scene).target.energy).toBeCloseTo(0.7, 3);
   });
 
   it('unknown は分母から外して信頼度を下げる。unclassified（トンネルなど）は分母に含める', () => {

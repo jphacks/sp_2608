@@ -310,6 +310,7 @@ function rowToFeatures(r: any) {
     artist: r.artist,
     duration_ms: r.duration_ms,
     energy: r.energy,
+    energy_cap: r.energy_cap ?? undefined,
     valence: r.valence,
     tempo: r.tempo,
     acoustic: r.acoustic,

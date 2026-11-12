@@ -192,11 +192,14 @@ describe('blend：加点を受けていない曲の割合（係数の調整）',
     });
   }
 
-  it('サンプルルートを30回走って、加点なしの曲がおよそ5曲に1曲選ばれる', () => {
+  // 通常の回は、加点なしの曲がおよそ5曲に1曲。探索の枠（4曲に1曲）は好みの加点が効きにくいので、全体では少し増える
+  it('サンプルルートを30回走って、通常の回では加点なしの曲がおよそ5曲に1曲選ばれる', () => {
     const segs = segmentRoute(sampleRoute.points as RoutePoint[], { start_hour: sampleRoute.start_hour });
     const cabins = ['lively', 'normal', 'quiet', 'normal', 'resting', 'normal', 'lively'] as const;
     let total = 0;
     let none = 0;
+    let all = 0;
+    let allNone = 0;
     for (let d = 0; d < 30; d++) {
       const pool = catalog(1000 + d);
       const history: HistoryEntry[] = [];
@@ -212,8 +215,12 @@ describe('blend：加点を受けていない曲の割合（係数の調整）',
             seed: d * 100 + si * 2 + k,
           });
           const c = r.candidates.find((x) => x.title === r.chosen!.title)!;
-          total++;
-          if (c.pref === null) none++;
+          all++;
+          if (c.pref === null) allNone++;
+          if (!r.explore) {
+            total++;
+            if (c.pref === null) none++;
+          }
           history.push({ track_id: r.chosen!.track_id, artist: r.chosen!.artist, owner_id: r.chosen!.owner_id ?? undefined });
         }
       });
@@ -221,6 +228,7 @@ describe('blend：加点を受けていない曲の割合（係数の調整）',
     const ratio = none / total;
     expect(ratio).toBeGreaterThan(0.12);
     expect(ratio).toBeLessThan(0.3);
+    expect(allNone / all).toBeLessThan(0.4);
   });
 });
 

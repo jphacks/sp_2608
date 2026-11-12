@@ -39,7 +39,7 @@ async function seedCatalog() {
 
 describe('SQLite 版', () => {
   it('migrations を順に一度だけ適用する', () => {
-    expect(db.migrate(migrations)).toEqual(['0001_init.sql', '0002_catalog.sql', '0003_route_timeline.sql', '0004_party.sql']);
+    expect(db.migrate(migrations)).toEqual(['0001_init.sql', '0002_catalog.sql', '0003_route_timeline.sql', '0004_party.sql', '0005_energy_cap.sql']);
     expect(db.migrate(migrations)).toEqual([]);
   });
 

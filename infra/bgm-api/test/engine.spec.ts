@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SAMPLE, computeTarget, recommend, type PoolTrack, type RecommendInput, type TrackFeatures } from '../src/engine';
+import { EXPLORE, SAMPLE, computeTarget, recommend, type PoolTrack, type RecommendInput, type TrackFeatures } from '../src/engine';
 import { MODE_PARAMS } from '../src/modes';
 import tracks from './fixtures/tracks.json';
 import sea from '../scenario-sea.json';
@@ -48,11 +48,11 @@ function track(id: string, v: Partial<TrackFeatures>, owners = ['a']): PoolTrack
 const ONE = [{ id: 'a', name: 'A' }];
 
 describe('computeTarget', () => {
-  it('海：valence と spacious が上がり、その2軸の重みが 1.5 になる', () => {
+  it('海：energy と valence が上がり、その2軸の重みが 1.5 になる', () => {
     const p = computeTarget(sea.scene as any, 'normal');
+    expect(p.target.energy).toBeGreaterThan(0.7);
     expect(p.target.valence).toBeGreaterThan(0.7);
-    expect(p.target.spacious).toBeGreaterThan(0.9);
-    expect(p.weights).toEqual({ energy: 1, valence: 1.5, tempo: 0.5, acoustic: 1, spacious: 1.5, vocal: 1 });
+    expect(p.weights).toEqual({ energy: 1.5, valence: 1.5, tempo: 0.5, acoustic: 1, spacious: 1, vocal: 1 });
     expect(p.caps).toEqual({});
     expect(p.volume).toBe(0.6);
     expect(p.reasons).toEqual(['海が近い', '視界が開けている']);
@@ -98,22 +98,23 @@ describe('computeTarget', () => {
     expect(p.reasons).toEqual([]);
   });
 
-  it('時間帯：夜は energy −0.1、朝は tempo +0.05', () => {
-    expect(computeTarget({ features: {}, hour: 21 }).target.energy).toBeCloseTo(0.4, 6);
+  it('時間帯：朝は tempo +0.05。夜は眠気を誘わないよう energy を下げない', () => {
+    expect(computeTarget({ features: {}, hour: 21 }).target.energy).toBeCloseTo(0.5, 6);
+    expect(computeTarget({ features: {}, hour: 2 }).target).toMatchObject({ energy: 0.5, tempo: 0.5 });
     expect(computeTarget({ features: {}, hour: 7 }).target.tempo).toBeCloseTo(0.55, 6);
     expect(computeTarget({ features: {}, hour: 12 }).target).toMatchObject({ energy: 0.5, tempo: 0.5 });
   });
 });
 
 describe('recommend：3つのシナリオ（seed = 1 の結果を固定）', () => {
-  it('海：上限なし。選んだ曲のあとに、点数の高い順で明るく開放的な曲が並ぶ', () => {
+  it('海：上限なし。選んだ曲のあとに、点数の高い順で明るくアップテンポな曲が並ぶ', () => {
     const r = recommend(scenarioInput(sea));
     expect(r.cap_mode).toBe('none');
     // 先頭は選んだ曲、そのあとは点数の高い順の次点（再生できなかったときに使う）
     expect(r.candidates[0].title).toBe(r.chosen?.title);
-    const best = ['幾億光年', 'きらり', 'タイムパラドックス', 'マリーゴールド', 'Plastic Love', 'Pretender'];
+    const best = ['きらり', 'SPARKLE', 'ダンスホール', '高嶺の花子さん', 'Plastic Love', 'マリーゴールド'];
     expect(r.candidates.slice(1).map((c) => c.title)).toEqual(best.filter((t) => t !== r.chosen?.title).slice(0, 4));
-    expect(r.chosen?.message).toMatch(/^海が近いので、.*開放感のある曲を流します$/);
+    expect(r.chosen?.message).toMatch(/^海が近いので、.*明るくアップテンポな曲を流します$/);
   });
 
   it('夜の森で休息中：energy ≤ 0.4 を満たす曲だけが候補になる', () => {
@@ -218,9 +219,10 @@ describe('recommend：上限（安全制約）', () => {
 
 describe('recommend：ターゲットに近い曲が無いとき（直前の曲調に寄せる）', () => {
   // energy と acoustic が一緒に上がる曲ばかりのプール。
-  // 夜の森で休息中のターゲット（energy 低・acoustic 高）には、どの曲も遠い
+  // 深い森で休息中のターゲット（energy 低・acoustic 高）には、どの曲も遠い
   const pool = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35].map((x, i) => track(`t${i}`, { energy: x, acoustic: x }));
-  const base = { pool, scene: forestNight.scene as any, cabin: 'resting' as const, members: ONE, seed: 1 };
+  const deepForest = { features: { forest: 1, nature: 1 }, curvy: true };
+  const base = { pool, scene: deepForest, cabin: 'resting' as const, members: ONE, seed: 1 };
 
   it('距離が 0.35 を超えたら、直前の曲に近い曲を選び、音量を 0.1 下げる', () => {
     const r = recommend({ ...base, history: [{ track_id: 't0' }] });
@@ -320,7 +322,7 @@ describe('recommend：所有者がいない曲（全曲カタログ）', () => {
     });
     expect(r.candidates.every((c) => c.owner_bias === 0 && c.shared === 0)).toBe(true);
     expect(r.chosen?.owner_id).toBeNull();
-    expect(r.chosen?.message).toBe('海が近いので、開放感のある曲を流します');
+    expect(r.chosen?.message).toBe('海が近いので、明るくアップテンポな曲を流します');
   });
 
   it('owners が空配列でも同じ扱い（複数人のリストにある曲の項がマイナスにならない）', () => {
@@ -346,7 +348,7 @@ describe('recommend：プール内の順位への変換', () => {
 
 describe('recommend：曲調の急変を抑える（previous_target）', () => {
   it('前の曲のターゲットから軸ごとに 0.25 までしか動かさない', () => {
-    const scene = { features: { sea_proximity: 1, openness: 1 } }; // spacious が大きく上がる場面
+    const scene = { features: { openness: 1, water: 1 } }; // spacious が大きく上がる場面（開けた湖畔）
     const free = recommend({ pool: poolFor(ONE), scene, members: ONE, seed: 1 });
     expect(free.plan.target.spacious).toBeGreaterThan(0.8);
     const prev = { energy: 0.5, valence: 0.5, tempo: 0.5, acoustic: 0.5, spacious: 0.4, vocal: 0.5 };
@@ -362,3 +364,39 @@ describe('recommend：曲調の急変を抑える（previous_target）', () => {
   });
 });
 
+
+describe('recommend：探索の枠（点数の上位に入らない曲にも順番を回す）', () => {
+  // energy だけが 0〜1 に散らばる41曲。ほかの軸は同じ値なので重みが 0 になり、距離は energy の順位と 0.5 の差になる
+  const pool = Array.from({ length: 41 }, (_, i) => track(`e${i}`, { energy: i / 40 }));
+  const played = ['h1', 'h2', 'h3'].map((id) => ({ track_id: id, artist: id }));
+  const base = { mode: 'discover' as const, pool, scene: { features: {} }, members: ONE };
+  const dist = (id: string) => Math.abs(Number(id.slice(1)) / 40 - 0.5);
+
+  it(`${EXPLORE.every}曲ごとに1曲は、狙いから ${EXPLORE.maxDistance} 以内の曲すべてを対象にする`, () => {
+    const picks = Array.from({ length: 300 }, (_, i) => recommend({ ...base, history: played, seed: i + 1 }));
+    expect(picks.every((r) => r.explore)).toBe(true);
+    expect(picks.every((r) => dist(r.chosen!.track_id) <= EXPLORE.maxDistance + 1e-9)).toBe(true);
+    // 通常のくじ引き（最高点から 0.1 以内）では選ばれない、狙いから 0.2 より遠い曲も選ばれる
+    expect(picks.some((r) => dist(r.chosen!.track_id) > 0.2)).toBe(true);
+    expect(picks[0].chosen!.message).toContain('まだ流していない曲から');
+  });
+
+  it('通常の回は、最高点から scoreWindow 以内の曲だけから選ぶ', () => {
+    const picks = Array.from({ length: 300 }, (_, i) => recommend({ ...base, history: played.slice(0, 2), seed: i + 1 }));
+    expect(picks.every((r) => !r.explore)).toBe(true);
+    expect(picks.every((r) => dist(r.chosen!.track_id) <= SAMPLE.scoreWindow + 1e-9)).toBe(true);
+  });
+
+  it('前回までのドライブで流した曲は、探索の枠では選ばない', () => {
+    const recent = pool.filter((t) => t.energy < 0.5).map((t) => t.track_id);
+    const picks = Array.from({ length: 100 }, (_, i) =>
+      recommend({ ...base, history: played, recent_track_ids: recent, seed: i + 1 }),
+    );
+    expect(picks.every((r) => r.explore && !recent.includes(r.chosen!.track_id))).toBe(true);
+  });
+
+  it('名道区間・車内が静かなときは、知っている曲を優先するので探索の枠を使わない', () => {
+    expect(recommend({ ...base, scene: { features: {}, highlight: true }, history: played, seed: 1 }).explore).toBe(false);
+    expect(recommend({ ...base, cabin: 'quiet', history: played, seed: 1 }).explore).toBe(false);
+  });
+});

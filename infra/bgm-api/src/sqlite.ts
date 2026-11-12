@@ -120,7 +120,7 @@ export class SqliteDatabase implements SqlDatabase {
 }
 
 const CATALOG_GROUPS = new Set(['jp', 'inst', 'western', 'kpop']);
-const UNIT_COLUMNS = ['energy', 'valence', 'tempo', 'acoustic', 'spacious', 'vocal', 'conf', 'jp_familiarity', 'popularity'] as const;
+const UNIT_COLUMNS = ['energy', 'valence', 'tempo', 'acoustic', 'spacious', 'vocal', 'conf', 'jp_familiarity', 'popularity', 'energy_cap'] as const;
 
 function catalogRow(line: string, lineNumber: number): Record<string, unknown> {
   const fail = (reason: string): never => { throw new Error(`catalog line ${lineNumber}: ${reason}`); };
