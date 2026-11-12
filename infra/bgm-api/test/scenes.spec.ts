@@ -22,7 +22,11 @@ import catalogText from '../catalog/catalog.jsonl?raw';
 const pool: PoolTrack[] = catalogText
   .trim()
   .split('\n')
-  .map((l: string) => ({ ...JSON.parse(l), owners: [] }));
+  .map((l: string) => {
+    const r = JSON.parse(l);
+    // index.ts と同じく、題材は themes_json から読む
+    return { ...r, themes: r.themes_json ? JSON.parse(r.themes_json) : undefined, owners: [] };
+  });
 
 // 各曲の、カタログ全体での順位（0〜1）
 const rank = new Map<string, Record<Axis, number>>();

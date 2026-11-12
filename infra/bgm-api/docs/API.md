@@ -234,6 +234,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 {
   "pool_size": 2347,
   "sample_size": 24,
+  "slot": "score",
   "explore": false,
   "missing": [],
   "mode": "blend",
@@ -282,7 +283,8 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `volume` | 推奨音量（0.2〜1）。盛り上がり・休息中・運転負荷・下の `fallback` で下がる |
 | `candidates` | 先頭が選んだ曲、そのあとがスコア順の次点（合わせて最大 `top_k` 曲）。Spotify に無かったときの次点に使う |
 | `candidates[].prob` | その曲がくじ引きで選ばれる確率。くじ引きの対象外なら 0 |
-| `explore` | 探索の枠で選んだか。`history` の件数から数えて4曲ごとに1曲は、目標からの距離が 0.37 以内で `recent_track_ids` にない曲すべてを対象に選ぶ（`src/engine.ts` の `EXPLORE`）。点数の上位に入らない曲にも順番を回すため。名道区間・`cabin: quiet` では使わない。このときの `message` は「まだ流していない曲から、…曲を流します」になる |
+| `slot` | どの枠で選んだか。`score`：通常（最高スコアから 0.1 以内のくじ引き）／`theme`：題材の枠（4曲ごとの2曲目。場面の題材を歌った曲から、目標から 0.6 以内なら曲調が遠くても選ぶ。`src/engine.ts` の `THEME_SLOT`）／`explore`：探索の枠。題材で選ばれた曲の `message` は「海が近いので、海を歌った曲を流します」のようになる |
+| `explore` | 探索の枠で選んだか（`slot === "explore"`）。`history` の件数から数えて4曲ごとの4曲目は、目標からの距離が 0.37 以内で `recent_track_ids` にない曲すべてを対象に選ぶ（`src/engine.ts` の `EXPLORE`）。点数の上位に入らない曲にも順番を回すため。名道区間・`cabin: quiet` では使わない。このときの `message` は「まだ流していない曲から、…曲を流します」になる |
 | `sample_size` | くじ引きの対象になった曲数。探索の枠では、対象になった曲すべての数。最高スコアから 0.1 以内の曲を最大 30 曲まで（`src/engine.ts` の `SAMPLE`）。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
 | `candidates[].pref` | blend の加点：`"track"`（リストにある曲）、`"artist"`（同じアーティスト）、`null` |
 | `mode` | 実際に使われたモード |
@@ -305,6 +307,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `recent` / `same_artist` | 前回のドライブで流した（1/0）、直近3曲と同じアーティスト（1/0） |
 | `owner_bias` / `shared` | 所有者の偏り、複数人のリストにある度合い |
 | `popularity` | 知名度（0〜1） |
+| `theme` / `theme_match` | 一番よく合った歌詞の題材（`sea`・`city`・`night` など、無ければ `null`）と一致度（0〜1）。一致度 × 0.05 を加点する |
 | `conf_penalty` | 注釈の信頼度が低い分の減点 |
 
 ---

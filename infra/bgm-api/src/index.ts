@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { SqlDatabase } from './db';
-import { recommend, type PoolTrack, type Scene } from './engine';
+import { THEMES, recommend, type PoolTrack, type Scene, type Theme } from './engine';
 import { sceneFromScenicRoute, type ScenicRoute } from './scenic';
 import { routeTimeline } from './route-source';
 import { DEFAULT_MODE, MODE_IDS, MODE_LABELS } from './modes';
@@ -311,6 +311,7 @@ function rowToFeatures(r: any) {
     duration_ms: r.duration_ms,
     energy: r.energy,
     energy_cap: r.energy_cap ?? undefined,
+    themes: parseThemes(r.themes_json),
     valence: r.valence,
     tempo: r.tempo,
     acoustic: r.acoustic,
@@ -400,3 +401,16 @@ function safeParse<T>(s: string | null, fallback: T): T {
 }
 
 export default app;
+
+// themes_json（題材 → 確かさ）を読む。壊れた値や範囲外の値は無視する
+function parseThemes(json: unknown): Partial<Record<Theme, number>> | undefined {
+  if (typeof json !== 'string') return undefined;
+  try {
+    const o = JSON.parse(json);
+    const out: Partial<Record<Theme, number>> = {};
+    for (const th of THEMES) if (typeof o?.[th] === 'number' && o[th] > 0 && o[th] <= 1) out[th] = o[th];
+    return out;
+  } catch {
+    return undefined;
+  }
+}

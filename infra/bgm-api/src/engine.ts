@@ -31,6 +31,12 @@ export type Scene = {
 
 export type CabinState = 'lively' | 'normal' | 'quiet' | 'resting';
 
+// 歌詞の題材。カタログの曲は Gemini が歌詞の内容から付けたもの（catalog/themes.jsonl）
+export const THEMES = [
+  'sea', 'summer', 'night', 'city', 'drive_travel', 'nature', 'sky_wind', 'river_lake', 'hometown', 'morning', 'rain',
+] as const;
+export type Theme = (typeof THEMES)[number];
+
 export type TrackFeatures = Vec & {
   track_id: string;
   title: string;
@@ -40,6 +46,8 @@ export type TrackFeatures = Vec & {
   popularity?: number; // 知名度 0〜1。無い曲は 0（知名度の加点なし）として扱う
   // 安全のための上限（caps）の判定にだけ使う energy。カタログの曲は LLM と試聴の音のうち高いほう。無ければ energy
   energy_cap?: number;
+  // 歌詞の題材 → 確かさ（0〜1）。曲調の近さとは別枠で、場面に合う題材の曲を加点する
+  themes?: Partial<Record<Theme, number>>;
 };
 // owners が空（または無い）曲は、所有者に関する項がすべて 0 になる（全曲カタログの曲など）
 export type PoolTrack = TrackFeatures & { owners?: string[] };
@@ -72,6 +80,30 @@ const EFFECTS: Record<FeatureKey, Partial<Vec>> = {
   rural: { valence: 0.1, tempo: -0.05, acoustic: 0.1, spacious: 0.05 },
   urban: { energy: 0.1, tempo: 0.05, acoustic: -0.15, spacious: -0.2 },
   water: { energy: -0.1, tempo: -0.05, acoustic: 0.05, spacious: 0.2, vocal: -0.05 },
+};
+
+// 景観 → 合う歌詞の題材（値は結び付きの強さ）。曲調が遠くても、題材が合う曲（遅いテンポの海の歌など）を候補に入れるため
+const THEME_LINKS: Record<FeatureKey, Partial<Record<Theme, number>>> = {
+  sea_proximity: { sea: 1, summer: 0.5 },
+  sea_visibility: { sea: 1 },
+  openness: { sky_wind: 1 },
+  forest: { nature: 1 },
+  nature: { nature: 1, sky_wind: 0.5 },
+  rural: { hometown: 1, nature: 0.5 },
+  urban: { city: 1 },
+  water: { river_lake: 1 },
+};
+// 車で走っているので、ドライブ・旅の歌はいつも少しだけ合う
+const THEME_ALWAYS: Partial<Record<Theme, number>> = { drive_travel: 0.5 };
+// 題材が合う曲の加点（題材の一致度 1 あたり）。知名度の加点（blend で最大 0.1）と同じくらいにする
+const THEME_BONUS = 0.05;
+// 題材の枠。4曲ごとの2曲目（history の件数を4で割った余りが turn）は、場面の題材を歌った曲（一致度 minMatch 以上）から、
+// 狙いから maxDistance 以内なら曲調が遠くても選ぶ。曲調の近さより題材を優先する枠なので、温度 tau は通常より高い
+// distanceRelief：この枠では曲調の遠さの減点をこの割合だけ戻す（0.5 なら距離の効きが半分）
+export const THEME_SLOT = { turn: 1, minMatch: 0.5, maxDistance: 0.6, tau: 0.2, distanceRelief: 0.5 };
+const THEME_LABEL: Record<Theme, string> = {
+  sea: '海', summer: '夏', night: '夜', city: '街', drive_travel: 'ドライブや旅', nature: '自然', sky_wind: '空や風',
+  river_lake: '川や湖', hometown: '故郷や帰り道', morning: '朝', rain: '雨',
 };
 
 const FEATURE_LABEL: Record<FeatureKey, string> = {
@@ -124,6 +156,7 @@ export type Plan = {
   softCaps: Partial<Vec>; // ソフトな上限。超えた分だけ減点する
   volume: number;
   famBoost: number; // 知名度・共有の加点に掛ける倍率
+  themes: Partial<Record<Theme, number>>; // 今の場面に合う歌詞の題材（0〜1）
   reasons: string[];
 };
 
@@ -137,6 +170,7 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
   let famBoost = 1;
 
   const contribs: { key: FeatureKey; strength: number }[] = [];
+  const themes: Partial<Record<Theme, number>> = { ...THEME_ALWAYS };
   for (const key of FEATURE_KEYS) {
     const raw = scene.features?.[key];
     if (raw == null) continue;
@@ -145,6 +179,7 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
     const s = clamp01(v) * clamp01(q);
     if (s === 0) continue;
     for (const a of AXES) t[a] += s * (EFFECTS[key][a] ?? 0);
+    for (const [th, k] of Object.entries(THEME_LINKS[key]) as [Theme, number][]) themes[th] = Math.max(themes[th] ?? 0, s * k);
     contribs.push({ key, strength: s });
   }
   contribs.sort((x, y) => y.strength - x.strength);
@@ -160,7 +195,12 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
   }
 
   // 夜は energy を下げない。運転中に眠気を誘う方向へ寄せたくないため（夜は休息中・車内が静かのほうで扱う）
-  if (scene.hour != null && scene.hour >= 4 && scene.hour < 9) t.tempo += 0.05;
+  if (scene.hour != null && scene.hour >= 4 && scene.hour < 9) {
+    t.tempo += 0.05;
+    themes.morning = 1;
+  }
+  // 夜は曲調を変えず、夜を歌った曲を加点するだけにする
+  if (scene.hour != null && (scene.hour >= 19 || scene.hour < 4)) themes.night = 1;
 
   if (scene.highlight) {
     t.energy += 0.1;
@@ -219,6 +259,7 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
     softCaps,
     volume: round(Math.min(1, Math.max(MIN_VOLUME, volume))),
     famBoost,
+    themes,
     reasons,
   };
 }
@@ -323,6 +364,7 @@ export function recommend(input: RecommendInput) {
       const C = Math.max(0, 0.6 - t.conf);
       const S = softOver(t);
       const P = clamp01(t.popularity ?? 0);
+      const th = themeMatch(plan.themes, t.themes);
       // プレイリストの加点：リストにある曲を大きく、同じアーティストの曲を少し（重ねがけはしない）
       const pref: 'track' | 'artist' | null =
         owners.length > 0 ? 'track' : likedArtists.has(normArtist(t.artist)) ? 'artist' : null;
@@ -334,7 +376,8 @@ export function recommend(input: RecommendInput) {
         M.owner * O +
         M.shared * plan.famBoost * F +
         M.popularity * plan.famBoost * P +
-        prefBonus -
+        prefBonus +
+        THEME_BONUS * th.value -
         LAMBDA.conf * C -
         LAMBDA.cap * (overCap.get(t.track_id) ?? 0) -
         LAMBDA.soft * S;
@@ -351,6 +394,8 @@ export function recommend(input: RecommendInput) {
           owner_bias: round(O),
           shared: round(F),
           popularity: round(P),
+          theme: th.theme,
+          theme_match: round(th.value),
           pref,
           conf_penalty: round(C),
         },
@@ -359,27 +404,40 @@ export function recommend(input: RecommendInput) {
     .sort((a, b) => b.score - a.score);
 
   const maxScore = scored[0].score;
-  // 探索の枠（EXPLORE）。上限を満たし、直近3曲と同じアーティストでなく、前回までに流していない曲だけ
-  const exploreTurn =
-    plan.famBoost === 1 && !fallback && capMode !== 'nearest' && (history.length + 1) % EXPLORE.every === 0;
-  const explorePool = exploreTurn
-    ? scored.filter(
-        (s) =>
-          s.exact_distance <= EXPLORE.maxDistance &&
-          !recent.has(s.track.track_id) &&
-          s.breakdown.same_artist === 0 &&
-          s.breakdown.over_cap === 0,
-      )
-    : [];
-  const explore = explorePool.length > 0;
-  const sample = explore
-    ? explorePool
-    : scored.filter((s) => s.score >= maxScore - SAMPLE.scoreWindow).slice(0, SAMPLE.maxTracks);
-  // 探索の枠でも、点数（狙いへの近さ・知名度・好みの加点など）が高いほど選ばれやすい。ただし範囲内の曲はどれも 0 にならない
-  const maxExplore = explore ? Math.max(...sample.map((s) => s.score)) : 0;
-  const weights = explore
-    ? sample.map((s) => Math.exp((s.score - maxExplore) / EXPLORE.tau))
-    : sample.map((s) => Math.exp((s.score - maxScore) / SAMPLE.tau));
+  // くじ引きの枠。4曲ごとに、2曲目は題材の枠（THEME_SLOT）、4曲目は探索の枠（EXPLORE）、ほかは通常の枠。
+  // どの枠も、上限を満たし直近3曲と同じアーティストでない曲だけ。対象が1曲も無ければ通常の枠に戻す
+  const turn = history.length % EXPLORE.every;
+  const special = !fallback && capMode !== 'nearest' && !catalogFill;
+  const okBase = (s: (typeof scored)[number]) => s.breakdown.same_artist === 0 && s.breakdown.over_cap === 0;
+  const hasSceneTheme = Object.entries(plan.themes).some(([th, w]) => th !== 'drive_travel' && w >= THEME_SLOT.minMatch);
+  let slot: 'score' | 'theme' | 'explore' = 'score';
+  let sample = scored.filter((s) => s.score >= maxScore - SAMPLE.scoreWindow).slice(0, SAMPLE.maxTracks);
+  let tau = SAMPLE.tau;
+  let relief = 0;
+  if (special && turn === THEME_SLOT.turn && hasSceneTheme) {
+    // 題材の枠：今の場面の題材（海・街など）を歌った曲から選ぶ。曲調は緩く（maxDistance 以内）しか見ないので、
+    // テンポの遅い海の歌のように、通常の枠では点数で負ける曲にも出番がある
+    const pool = scored.filter(
+      (s) =>
+        okBase(s) &&
+        s.breakdown.theme != null &&
+        s.breakdown.theme !== 'drive_travel' &&
+        s.breakdown.theme_match >= THEME_SLOT.minMatch &&
+        s.exact_distance <= THEME_SLOT.maxDistance,
+    );
+    if (pool.length > 0) [slot, sample, tau, relief] = ['theme', pool, THEME_SLOT.tau, THEME_SLOT.distanceRelief];
+  } else if (special && plan.famBoost === 1 && turn === EXPLORE.every - 1) {
+    // 探索の枠：前回までに流していない曲から
+    const pool = scored.filter(
+      (s) => okBase(s) && s.exact_distance <= EXPLORE.maxDistance && !recent.has(s.track.track_id),
+    );
+    if (pool.length > 0) [slot, sample, tau] = ['explore', pool, EXPLORE.tau];
+  }
+  const explore = slot === 'explore';
+  // どの枠でも、点数（狙いへの近さ・知名度・好みや題材の加点など）が高いほど選ばれやすい。ただし対象の曲はどれも 0 にならない
+  const slotScore = (s: (typeof scored)[number]) => s.score + relief * s.exact_distance;
+  const maxInSample = Math.max(...sample.map(slotScore));
+  const weights = sample.map((s) => Math.exp((slotScore(s) - maxInSample) / tau));
   const total = weights.reduce((s, p) => s + p, 0);
   const probOf = new Map(sample.map((s, i) => [s.track.track_id, weights[i] / total]));
   const rnd = mulberry32(input.seed ?? Date.now())();
@@ -399,7 +457,12 @@ export function recommend(input: RecommendInput) {
   // 演出：直近の再生が少ない所有者の名前を出す。所有者がいない曲は名前を出さない
   const owner = [...ownersOf(chosen.track)].sort((a, b) => share(a) - share(b))[0] ?? null;
   const ownerName = owner == null ? null : (members.find((m) => m.id === owner)?.name ?? owner);
-  const why = plan.reasons[0];
+  // 題材が合ったから選ばれた曲は、そう伝える（ドライブ・旅はいつも少し加点しているので除く）。
+  // 夜・朝の題材は景色ではなく時間帯の理由なので、理由の前置きも時間帯にする
+  const theme = chosen.breakdown.theme;
+  const themeHit =
+    !catalogFill && !fallback && theme != null && theme !== 'drive_travel' && chosen.breakdown.theme_match >= 0.5;
+  const why = themeHit && theme === 'night' ? '夜になった' : themeHit && theme === 'morning' ? '朝の時間帯な' : plan.reasons[0];
   const from = ownerName
     ? `${ownerName}さんのリストから`
     : chosen.breakdown.pref === 'artist'
@@ -411,9 +474,11 @@ export function recommend(input: RecommendInput) {
       ? '運転に集中しやすいインスト曲を流します'
       : fallback
         ? `音量を少し下げて、${from}今の流れに近い曲を流します`
-        : explore
-          ? `${from}まだ流していない曲から、${moodWord(plan.target)}曲を流します`
-          : `${from}${moodWord(plan.target)}曲を流します`);
+        : themeHit
+          ? `${from}${THEME_LABEL[theme!]}を歌った曲を流します`
+          : explore
+            ? `${from}まだ流していない曲から、${moodWord(plan.target)}曲を流します`
+            : `${from}${moodWord(plan.target)}曲を流します`);
 
   return {
     mode,
@@ -432,7 +497,8 @@ export function recommend(input: RecommendInput) {
       message,
     },
     sample_size: sample.length,
-    explore, // 探索の枠で選んだか
+    slot, // どの枠で選んだか（score：通常 / theme：題材の枠 / explore：探索の枠）
+    explore, // 探索の枠で選んだか（slot === 'explore'）
 
     candidates: top.map((s) => ({
       track_id: s.track.track_id,
@@ -459,6 +525,17 @@ function smoothTarget(plan: Plan, prev?: Partial<Vec>): Plan & { smoothed: Axis[
     target[a] = Math.min(limited, plan.caps[a] ?? 1, plan.softCaps[a] ?? 1);
   }
   return { ...plan, target: roundVec(target), smoothed };
+}
+
+// 場面に合う題材と曲の題材の一致度。一番よく合う題材1つだけを数える（重ねがけしない）
+function themeMatch(want: Partial<Record<Theme, number>>, has: Partial<Record<Theme, number>> | undefined) {
+  let best: { theme: Theme | null; value: number } = { theme: null, value: 0 };
+  if (!has) return best;
+  for (const [th, w] of Object.entries(want) as [Theme, number][]) {
+    const v = w * (has[th] ?? 0);
+    if (v > best.value) best = { theme: th, value: v };
+  }
+  return best;
 }
 
 function moodWord(t: Vec): string {
