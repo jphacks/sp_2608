@@ -161,7 +161,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | 項目 | 範囲・上限 |
 | --- | --- |
 | `members` | 1〜20名、idは重複不可。idは128文字、nameは200文字まで |
-| `pool` / `history` / `recent_track_ids` | 最大5,000曲 / 1,000件 / 5,000件。曲IDは500文字まで |
+| `pool` / `history` | 最大5,000曲 / 1,000件。曲IDは500文字まで |
 | `pool[].owners` | 最大20名、membersに含まれるid |
 | `scene.features` / `previous_target` | 既定の特徴・6軸のみ。値と信頼度は0〜1 |
 | `scene.hour` / `top_k` / `seed` | 0〜23 / 整数1〜30 / 整数0〜4,294,967,295 |
@@ -193,7 +193,6 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
   "history": [
     { "track_id": "isrc:JPPO02200420", "owner_id": "a" }
   ],
-  "recent_track_ids": [],
   "seed": 1
 }
 ```
@@ -208,7 +207,6 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `include_catalog` | | boolean | 既定 `true`。`false` にすると全曲カタログを候補に足さない |
 | `cabin` | | `"lively"` \| `"normal"` \| `"quiet"` \| `"resting"` | 車内の状態。省略時 `normal`（[値の一覧](#車内の状態-cabin)） |
 | `history` | | `{track_id, owner_id?, artist?}[]` | **このドライブで流した曲**（古い順）。ここにある曲は候補から外れる。`owner_id` はその曲を選んだときの `chosen.owner_id`（所有者の偏りの計算に使う） |
-| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。候補に残るが減点される。前回と同じ曲ばかりにならないよう、できるだけ渡す |
 | `previous_target` | | object | 前の曲を選んだときの `plan.target`。曲調が急に飛ばないよう、軸ごとに 0.25 までしか変えない。初回は省略 |
 | `top_k` | | number | 候補の数。既定 5 |
 | `seed` | | number | 乱数のシード。同じ入力とシードなら結果が同じ。省略すると毎回変わる |
@@ -252,7 +250,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
     {
       "track_id": "isrc:JPU901902983", "title": "PHOENIX", "artist": "BURNOUT SYNDROMES", "owners": [],
       "score": -0.208, "prob": 0.003, "distance": 0.319, "over_cap": 0, "over_soft": 0,
-      "recent": 0, "same_artist": 0, "owner_bias": 0, "shared": 0,
+      "same_artist": 0, "owner_bias": 0, "shared": 0,
       "popularity": 0.75, "theme": "sky_wind", "theme_match": 0.72, "pref": null, "conf_penalty": 0
     }
   ],
@@ -305,7 +303,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `score` | 総合スコア（高いほど良い）＝ −距離 ＋ 加点 − 減点 |
 | `distance` | ターゲットとの距離（0〜1、小さいほど合っている） |
 | `over_cap` / `over_soft` | energy の上限・vocal のソフトな上限からのはみ出し |
-| `recent` / `same_artist` | 前回のドライブで流した（1/0）、直近3曲と同じアーティスト（1/0） |
+| `same_artist` | 直近3曲と同じアーティスト（1/0） |
 | `owner_bias` / `shared` | 所有者の偏り、複数人のリストにある度合い |
 | `popularity` | 知名度（0〜1） |
 | `theme` / `theme_match` | 一番よく合った歌詞の題材（`sea`・`city`・`night` など、無ければ `null`）と一致度（0〜1）。一致度 × 0.05 を加点する |

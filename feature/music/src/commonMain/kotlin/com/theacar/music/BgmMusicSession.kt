@@ -73,7 +73,6 @@ class BgmMusicSession(
     private var members: List<MusicMember> = emptyList()
     private var pool: List<PlaylistEntry> = emptyList()
     private var mode = RecommendationMode.BLEND
-    private var recentTrackIds: List<String> = emptyList()
     private var previousTarget: MusicTarget? = null
     /** 今流れている（または最後に流れた）曲。景観BGMの曲のほか、利用者がリクエストした曲もここに入る。 */
     private var currentUri: String? = null
@@ -105,7 +104,6 @@ class BgmMusicSession(
         members: List<MusicMember>,
         pool: List<PlaylistEntry>,
         mode: RecommendationMode = RecommendationMode.BLEND,
-        recentTrackIds: List<String> = emptyList(),
         requestsOnly: Boolean = false,
     ) {
         if (closed || members.isEmpty()) return
@@ -115,7 +113,6 @@ class BgmMusicSession(
         this.members = members
         this.pool = pool
         this.mode = mode
-        this.recentTrackIds = recentTrackIds
         // 始めたら、流れている曲（前の推薦の曲や利用者が選んだ曲）の終わりを待たずにすぐ1曲選ぶ。
         // 履歴は残すので、同じドライブで流した曲は選び直さない。
         currentUri = null
@@ -231,7 +228,7 @@ class BgmMusicSession(
             try {
                 val response = recommendations.recommend(
                     BgmRecommendationRequest(members, pool, mode, cabin, route, conditions,
-                        history.toList(), recentTrackIds, previousTarget, BgmRecommendationService.MAX_LINKS)
+                        history.toList(), previousTarget, BgmRecommendationService.MAX_LINKS)
                 )
                 if (currentGeneration != generation || closed) return@launch
                 previousTarget = response.target ?: previousTarget

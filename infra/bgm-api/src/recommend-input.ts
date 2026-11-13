@@ -108,7 +108,6 @@ export function parseRecommendation(value: unknown): RecommendationRequest {
     if (entry.artist !== undefined) text(entry.artist, 'history[].artist');
     if (entry.owner_id !== undefined) text(entry.owner_id, 'history[].owner_id', 128);
   }
-  if (source.recent_track_ids !== undefined) for (const id of array(source.recent_track_ids, 'recent_track_ids', 5_000)) text(id, 'recent_track_ids[]');
   if (source.previous_target !== undefined) for (const [axis, value] of Object.entries(object(source.previous_target, 'previous_target'))) {
     if (!AXES.includes(axis as typeof AXES[number])) invalid('previous_target');
     number(value, `previous_target.${axis}`, 0, 1);

@@ -107,7 +107,6 @@ data class BgmRecommendationRequest(
     val scenery: SceneryRoute? = null,
     val conditions: DrivingConditions = DrivingConditions(),
     val history: List<PlayedTrack> = emptyList(),
-    val recentTrackIds: List<String> = emptyList(),
     val previousTarget: MusicTarget? = null,
     val topK: Int = 5,
 ) {
