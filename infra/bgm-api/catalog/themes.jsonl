@@ -1295,7 +1295,7 @@
 {"track_id":"isrc:JPU902102119","lyrics":"known","themes":[],"conf":0.85,"method":"gemini-3.8-flash/themes-v1"}
 {"track_id":"isrc:JPU902102191","lyrics":"known","themes":["drive_travel"],"conf":0.95,"method":"gemini-3.8-flash/themes-v1"}
 {"track_id":"isrc:JPU902102481","lyrics":"known","themes":["summer","sky_wind","night"],"conf":0.95,"method":"gemini-3.8-flash/themes-v1"}
-{"track_id":"isrc:JPU902102591","lyrics":"known","themes":["hometown","nature","drive_travel"],"conf":0.95,"method":"gemini-3.8-flash/themes-v1"}
+{"track_id":"isrc:JPU902102591","lyrics":"known","themes":[],"conf":1,"method":"human/theme-check"}
 {"track_id":"isrc:JPU902104014","lyrics":"known","themes":[],"conf":0.9,"method":"gemini-3.8-flash/themes-v1"}
 {"track_id":"isrc:JPU902104021","lyrics":"known","themes":["night","morning","drive_travel"],"conf":0.85,"method":"gemini-3.8-flash/themes-v1"}
 {"track_id":"isrc:JPU902104044","lyrics":"known","themes":["rain","sky_wind"],"conf":0.8,"method":"gemini-3.8-flash/themes-v1"}
