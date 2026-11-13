@@ -162,8 +162,8 @@ private fun SongProgress(progress: MiniPlayerProgress, clock: () -> Long) {
         BoxWithConstraints(Modifier.weight(1f).height(18.dp), contentAlignment = Alignment.CenterStart) {
             val car = 18.dp
             Box(Modifier.fillMaxWidth().height(3.dp).background(Color.White.copy(alpha = .25f), RoundedCornerShape(2.dp)))
-            Box(Modifier.width(maxWidth * fraction).height(3.dp).background(Sunglow, RoundedCornerShape(2.dp)))
-            Icon(Icons.Rounded.DirectionsCar, null, tint = Sunglow,
+            Box(Modifier.width(maxWidth * fraction).height(3.dp).background(Navajo, RoundedCornerShape(2.dp)))
+            Icon(Icons.Rounded.DirectionsCar, null, tint = Navajo,
                 modifier = Modifier.size(car).offset(x = (maxWidth - car) * fraction))
         }
         Text(label, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.labelSmall, maxLines = 1)
