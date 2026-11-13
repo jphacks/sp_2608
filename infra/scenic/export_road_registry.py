@@ -4,6 +4,7 @@ import argparse
 from collections import Counter
 from contextlib import closing
 import json
+import math
 from pathlib import Path
 import sqlite3
 
@@ -84,16 +85,56 @@ def markdown(path):
     return '\n'.join(lines).rstrip() + '\n'
 
 
-def geojson(path):
+def simplify(line, tolerance_meters):
+    """Douglas-Peucker で線を間引く。端点は残す。距離は線の緯度で縮めた平面で測る（数 km の道なら十分正確）。"""
+    if tolerance_meters <= 0 or len(line) <= 2:
+        return line
+    scale = math.cos(math.radians(sum(p[1] for p in line) / len(line)))
+
+    def xy(p):
+        return p[0] * 111_320 * scale, p[1] * 110_574
+
+    points = [xy(p) for p in line]
+    keep = [False] * len(line)
+    keep[0] = keep[-1] = True
+    stack = [(0, len(line) - 1)]
+    while stack:
+        first, last = stack.pop()
+        (ax, ay), (bx, by) = points[first], points[last]
+        dx, dy = bx - ax, by - ay
+        length = math.hypot(dx, dy)
+        farthest, index = 0.0, None
+        for i in range(first + 1, last):
+            px, py = points[i]
+            gap = (abs(dy * px - dx * py + bx * ay - by * ax) / length) if length else math.hypot(px - ax, py - ay)
+            if gap > farthest:
+                farthest, index = gap, i
+        if index is not None and farthest > tolerance_meters:
+            keep[index] = True
+            stack += [(first, index), (index, last)]
+    return [p for p, k in zip(line, keep) if k]
+
+
+def geojson(path, ids=None, simplify_meters=0.0, precision=None):
+    """台帳の道の形。ids を渡すとその道だけにし、アプリに入れる用に線を間引いて桁を落とせる。"""
     metadata, _, records, parts = read_registry(path)
+    if ids is not None:
+        missing = set(ids) - {r['id'] for r in records}
+        if missing:
+            raise SystemExit('Unknown road ids: ' + ', '.join(sorted(missing)))
+
+    def line(coordinates):
+        simplified = simplify(coordinates, simplify_meters)
+        return [[round(lon, precision), round(lat, precision)] for lon, lat in simplified] if precision else simplified
+
     features = []
     for r in records:
-        if not parts.get(r['id']):
+        if not parts.get(r['id']) or (ids is not None and r['id'] not in ids):
             continue
         features.append({'type': 'Feature', 'properties': {
             'id': r['id'], 'name': r['name'], 'status': r['status'],
             'proposed_rank': r['rank'], 'publication_issues': r['publication_issues']},
-            'geometry': {'type': 'MultiLineString', 'coordinates': [p['coordinates'] for p in parts[r['id']]]}})
+            'geometry': {'type': 'MultiLineString', 'coordinates': [line(p['coordinates']) for p in parts[r['id']]]}})
     return {'type': 'FeatureCollection', 'metadata': metadata, 'features': features}
 
 
@@ -101,7 +142,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('registry')
     parser.add_argument('--format', choices=('markdown', 'geojson'), default='markdown')
+    parser.add_argument('--ids', help='geojson: comma-separated road ids to export (e.g. the road records in the app)')
+    parser.add_argument('--simplify-meters', type=float, default=0.0, help='geojson: Douglas-Peucker tolerance')
+    parser.add_argument('--precision', type=int, help='geojson: decimal places of coordinates')
     args = parser.parse_args()
+    ids = set(args.ids.split(',')) if args.ids else None
     print(markdown(args.registry) if args.format == 'markdown' else
-          json.dumps(geojson(args.registry), ensure_ascii=False, separators=(',', ':')),
+          json.dumps(geojson(args.registry, ids, args.simplify_meters, args.precision), ensure_ascii=False, separators=(',', ':')),
           end='' if args.format == 'markdown' else '\n')

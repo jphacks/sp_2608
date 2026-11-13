@@ -20,6 +20,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,11 +55,17 @@ data class TripRecord(
 
 @Composable
 fun RecordScreen(trips: List<TripRecord>, onOpen: (TripRecord) -> Unit, modifier: Modifier = Modifier,
-    loadPhoto: suspend (TripRecord) -> ImageBitmap? = { null }) {
+    loadPhoto: suspend (TripRecord) -> ImageBitmap? = { null },
+    records: List<RecordShelfItem> = emptyList(),
+    recordArt: @Composable (String) -> Painter? = { null },
+    onGoToRoad: ((RecordShelfItem) -> Unit)? = null) {
+    var opened by remember { mutableStateOf<String?>(null) }
     Column(modifier) {
         CompactHeaderBand("RECORD", FadedOrange, recoColor = SunsetDeep)
         LazyColumn(contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(CardGap)) {
+            // 名のある道を走り切って手に入れたレコードの棚。旅の記録より上に置く
+            if (records.isNotEmpty()) item(key = "records") { RecordShelf(records, recordArt) { opened = it.id } }
             if (trips.isEmpty()) {
                 item { Text(
                     "旅を終えると、ここに記録が並びます。",
@@ -71,6 +81,10 @@ fun RecordScreen(trips: List<TripRecord>, onOpen: (TripRecord) -> Unit, modifier
                 TripCard(trip, image, onClick = { onOpen(trip) })
             }
         }
+    }
+    records.firstOrNull { it.id == opened }?.let { record ->
+        RecordDetailSheet(record, recordArt(record.id), onGoToRoad?.let { go -> { item: RecordShelfItem -> opened = null; go(item) } },
+            onDismiss = { opened = null })
     }
 }
 

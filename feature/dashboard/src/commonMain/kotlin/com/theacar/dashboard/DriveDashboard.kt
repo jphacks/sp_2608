@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import com.theacar.cabin.CabinNotice
 import com.theacar.dashboard.components.CabinNoticeSheet
 import com.theacar.drive.DriveState
@@ -38,6 +39,9 @@ fun DriveDashboard(
     trips: List<TripRecord> = emptyList(),
     onOpenTrip: (TripRecord) -> Unit = {},
     loadTripPhoto: suspend (TripRecord) -> ImageBitmap? = { null },
+    records: List<RecordShelfItem> = emptyList(),
+    recordArt: @Composable (String) -> Painter? = { null },
+    onGoToRoad: ((RecordShelfItem) -> Unit)? = null,
     notice: CabinNotice? = null,
     onDismissNotice: () -> Unit = {},
 ) {
@@ -64,7 +68,7 @@ fun DriveDashboard(
         ) { padding ->
             Box(Modifier.fillMaxSize()) {
                 when (screen) {
-                    DashboardScreen.RECORD -> RecordScreen(trips, onOpenTrip, Modifier.fillMaxSize().padding(padding), loadTripPhoto)
+                    DashboardScreen.RECORD -> RecordScreen(trips, onOpenTrip, Modifier.fillMaxSize().padding(padding), loadTripPhoto, records, recordArt, onGoToRoad)
                     DashboardScreen.SETTINGS -> SettingsScreen(
                         state = state,
                         demoActions = demoActions,
