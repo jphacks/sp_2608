@@ -536,6 +536,48 @@ class BgmMusicSessionTest {
         assertEquals(listOf("stopped@1000", "played:isrc:AAA@1000", "stopped@1000"), events)
     }
 
+    @Test fun previewsForTheLiveViewWithoutTouchingWhatPlays() = runTest {
+        val f = Fixture(this)
+        val evaluation = BgmEvaluation(shares = mapOf("sea" to 1.0), target = MusicTarget(.5, .5, .5, .5, .5, .5))
+        f.recommendations.response = BgmRecommendation(first, listOf(second), evaluation = evaluation)
+        f.session.start(members, emptyList())
+        f.tick()
+        runCurrent()
+        assertEquals(1, f.recommendations.requests.size)
+        assertEquals(first, assertNotNull(f.session.evaluation.value).chosen)
+        assertTrue(f.session.evaluation.value!!.decided)
+
+        // ライブ表示がオンなら、曲の途中でも「今決めるなら」を評価する。流す曲と履歴は変えない
+        f.session.previewing = true
+        f.time += 11_000
+        f.tick(playbackOf(firstUri, 200_000, 60_000))
+        runCurrent()
+        assertEquals(2, f.recommendations.requests.size)
+        assertEquals(10, f.recommendations.requests.last().topK)
+        assertEquals(listOf(first.trackId), f.recommendations.requests.last().history.map { it.trackId })
+        assertFalse(f.session.evaluation.value!!.decided)
+        assertEquals(listOf(firstUri), f.music.played)
+        f.time += 5_000
+        f.tick(playbackOf(firstUri, 200_000, 65_000))
+        runCurrent()
+        assertEquals(2, f.recommendations.requests.size)
+
+        // 曲の終わりが近づいて次の曲を決めたら、決めたときの評価を出し、それを途中の評価で上書きしない
+        f.recommendations.response = BgmRecommendation(second, evaluation = evaluation)
+        f.time += 6_000
+        f.tick(playbackOf(firstUri, 200_000, 175_000))
+        runCurrent()
+        val decided = assertNotNull(f.session.evaluation.value)
+        assertTrue(decided.decided)
+        assertEquals(second, decided.chosen)
+        val requests = f.recommendations.requests.size
+        f.time += 11_000
+        f.tick(playbackOf(firstUri, 200_000, 186_000))
+        runCurrent()
+        assertEquals(requests, f.recommendations.requests.size)
+        f.session.stop()
+    }
+
     @Test fun pausingOurSongMidwayDoesNotPickTheNextOne() = runTest {
         val fixture = Fixture(this)
         fixture.session.start(members, emptyList())

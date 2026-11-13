@@ -122,6 +122,8 @@ data class BgmRecommendation(
     val missing: List<String> = emptyList(),
     val coverage: Double? = null,
     val revealEtaSeconds: Int? = null,
+    /** この評価で見ていた景色・理由・候補の点数。Web のライブ表示に出す。 */
+    val evaluation: BgmEvaluation? = null,
 ) {
     init {
         require(volume.isFinite() && volume in 0f..1f)
