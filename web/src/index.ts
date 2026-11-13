@@ -4,11 +4,30 @@
 //   GET  /api/trips/{id}    記録の JSON
 //   GET  /t/{id}            公開ページ
 //   GET  /t/{id}/photo.jpg  デフォルメ後の写真
+//   PUT  /api/live/{code}        走行中の景観BGMの様子を上書き（共有トークン。車の端末が数秒ごとに送る）
+//   GET  /api/live/{code}        その最新の様子（ライブ表示のページが1秒ごとに読む）
+//   GET  /api/live/{code}/route  経路の形
+//   GET  /live/{code}            ライブ表示のページ
+//   GET  /live/demo              デモの走行（public/live-demo.json）をブラウザで再生するページ
 
 import { parseDeviceId, parseTrip, UUID, ValidationError, type StoredTrip } from "./trip";
 import { parseMusicLog } from "./music";
+import { LIVE_CODE, parseLiveUpload } from "./live";
+import { renderLivePage } from "./live-page";
 import { renderNotFoundPage, renderTripPage } from "./page";
-import { getPhoto, getTrip, getTripMusic, putMusicLog, putPhoto, putTrip, type Env } from "./store";
+import {
+  deleteExpiredLive,
+  getLive,
+  getLiveGeometry,
+  getPhoto,
+  getTrip,
+  getTripMusic,
+  putLive,
+  putMusicLog,
+  putPhoto,
+  putTrip,
+  type Env,
+} from "./store";
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const MAX_JSON_BYTES = 2 * 1024 * 1024;
@@ -169,6 +188,41 @@ async function handleTripPage(env: Env, id: string): Promise<Response> {
   return html(renderTripPage(trip, trip.hasPhoto ? `/t/${id}${photoPath(trip)}` : null));
 }
 
+async function handlePutLive(request: Request, env: Env, code: string): Promise<Response> {
+  if (!isAuthorized(request, env)) return json({ error: "unauthorized" }, 401, { "www-authenticate": "Bearer" });
+  const tooLarge = checkContentLength(request);
+  if (tooLarge) return tooLarge;
+  try {
+    if (!(request.headers.get("content-type") ?? "").startsWith("application/json")) throw new ValidationError("content-type must be application/json");
+    const text = await request.text();
+    if (text.length > MAX_JSON_BYTES) throw new ValidationError("live snapshot is too large");
+    const upload = parseLiveUpload(parseJson(text));
+    const now = Date.now();
+    await putLive(env, code, upload, now);
+    // 定期実行を持たないので、書き込みのたまに期限切れを掃除する
+    if (upload.snapshot.status === "arrived" || Math.random() < 0.02) await deleteExpiredLive(env, now);
+    return json({ code, url: `${publicBaseUrl(env, request)}/live/${code}` });
+  } catch (e) {
+    if (e instanceof ValidationError) return json({ error: e.message }, 400);
+    throw e;
+  }
+}
+
+const NO_STORE = { "cache-control": "no-store" };
+
+async function handleGetLive(env: Env, code: string): Promise<Response> {
+  const now = Date.now();
+  const state = await getLive(env, code, now);
+  if (!state) return json({ open: false, serverNow: now }, 200, NO_STORE);
+  return json({ open: true, serverNow: now, updatedAt: state.updatedAt, routeKey: state.routeKey, snapshot: state.snapshot }, 200, NO_STORE);
+}
+
+async function handleGetLiveRoute(env: Env, code: string): Promise<Response> {
+  const found = await getLiveGeometry(env, code, Date.now());
+  if (!found) return json({ error: "not found" }, 404, NO_STORE);
+  return json(found, 200, NO_STORE);
+}
+
 async function handlePhoto(env: Env, id: string): Promise<Response> {
   const obj = await getPhoto(env, id);
   if (!obj) return new Response("not found", { status: 404 });
@@ -193,7 +247,27 @@ export default {
       return json({ error: "method not allowed" }, 405, { allow: "POST" });
     }
 
-    let m = /^\/api\/trips\/([^/]+)$/.exec(path);
+    let m = /^\/api\/live\/([^/]+)(\/route)?$/.exec(path);
+    if (m) {
+      if (!LIVE_CODE.test(m[1])) return json({ error: "not found" }, 404);
+      if (m[2]) {
+        if (request.method !== "GET") return json({ error: "method not allowed" }, 405, { allow: "GET" });
+        return handleGetLiveRoute(env, m[1]);
+      }
+      if (request.method === "PUT") return handlePutLive(request, env, m[1]);
+      if (request.method === "GET") return handleGetLive(env, m[1]);
+      return json({ error: "method not allowed" }, 405, { allow: "GET, PUT" });
+    }
+
+    if (path === "/live/demo" || path === "/live/demo/") return html(renderLivePage("demo", { demo: true }), 200, "public, max-age=300");
+
+    m = /^\/live\/([^/]+)\/?$/.exec(path);
+    if (m) {
+      if (!LIVE_CODE.test(m[1])) return html(renderNotFoundPage(), 404, "no-store");
+      return html(renderLivePage(m[1]), 200, "no-store");
+    }
+
+    m = /^\/api\/trips\/([^/]+)$/.exec(path);
     if (m) {
       if (request.method !== "GET") return json({ error: "method not allowed" }, 405, { allow: "GET" });
       if (!UUID.test(m[1])) return json({ error: "not found" }, 404);
