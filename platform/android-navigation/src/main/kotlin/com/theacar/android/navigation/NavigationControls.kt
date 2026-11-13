@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.unit.dp
 import com.theacar.location.LocationState
@@ -42,6 +43,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -96,10 +100,14 @@ internal fun NavigationControls(
     onRecenter: () -> Unit,
     onMapInsetsChanged: (Int, Int, Int) -> Unit,
     companion: NavigationCompanion? = null,
+    mapSatellite: Boolean = false,
+    onMapSatelliteChanged: (Boolean) -> Unit = {},
 ) {
     var avoidTolls by rememberSaveable { mutableStateOf(false) }
     var avoidHighways by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
+    var showMapType by rememberSaveable { mutableStateOf(false) }
+    var showAttribution by rememberSaveable { mutableStateOf(false) }
     var showSearch by rememberSaveable { mutableStateOf(false) }
     var showRoundTrip by rememberSaveable { mutableStateOf(false) }
     var awaitingPreview by rememberSaveable { mutableStateOf(false) }
@@ -262,13 +270,23 @@ internal fun NavigationControls(
             }
         }
 
+        // 地図の種類のボタンは、Google マップと同じく右上の操作の下に置く。案内中は案内カードの邪魔になるので出さない
+        if (state.phase != NavigationPhase.GUIDING) {
+            val topOffset = with(LocalDensity.current) { topHeight.toDp() }
+            MapIconButton(Icons.Rounded.Layers, "地図の種類", { showMapType = true },
+                Modifier.align(Alignment.TopEnd).padding(top = topOffset, end = 14.dp))
+        }
+
         Column(Modifier.align(if (wide) Alignment.BottomEnd else Alignment.BottomCenter)
             .widthIn(max = if (wide) 340.dp else 600.dp).fillMaxWidth().padding(12.dp)
             .onSizeChanged { bottomHeight = it.height; panelWidth = it.width }, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-                // 地図の出典は、地図の左下の隅に小さく出す
-                Text("© OpenMapTiles © OpenStreetMap", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    color = Muted, modifier = Modifier.weight(1f))
+                // 地図の出典は地図の左下の隅に小さく出し、押すと出典の一覧を開く（航空写真の追加の出典は一覧に載せる）
+                Text(mapAttributionLine(mapSatellite),
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp,
+                        shadow = if (mapSatellite) Shadow(Color.Black.copy(alpha = .8f), blurRadius = 4f) else null),
+                    color = if (mapSatellite) Color.White else Muted,
+                    modifier = Modifier.weight(1f).clickable { showAttribution = true })
                 MapIconButton(Icons.Rounded.MyLocation, "現在地", onRecenter)
             }
             if (state.phase == NavigationPhase.GUIDING) companion?.GuidanceContent()
@@ -474,6 +492,12 @@ internal fun NavigationControls(
             tokenFromBuild = routingTokenFromBuild, routingUrl = configuration.routingUrl,
             builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged,
             scenic = scenicSettings, onScenicChanged = updateScenic)
+    }
+    if (showAttribution) {
+        MapAttributionDialog(onDismiss = { showAttribution = false })
+    }
+    if (showMapType) {
+        MapTypeSheet(mapSatellite, onMapSatelliteChanged, onDismiss = { showMapType = false })
     }
     if (showSearch && canPlan) {
         DestinationSearchDialog(state, true, onSearch,

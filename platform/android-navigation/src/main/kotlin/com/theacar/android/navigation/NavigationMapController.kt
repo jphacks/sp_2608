@@ -75,6 +75,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private var contentPadding = intArrayOf(0, 0, 0, 0)
     private var loadTimeout: Job? = null
     private var dark = false
+    /** 航空写真で見せるか。夜の表示より優先する */
+    private var satellite = false
     private val locationIcon = locationIcon(context, android.graphics.Color.rgb(34, 112, 215))
     private val staleLocationIcon = locationIcon(context, android.graphics.Color.rgb(120, 130, 140))
 
@@ -222,7 +224,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         target.setStyle(style) {
             if (closed) return@setStyle
             styleLoaded = true
-            applyTabiMapColors(it, dark)
+            applyTabiMapColors(it, dark, satellite)
+            applySatellite(it, satellite)
             applyTabiMapLabels(it)
             if (runtime.configuration.mapStyleUrl.isBlank()) {
                 loadTimeout?.cancel()
@@ -349,9 +352,20 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     fun setDarkMode(enabled: Boolean) {
         if (dark == enabled) return
         dark = enabled
-        if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark) }
+        if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark, satellite) }
         routeLine?.color = routeColor()
         traveledLine?.color = traveledColor()
+    }
+
+    /** 地図と航空写真を切り替える。地図を読み直さず、今のスタイルにその場でかける */
+    fun setSatellite(enabled: Boolean) {
+        if (satellite == enabled) return
+        satellite = enabled
+        if (!styleLoaded) return
+        map?.style?.let {
+            applyTabiMapColors(it, dark, satellite)
+            applySatellite(it, satellite)
+        }
     }
 
     // 夜の地図では、これから走る線を明るく、通過済みを暗くして、地との差を保つ
