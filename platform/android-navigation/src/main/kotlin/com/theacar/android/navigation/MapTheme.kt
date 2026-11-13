@@ -1,6 +1,7 @@
 package com.theacar.android.navigation
 
 import org.maplibre.android.maps.Style
+import org.maplibre.android.style.expressions.Expression
 import org.maplibre.android.style.layers.BackgroundLayer
 import org.maplibre.android.style.layers.FillExtrusionLayer
 import org.maplibre.android.style.layers.FillLayer
@@ -24,7 +25,8 @@ internal fun applyTabiMapColors(style: Style, dark: Boolean = false) {
             }
             is LineLayer -> lineColor(id, c)?.let { layer.setProperties(PropertyFactory.lineColor(it)) }
             is SymbolLayer -> layer.setProperties(
-                PropertyFactory.textColor(
+                if (id in PoiLayers) PropertyFactory.textColor(poiTextColor(c))
+                else PropertyFactory.textColor(
                     when {
                         id.startsWith("water") -> c.waterText
                         id.startsWith("label_") -> c.ink
@@ -35,6 +37,22 @@ internal fun applyTabiMapColors(style: Style, dark: Boolean = false) {
             )
         }
     }
+}
+
+private val PoiLayers = setOf("poi_r1", "poi_r7", "poi_r20")
+
+// 店や施設の名前を、Google マップと同じ考え方で種類ごとに色分けする（OpenMapTiles の poi の class）
+private val FoodClasses = listOf("restaurant", "fast_food", "cafe", "bar", "beer", "ice_cream", "bakery")
+private val ShopClasses = listOf("shop", "grocery", "clothing_store", "alcohol_shop")
+private val HealthClasses = listOf("hospital", "doctors", "dentist", "pharmacy")
+private val NatureClasses = listOf("park", "attraction", "campsite", "zoo", "museum", "art_gallery", "castle", "monument")
+private val LodgingClasses = listOf("lodging")
+
+private fun poiTextColor(c: MapColors): Expression {
+    val stops = listOf(FoodClasses to c.food, ShopClasses to c.shop, HealthClasses to c.health,
+        NatureClasses to c.nature, LodgingClasses to c.lodging)
+        .flatMap { (classes, color) -> classes.map { Expression.stop(it, Expression.color(android.graphics.Color.parseColor(color))) } }
+    return Expression.match(Expression.get("class"), Expression.color(android.graphics.Color.parseColor(c.muted)), *stops.toTypedArray())
 }
 
 private val GreenLayers = setOf("park", "landcover_wood", "landcover_grass", "landcover_wetland")
@@ -66,6 +84,7 @@ private class MapColors(
     val land: String, val residential: String, val facility: String, val building: String, val green: String, val wood: String,
     val water: String, val waterLine: String, val sand: String, val majorRoad: String, val road: String,
     val casing: String, val rail: String, val ink: String, val muted: String, val waterText: String,
+    val food: String, val shop: String, val health: String, val nature: String, val lodging: String,
 )
 
 // Google マップのような塗り分け：地は薄いベージュ、道はグレー、緑は緑、水は水色
@@ -86,6 +105,11 @@ private val LightColors = MapColors(
     ink = "#3C4043",
     muted = "#5F6368",
     waterText = "#3E7BB0",
+    food = "#C5590A",
+    shop = "#1A62C9",
+    health = "#C5221F",
+    nature = "#1E7A3C",
+    lodging = "#B0306A",
 )
 
 // 夜は ink を地にして、緑・水・幹線の色味だけを残す。文字は paper に寄せる
@@ -106,4 +130,9 @@ private val DarkColors = MapColors(
     ink = "#E8ECE6",
     muted = "#A9B5AE",
     waterText = "#8FC3E8",
+    food = "#F2A65A",
+    shop = "#8AB4F8",
+    health = "#F28B82",
+    nature = "#81C995",
+    lodging = "#F48FB1",
 )
