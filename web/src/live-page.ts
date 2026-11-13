@@ -91,14 +91,19 @@ main{max-width:1280px;margin:0 auto;padding:20px 16px 56px}
 header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:16px}
 .brand{font-family:var(--en);font-weight:500;letter-spacing:.08em;font-size:13px;color:var(--muted);margin:0}
 h1{font-size:22px;margin:0;font-weight:700}
+.modes{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--soft);margin-left:8px}
+.modes a{padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted);text-decoration:none}
+.modes a.on{background:var(--ink);color:#fff}
+html.fit .modes a{font-size:15px;padding:5px 14px}
 .status{margin-left:auto;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .status i{width:8px;height:8px;border-radius:50%;background:#B9BDB7;display:inline-block}
 .status.on i{background:#3BA55C;animation:pulse 1.6s infinite}
 .status.stale i{background:var(--sunglow)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(59,165,92,.45)}70%{box-shadow:0 0 0 8px rgba(59,165,92,0)}100%{box-shadow:0 0 0 0 rgba(59,165,92,0)}}
-.card{background:var(--card);border-radius:10px;box-shadow:0 1px 2px rgba(30,42,36,.06),0 8px 24px rgba(30,42,36,.07);padding:18px;min-width:0}
-.card h2{font-family:var(--en);font-size:12px;font-weight:500;letter-spacing:.12em;color:var(--muted);margin:0 0 4px;text-transform:uppercase}
+.card{background:var(--card);border-radius:16px;padding:18px;min-width:0}
+.card h2{font-family:var(--en);font-size:15px;font-weight:700;font-style:italic;letter-spacing:.02em;color:var(--ink);margin:0 0 4px;text-transform:uppercase}
 .card .lead{font-size:13px;color:var(--muted);margin:0 0 12px;line-height:1.6}
+.journey .lead{font-size:22px;font-weight:700;color:var(--ink);line-height:1.4;margin:2px 0 4px}
 .en{font-family:var(--en)}
 .muted{color:var(--muted)}
 .empty{font-size:14px;color:var(--muted);padding:8px 0}
@@ -106,7 +111,7 @@ h1{font-size:22px;margin:0;font-weight:700}
 /* ① → ② → ③ */
 .hero{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);margin-bottom:16px}
 @media (min-width:1000px){.hero{grid-template-columns:minmax(0,1fr) 36px minmax(0,1.05fr) 36px minmax(0,1.15fr);align-items:stretch}}
-.step{position:relative;border-radius:14px;padding:20px;background:var(--card);box-shadow:0 1px 2px rgba(30,42,36,.06),0 10px 28px rgba(30,42,36,.08);min-width:0}
+.step{position:relative;border-radius:16px;padding:20px;background:var(--card);min-width:0}
 .step-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .step-n{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--en);font-weight:700;color:#fff;background:var(--ink);flex:none}
 .step-head h3{margin:0;font-size:19px;font-weight:700}
@@ -114,16 +119,15 @@ h1{font-size:22px;margin:0;font-weight:700}
 .flow{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;font-weight:700}
 .flow::before{content:"↓"}
 @media (min-width:1000px){.flow::before{content:"→"}}
-.scene-step{background:linear-gradient(160deg,color-mix(in srgb,var(--scene) 16%,#fff) 0%,#fff 70%)}
 .scene-step .step-n{background:var(--scene)}
 .scene-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 12px}
 .scene-big b{font-size:44px;line-height:1;font-weight:900;color:var(--scene)}
 .scene-big span{font-size:16px;color:var(--muted)}
-.scene-rows{display:grid;gap:8px}
-.scene-row{display:grid;grid-template-columns:70px 1fr 48px;gap:10px;align-items:center;font-size:15px}
-.scene-row .bar{height:14px;border-radius:7px;background:var(--soft);overflow:hidden}
-.scene-row .bar i{display:block;height:100%;border-radius:7px;transition:width .8s ease}
-.scene-row .pct{font-family:var(--en);font-weight:700;text-align:right}
+.scene-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.scene-tile{display:flex;align-items:baseline;justify-content:space-between;gap:6px;border-radius:12px;padding:10px 12px;background:var(--soft);transition:background .8s ease}
+.scene-tile .tl{font-size:16px;font-weight:700}
+.scene-tile .tp{font-family:var(--en);font-weight:700;font-size:16px}
+.scene-tile.zero{color:rgba(30,42,36,.35)}
 .because{margin-top:16px;font-size:14px;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:14px;font-weight:500;background:var(--soft)}
@@ -140,19 +144,33 @@ h1{font-size:22px;margin:0;font-weight:700}
 .radar-legend{display:flex;justify-content:center;gap:16px;font-size:13px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
 .radar-legend i{display:inline-block;width:16px;height:0;border-top:3px solid var(--sunset);margin-right:6px;vertical-align:4px}
 .radar-legend i.song{border-top:2px dashed var(--ink)}
-.pick-step{background:linear-gradient(160deg,#FFF1EA 0%,#fff 65%)}
 .pick-step .step-n{background:var(--ink)}
 .pick-badge{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:var(--mountains);color:#fff}
 .pick-badge.decided{background:var(--sunset)}
 .pick-title{font-size:32px;font-weight:900;line-height:1.25;margin:12px 0 2px;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pick-artist{font-size:16px;color:var(--muted)}
-.pick-msg{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--card);border-left:5px solid var(--scene);font-size:17px;font-weight:700;line-height:1.6}
+.pick-msg{margin-top:14px;font-size:17px;font-weight:700;line-height:1.6}
 .pick-why{display:grid;gap:10px;margin-top:16px}
 .why-row{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:14px}
 .why-row .bar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden}
 .why-row .bar i{display:block;height:100%;border-radius:5px;background:var(--sunset);transition:width .8s ease}
 .why-row b{font-family:var(--en);font-size:16px}
 .pick-foot{margin-top:14px;font-size:13px;color:var(--muted)}
+.pop{animation:pop .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{0%{transform:scale(.85);opacity:0}100%{transform:scale(1);opacity:1}}
+.likely{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.likely li{padding:10px 12px;border-radius:12px;background:var(--paper)}
+.lk-head{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center}
+.lk-no{width:28px;height:28px;border-radius:50%;background:var(--soft);font-family:var(--en);font-weight:700;display:flex;align-items:center;justify-content:center}
+.likely li:first-child .lk-no{background:var(--ink);color:#fff}
+.lk-t{font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-a{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-p{font-family:var(--en);font-size:22px}
+.lk-tags{display:flex;flex-wrap:wrap;gap:4px 6px;margin:6px 0 0 38px}
+.lk-tags span{font-size:12px;border-radius:3px;padding:1px 7px;background:var(--soft);color:var(--muted)}
+.lk-tags span.th{color:#fff}
+.lk-foot{margin-top:12px;font-size:13px;color:var(--muted);line-height:1.6}
+.lk-foot b{display:block;font-family:var(--en);font-size:22px;color:var(--ink);margin-top:2px}
 
 /* 景色と流した曲 */
 .journey{margin-bottom:16px}
@@ -195,6 +213,8 @@ h1{font-size:22px;margin:0;font-weight:700}
 .meter .cap{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-top:4px}
 .now-title{font-size:19px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .now-artist{font-size:14px;color:var(--muted)}
+.now-why{display:flex;align-items:baseline;gap:8px;margin-top:8px;font-size:15px;font-weight:700;line-height:1.5}
+.now-scene{flex:none;color:#fff;font-size:12px;border-radius:4px;padding:1px 8px}
 .progress{position:relative;height:5px;background:var(--soft);border-radius:3px;margin:14px 0 6px}
 .progress .fill{position:absolute;inset:0 auto 0 0;background:var(--ink);border-radius:3px}
 .progress .decide{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sunset)}
@@ -250,23 +270,34 @@ html.fit .step-head .sub{font-size:15px}
 html.fit .step-n{width:34px;height:34px;font-size:18px}
 html.fit .scene-big b{font-size:76px}
 html.fit .scene-big span{font-size:22px}
-html.fit .scene-row{font-size:20px;grid-template-columns:90px 1fr 64px}
-html.fit .scene-row .bar{height:18px;border-radius:9px}
+html.fit .scene-tiles{gap:10px}
+html.fit .scene-tile{padding:12px 16px}
+html.fit .scene-tile .tl{font-size:22px}
+html.fit .scene-tile .tp{font-size:22px}
 html.fit .because{font-size:16px;margin-top:14px}
 html.fit .chip{font-size:18px;padding:6px 16px}
 html.fit .radar-legend{font-size:15px;margin-top:0}
 html.fit .pick-badge{font-size:16px;padding:5px 14px}
 html.fit .pick-title{font-size:46px;-webkit-line-clamp:2}
 html.fit .pick-artist{font-size:20px}
-html.fit .pick-msg{font-size:23px;padding:14px 18px}
+html.fit .pick-msg{font-size:23px}
 html.fit .pick-why{gap:8px;margin-top:12px}
 html.fit .why-row{font-size:18px;grid-template-columns:150px 1fr auto}
 html.fit .why-row .bar{height:14px;border-radius:7px}
 html.fit .why-row b{font-size:22px}
 html.fit .pick-foot{display:none}
+html.fit .likely{gap:8px;margin-top:10px}
+html.fit .likely li{padding:8px 14px}
+html.fit .lk-t{font-size:21px}
+html.fit .lk-a{font-size:14px}
+html.fit .lk-p{font-size:26px}
+html.fit .lk-tags span{font-size:13px}
+html.fit .lk-foot{font-size:15px;margin-top:10px}
+html.fit .lk-foot b{display:inline;margin:0 0 0 10px;font-size:20px}
 html.fit .grid,html.fit .col{display:contents}
 html.fit .card{margin:0;padding:14px 18px;overflow:hidden}
 html.fit .c-journey{grid-area:journey}
+html.fit .journey .lead{font-size:24px}
 html.fit .c-map{grid-area:map;display:flex;flex-direction:column;min-height:0}
 html.fit #map{height:auto;flex:1;min-height:0}
 html.fit .facts{margin-top:8px}
@@ -279,9 +310,10 @@ html.fit .journey-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 html.fit .progress{margin:8px 0 4px}
 html.fit .c-now h2,html.fit .c-cabin h2{margin-bottom:2px}
 html.fit .now-title{font-size:18px}
+html.fit .now-why{font-size:17px;margin-top:6px}
 html.fit .countdown{margin-top:6px}
 html.fit footer{display:none}
-html.fit #ended{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;padding:8px 22px;font-size:17px;box-shadow:0 6px 24px rgba(30,42,36,.18)}
+html.fit #ended{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;padding:8px 22px;font-size:17px;border:2px solid var(--ink)}
 html.fit #ended br{display:none}
 html.fit #ended a{margin:0 0 0 14px}
 html.fit #demo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;z-index:5;box-shadow:0 20px 60px rgba(30,42,36,.25)}
@@ -293,6 +325,7 @@ footer a{color:inherit}
 <header>
   <p class="brand">TABIRECO LIVE</p>
   <h1 id="title">景観BGMの選曲ライブ</h1>
+  ${demo ? "" : `<nav class="modes" aria-label="表示の切り替え"><a id="mode-auto" href="?mode=auto">自動</a><a id="mode-live" href="?mode=live">実際の走行</a><a id="mode-demo" href="?mode=demo">デモ</a></nav>`}
   <div class="status" id="status"><i></i><span>接続しています…</span></div>
 </header>
 
@@ -322,7 +355,7 @@ ${demo ? `<section id="demo" class="card demo">
 
 <section class="card journey c-journey">
   <h2>Scenery &amp; Songs</h2>
-  <p class="lead">経路全体の景色と、どこでどの曲を流したか。番号は下の曲の番号です。枠は次の曲が流れる区間です。</p>
+  <p class="lead">どの景色の中で、どの曲を流したか</p>
   <div class="journey-track">
     <div class="journey-songs" id="journey-songs"></div>
     <div class="journey-band" id="journey-band"></div>
@@ -402,6 +435,15 @@ ${demo ? `<section id="demo" class="card demo">
   function mmss(ms){ ms = Math.max(0, ms); var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
   function km(m){ return m >= 10000 ? Math.round(m / 1000) + " km" : (Math.round(m / 100) / 10) + " km"; }
   function cat(c){ return C.categories[c] || { label: c, color: "#B9BDB7" }; }
+  // 推薦エンジンが曲調を決めるときの景色の6つのまとまり（景観エンジンの11の分類をここにまとめて使う。scenic.ts の CATEGORY_TO_FEATURE と同じ）
+  var SCENE_GROUPS = [
+    { label: "海", color: "#2F86C0", cats: ["sea"] },
+    { label: "森", color: "#3F7A47", cats: ["forest"] },
+    { label: "自然", color: "#8DB35B", cats: ["open_nature"] },
+    { label: "湖・川", color: "#3F9FC7", cats: ["inland_water", "lake", "river", "valley"] },
+    { label: "田園", color: "#C2A440", cats: ["farmland"] },
+    { label: "街", color: "#7F8590", cats: ["townscape", "urban"] }
+  ];
   function themeColor(t){ return C.themeColors[t] || "#7F8590"; }
   function svgEl(tag, attrs){ var e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
   function keyOf(c){ return c.title + "|" + c.artist; }
@@ -432,6 +474,18 @@ ${demo ? `<section id="demo" class="card demo">
   var snap = null, receivedAt = 0, serverOffset = 0, routeKey = null, geom = null;
   var lastEvalAt = 0, prevEval = null, history = {};
   var timer = null, rate = 1;
+  // 表示の切り替え。auto：車から最近届いていれば実際の走行、届いていなければデモを繰り返す
+  var mode = C.demo ? "demo" : (["auto", "live", "demo"].indexOf(params.get("mode")) >= 0 ? params.get("mode") : "auto");
+  var showingDemo = false, everLive = false, FRESH_MS = 60000;
+  ["auto", "live", "demo"].forEach(function(m){
+    var a = $("mode-" + m);
+    if (!a) return;
+    if (m === mode) a.className = "on";
+    // 画面の大きさや速さの指定は引き継ぐ
+    var q = new URLSearchParams(location.search); q.set("mode", m); a.href = "?" + q.toString();
+  });
+  /** 車から最近届いているか（着いた知らせも、届いてから1分は見せる） */
+  function fresh(d){ return d && d.open && d.snapshot && d.serverNow - d.updatedAt < FRESH_MS; }
 
   // ---- 地図 ----
   var map = null, mapReady = false, carMarker = null, fitted = false;
@@ -524,15 +578,32 @@ ${demo ? `<section id="demo" class="card demo">
     clearTimeout(timer);
     fetch("/api/live/" + C.code, { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
       serverOffset = d.serverNow - Date.now();
+      if (mode === "auto" && !fresh(d)) {
+        // 車が走っていない：初めからならそのままデモへ。走っていた表示からは、読み直して状態を空にしてからデモへ
+        if (everLive) location.reload(); else startDemo();
+        return;
+      }
       if (!d.open) showEnded("このライブ表示は終わったか、まだ始まっていません。車でライブ表示をオンにすると、ここに出ます。");
-      else receive(d.snapshot);
+      else { everLive = true; receive(d.snapshot); }
       timer = setTimeout(poll, POLL_MS);
     }).catch(function(){
       setStatus("", "つながりません。再接続しています…");
       timer = setTimeout(poll, POLL_MS * 3);
     });
   }
-  document.addEventListener("visibilitychange", function(){ if (C.demo) return; if (!document.hidden) poll(); else clearTimeout(timer); });
+  document.addEventListener("visibilitychange", function(){ if (showingDemo || C.demo) return; if (!document.hidden) poll(); else clearTimeout(timer); });
+
+  // 自動のときのデモ。10秒ごとに車から届いているかを確かめ、届いたら読み直して実際の走行を出す
+  function startDemo(){
+    if (showingDemo) return;
+    var speed = Number(params.get("speed"));
+    playDemo([1, 2, 4].indexOf(speed) >= 0 ? speed : 2);
+    if (mode !== "auto") return;
+    setInterval(function(){
+      fetch("/api/live/" + C.code, { cache: "no-store" }).then(function(r){ return r.json(); })
+        .then(function(d){ if (fresh(d)) location.reload(); }).catch(function(){});
+    }, 10000);
+  }
 
   function showEnded(text){
     $("ended").hidden = false; $("ended").textContent = text;
@@ -575,7 +646,8 @@ ${demo ? `<section id="demo" class="card demo">
   function tick(){
     if (!snap) return;
     var now = Date.now() + serverOffset, age = now - snap.at;
-    if (C.demo) setStatus(snap.status === "arrived" ? "" : "on", snap.status === "arrived" ? "デモの走行が終わりました" : "デモを再生中 · " + rate + "倍速");
+    if (showingDemo) setStatus(snap.status === "arrived" ? "" : "on", snap.status === "arrived" ? "デモの走行が終わりました"
+      : "デモを再生中 · " + rate + "倍速" + (mode === "auto" ? "（車が走り出したら切り替わります）" : ""));
     else if (snap.status === "arrived") setStatus("", "到着しました");
     else if (age > STALE_MS) setStatus("stale", "車からの更新が " + Math.round(age / 1000) + " 秒止まっています");
     else setStatus("on", "ライブ · " + Math.max(0, Math.round(age / 1000)) + " 秒前の様子");
@@ -601,25 +673,33 @@ ${demo ? `<section id="demo" class="card demo">
   // ① この先の景色 → ② 欲しい曲調 → ③ 選んだ曲
   function renderHero(e){
     // ①
-    var shares = Object.keys(e.shares).filter(function(k){ return e.shares[k] > 0.005; }).sort(function(a, b){ return e.shares[b] - e.shares[a]; });
-    var top = shares[0];
-    document.documentElement.style.setProperty("--scene", top ? cat(top).color : "#7F8590");
+    // 区間にない景色も 0% で並べ、6つのうちどれを見て選んでいるかが分かるようにする
+    var groups = SCENE_GROUPS.map(function(g){
+      var v = 0; g.cats.forEach(function(k){ v += e.shares[k] || 0; });
+      return { label: g.label, color: g.color, share: v };
+    });
+    var top = groups.slice().sort(function(a, b){ return b.share - a.share; })[0];
+    if (!(top.share > 0.005)) top = null;
+    document.documentElement.style.setProperty("--scene", top ? top.color : "#7F8590");
     // 区間は経路の終点より先まで伸びることがある（曲の途中で着く）ので、終点で止めて出す
     var winEnd = e.window ? Math.min(e.window.endM, snap.route ? snap.route.totalM : e.window.endM) : 0;
     $("scene-sub").textContent = e.window ? "次の曲が流れる " + km(Math.max(0, winEnd - e.window.startM)) : "";
     var scene = $("scene"); clear(scene);
     if (top) {
-      var big = el("div", "scene-big"); big.appendChild(el("b", null, cat(top).label)); big.appendChild(el("span", null, "が " + Math.round(e.shares[top] * 100) + "%"));
+      var big = el("div", "scene-big"); big.appendChild(el("b", null, top.label)); big.appendChild(el("span", null, "が " + Math.round(top.share * 100) + "%"));
       scene.appendChild(big);
-      var rows = el("div", "scene-rows");
-      shares.forEach(function(k){
-        var row = el("div", "scene-row"), bar = el("div", "bar"), fill = el("i");
-        row.appendChild(el("span", null, cat(k).label));
-        fill.style.width = Math.round(e.shares[k] * 100) + "%"; fill.style.background = cat(k).color; bar.appendChild(fill); row.appendChild(bar);
-        row.appendChild(el("span", "pct", Math.round(e.shares[k] * 100) + "%"));
-        rows.appendChild(row);
+      var tiles = el("div", "scene-tiles");
+      groups.forEach(function(g){
+        var pct = Math.round(g.share * 100);
+        var t = el("div", "scene-tile" + (pct > 0 ? "" : " zero"));
+        if (pct > 0) {
+          t.style.background = "color-mix(in srgb," + g.color + " " + Math.round(25 + 75 * g.share) + "%,#fff)";
+          if (g.share >= 0.3) t.style.color = "#fff";
+        }
+        t.appendChild(el("span", "tl", g.label)); t.appendChild(el("span", "tp", pct + "%"));
+        tiles.appendChild(t);
       });
-      scene.appendChild(rows);
+      scene.appendChild(tiles);
     } else scene.appendChild(el("p", "empty", "この先の景色はまだ分かっていません"));
     if (e.reasons.length) {
       scene.appendChild(el("div", "because", "だから"));
@@ -630,11 +710,17 @@ ${demo ? `<section id="demo" class="card demo">
 
     // ②
     var chosen = e.chosen ? e.candidates.filter(function(c){ return c.title === e.chosen.title && c.artist === e.chosen.artist; })[0] : null;
+    var decided = e.kind === "decided";
+    // 途中の評価のくじの結果は、5秒ごとに入れ替わって「適当に選んでいる」ように見えるので出さない。
+    // 決まるまでは、選ばれる確率の高い順に有力候補を見せる
+    // くじの対象外（確率 0）の曲は、選ばれる見込みが無いので出さない
+    var likely = e.candidates.filter(function(c){ return c.prob > 0; }).sort(function(a, b){ return b.prob - a.prob || b.score - a.score; });
+    var featured = decided ? chosen : likely[0];
     var mood = $("mood"); clear(mood);
-    mood.appendChild(radar(e.target, chosen && chosen.axes));
+    mood.appendChild(radar(e.target, featured && featured.axes));
     var legend = el("div", "radar-legend");
     var l1 = el("span"); l1.appendChild(el("i")); l1.appendChild(document.createTextNode("景色から決めた曲調")); legend.appendChild(l1);
-    if (chosen && chosen.axes) { var l2 = el("span"); l2.appendChild(el("i", "song")); l2.appendChild(document.createTextNode("選んだ曲")); legend.appendChild(l2); }
+    if (featured && featured.axes) { var l2 = el("span"); l2.appendChild(el("i", "song")); l2.appendChild(document.createTextNode(decided ? "選んだ曲" : "有力候補の1位")); legend.appendChild(l2); }
     mood.appendChild(legend);
     var themes = Object.keys(e.themes).sort(function(a, b){ return e.themes[b] - e.themes[a]; }).filter(function(k){ return e.themes[k] >= 0.3; }).slice(0, 4);
     if (themes.length) {
@@ -647,10 +733,33 @@ ${demo ? `<section id="demo" class="card demo">
 
     // ③
     var pick = $("pick"); clear(pick);
-    if (!e.chosen) { pick.appendChild(el("p", "empty", "選べる曲がありません")); return; }
-    var decided = e.kind === "decided";
-    pick.appendChild(el("span", "pick-badge" + (decided ? " decided" : ""), decided ? "次の曲に決定" : "今決めるならこの曲"));
-    pick.appendChild(el("div", "pick-title", e.chosen.title));
+    $("h-pick").textContent = decided ? "選んだ曲" : "次の曲の有力候補";
+    // 途中の評価ではくじの結果（chosen）を送らないこともあるので、決まるまでは確率のある候補があれば出す
+    if (decided ? !e.chosen : !likely.length) { pick.appendChild(el("p", "empty", "選べる曲がありません")); return; }
+    if (!decided) {
+      pick.appendChild(el("span", "pick-badge", "選ばれやすい順"));
+      var ol = el("ol", "likely");
+      likely.slice(0, 3).forEach(function(c, i){
+        var li = el("li"), head = el("div", "lk-head");
+        head.appendChild(el("span", "lk-no", String(i + 1)));
+        var name = el("div", "lk-name"); name.appendChild(el("div", "lk-t", c.title)); name.appendChild(el("div", "lk-a", c.artist)); head.appendChild(name);
+        head.appendChild(el("b", "lk-p", (Math.round(c.prob * 1000) / 10) + "%"));
+        li.appendChild(head);
+        var tags = el("div", "lk-tags");
+        tags.appendChild(el("span", null, "曲調の近さ " + Math.round(closeness(c.distance) * 100) + "%"));
+        if (c.theme && c.themeMatch > 0) { var th = el("span", "th", "題材「" + (C.themes[c.theme] || c.theme) + "」"); th.style.background = themeColor(c.theme); tags.appendChild(th); }
+        li.appendChild(tags);
+        ol.appendChild(li);
+      });
+      pick.appendChild(ol);
+      var foot = el("div", "lk-foot");
+      foot.appendChild(document.createTextNode("景色に合う曲の中から、曲の終わりの30秒前にくじ引きで1曲に決めます"));
+      var cd = el("b", null, ""); cd.id = "pick-countdown"; foot.appendChild(cd);
+      pick.appendChild(foot);
+      return;
+    }
+    pick.appendChild(el("span", "pick-badge decided", "次の曲に決定"));
+    pick.appendChild(el("div", "pick-title pop", e.chosen.title));
     pick.appendChild(el("div", "pick-artist", e.chosen.artist));
     if (e.chosen.message) pick.appendChild(el("div", "pick-msg", e.chosen.message));
     if (chosen) {
@@ -660,7 +769,7 @@ ${demo ? `<section id="demo" class="card demo">
       if (chosen.popularity > 0) why.appendChild(whyRow("知名度", chosen.popularity, Math.round(chosen.popularity * 100) + "%", "#D9B44A"));
       pick.appendChild(why);
     }
-    pick.appendChild(el("div", "pick-foot", decided ? "曲の終わりで、この曲に切り替わります" : "曲の終わりの30秒前に決めます。それまでは景色に合わせて入れ替わります"));
+    pick.appendChild(el("div", "pick-foot", "今の曲が終わると、この曲に切り替わります"));
   }
 
   function whyRow(label, value, text, color){
@@ -739,6 +848,16 @@ ${demo ? `<section id="demo" class="card demo">
     var title = el("div", "now-title", n.title);
     title.appendChild(el("span", "tag", n.kind === "bgm" ? "景観BGM" : n.kind === "request" ? "リクエスト" : "そのほか"));
     box.appendChild(title); box.appendChild(el("div", "now-artist", n.artist));
+    // この曲を選んだ理由（決めたときの一言）。景観BGMとして流れている曲は、流した曲の先頭と同じ曲。
+    // Spotify とカタログで表記が違うことがある（杏里／アンリ）ので、名前では比べない
+    var cur = snap.played && snap.played[0];
+    if (n.kind === "bgm" && cur && cur.message) {
+      var why = el("div", "now-why");
+      var where = cur.scene || sceneDuring(cur);
+      if (where) { var tg = el("span", "now-scene", cat(where).label); tg.style.background = cat(where).color; why.appendChild(tg); }
+      why.appendChild(el("span", null, cur.message));
+      box.appendChild(why);
+    }
     var pos = clamp(n.positionMs + (n.playing ? since : 0), 0, n.durationMs || 0);
     var p = el("div", "progress"), fill = el("div", "fill");
     fill.style.width = (n.durationMs ? pos / n.durationMs * 100 : 0) + "%"; p.appendChild(fill);
@@ -751,6 +870,7 @@ ${demo ? `<section id="demo" class="card demo">
     else if (snap.evaluation && snap.evaluation.kind === "decided") cd.textContent = "次の曲は決まりました";
     else if (left > 0) { cd.appendChild(document.createTextNode("あと ")); cd.appendChild(el("b", null, mmss(left))); cd.appendChild(document.createTextNode(" で次の曲を決めます")); }
     else cd.textContent = "次の曲を決めています…";
+    var pcd = $("pick-countdown"); if (pcd) pcd.textContent = n.kind === "bgm" && left > 0 && snap.status !== "arrived" ? "あと " + mmss(left) : "";
     box.appendChild(cd);
   }
 
@@ -768,11 +888,11 @@ ${demo ? `<section id="demo" class="card demo">
     var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all); if (hi - lo < 0.02) { lo -= 0.01; hi += 0.01; }
     cands.forEach(function(c, i){
       var key = keyOf(c);
-      var chosen = e.chosen && c.title === e.chosen.title && c.artist === e.chosen.artist;
+      var chosen = e.kind === "decided" && e.chosen && c.title === e.chosen.title && c.artist === e.chosen.artist;
       var li = el("li", "cand" + (chosen ? " pick" : ""));
       li.appendChild(el("span", "rank", String(i + 1)));
       var song = el("div", "song"), t = el("div", "t", c.title);
-      if (chosen) t.appendChild(el("span", "tag pick-tag", e.kind === "decided" ? "次の曲" : "今ならこれ"));
+      if (chosen) t.appendChild(el("span", "tag pick-tag", "次の曲"));
       song.appendChild(t); song.appendChild(el("div", "a", c.artist)); li.appendChild(song);
       var svg = svgEl("svg", { "class": "spark", viewBox: "0 0 84 28", preserveAspectRatio: "none" });
       var h = history[key] || [];
@@ -800,7 +920,8 @@ ${demo ? `<section id="demo" class="card demo">
   // 1秒ごとの様子を、開始してからの経過時間 × 倍率の位置から取り出して、車から届いたものと同じ道筋で描く
   function playDemo(speed){
     rate = speed;
-    $("demo").hidden = true;
+    showingDemo = true;
+    if ($("demo")) $("demo").hidden = true;
     setStatus("", "デモを読み込んでいます…");
     fetch("/live-demo.json").then(function(r){ return r.json(); }).then(function(d){
       geom = { coords: d.geometry, dist: measure(d.geometry) };
@@ -821,7 +942,8 @@ ${demo ? `<section id="demo" class="card demo">
         }
         if (i < d.frames.length - 1) timer = setTimeout(frame, 200);
         // ?loop=1 なら、着いてしばらくしたら最初から再生し直す（展示で映しっぱなしにするため）
-        else if (params.get("loop") === "1") timer = setTimeout(function(){ location.reload(); }, 20000);
+        // 受付番号のページの自動・デモでは、いつも繰り返す
+        else if (params.get("loop") === "1" || !C.demo) timer = setTimeout(function(){ location.reload(); }, 20000);
       }
       frame();
     }).catch(function(){ setStatus("", "デモを読み込めませんでした"); });
@@ -831,7 +953,8 @@ ${demo ? `<section id="demo" class="card demo">
     var speed = Number(params.get("speed"));
     if ([1, 2, 4].indexOf(speed) >= 0) playDemo(speed);
     else setStatus("", "開始を押すと再生します");
-  } else poll();
+  } else if (mode === "demo") startDemo();
+  else poll();
 })();
 </script>
 </body>
