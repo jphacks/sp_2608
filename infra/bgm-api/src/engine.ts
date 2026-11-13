@@ -467,7 +467,8 @@ export function recommend(input: RecommendInput) {
     theme !== 'drive_travel' &&
     chosen.breakdown.theme_match >= 0.5;
   // 題材が理由のときは、その題材を選んだ景観・時間帯を理由にする（「視界が開けているので、空や風を歌った曲」）
-  const why = (themeHit ? plan.themeReasons[theme!] : undefined) ?? plan.reasons[0];
+  // 景色の特徴も車内の様子も拾えなかったとき（この先の景色がまだ分からないなど）も、理由が無いまま言い切らない
+  const why = (themeHit ? plan.themeReasons[theme!] : undefined) ?? plan.reasons[0] ?? (catalogFill ? undefined : '景色の手がかりが少ない');
   const from = ownerName
     ? `${ownerName}さんのリストから`
     : chosen.breakdown.pref === 'artist'
@@ -481,7 +482,7 @@ export function recommend(input: RecommendInput) {
         ? `音量を少し下げて、${from}今の流れに近い曲を流します`
         : themeHit
           ? `${from}${THEME_LABEL[theme!]}を歌った曲を流します`
-            : `${from}${moodWord(plan.target)}曲を流します`);
+            : `${from}${moodWord(plan.target, plan.smoothed.length > 0)}曲を流します`);
 
   return {
     mode,
@@ -540,14 +541,34 @@ function themeMatch(want: Partial<Record<Theme, number>>, has: Partial<Record<Th
   return best;
 }
 
-function moodWord(t: Vec): string {
+function moodWord(t: Vec, smoothed: boolean): string {
   if (t.energy >= 0.65 && t.valence >= 0.6) return '明るくアップテンポな';
   if (t.energy <= 0.4) return '落ち着いた';
   if (t.spacious >= 0.65) return '開放感のある';
   if (t.acoustic >= 0.65) return '生音が心地いい';
   if (t.valence >= 0.65) return '爽やかな';
-  return '今の雰囲気に合う';
+  // 上の型に当てはまらないときは、狙いが真ん中から大きく外れている軸を2つまで言葉にする（「ゆったりした、生音の」）
+  const traits = AXES.map((a) => ({ a, d: t[a] - 0.5 }))
+    .filter(({ d }) => Math.abs(d) >= TRAIT_MIN)
+    .sort((x, y) => Math.abs(y.d) - Math.abs(x.d))
+    .slice(0, 2)
+    .map(({ a, d }) => TRAIT_WORD[a][d > 0 ? 0 : 1]);
+  if (traits.length) return traits.join('、');
+  // 狙いがどの軸も真ん中のまま。前の曲から寄せている途中なら、そう言う
+  return smoothed ? 'これまでの流れに近い' : 'ドライブに合う';
 }
+
+// 狙いの軸が真ん中（0.5）からこれ以上離れていたら、その軸を一言の材料にする
+const TRAIT_MIN = 0.06;
+// 軸 → [高いときの言葉, 低いときの言葉]
+const TRAIT_WORD: Record<Axis, [string, string]> = {
+  energy: ['勢いのある', '穏やかな'],
+  valence: ['明るい', 'しっとりした'],
+  tempo: ['テンポの速い', 'ゆったりした'],
+  acoustic: ['生音の', '電子音の効いた'],
+  spacious: ['音に広がりのある', '音の密度が高い'],
+  vocal: ['歌声が前に出た', '歌の少ない'],
+};
 
 // 各軸をプール内の順位（0〜1）に変換する。ターゲットは「プール内のどのあたりか」として解釈する。
 // 似た値ばかりの軸は、順位の差が誇張されるので重みを下げる（effW）

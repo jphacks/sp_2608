@@ -322,6 +322,21 @@ describe('recommend：所有者がいない曲（全曲カタログ）', () => {
     expect(r.chosen?.message).toBe('海が近いので、明るくアップテンポな曲を流します');
   });
 
+  it('決まった型に当てはまらない狙いは、目立つ曲調を2つまで言葉にする', () => {
+    const pool = fixture.map(({ ...t }) => t as PoolTrack);
+    const r = recommend({ pool, scene: { features: { urban: 1 } }, members, seed: 1 });
+    expect(r.chosen?.message).not.toContain('今の雰囲気に合う');
+    if (r.slot === 'score' && !r.fallback) {
+      expect(r.chosen?.message).toBe('街なかを走っているので、音の密度が高い、電子音の効いた曲を流します');
+    }
+  });
+
+  it('景色も車内も手がかりが無いときも、そう分かる一言にする', () => {
+    const pool = fixture.map(({ ...t }) => t as PoolTrack);
+    const r = recommend({ pool, scene: { features: {} }, members, seed: 1 });
+    expect(r.chosen?.message).toMatch(/^景色の手がかりが少ないので、/);
+  });
+
   it('owners が空配列でも同じ扱い（複数人のリストにある曲の項がマイナスにならない）', () => {
     const pool = [track('none', {}, []), track('one', {}, ['a'])];
     const r = recommend({ mode: 'blend', pool, scene: { features: {} }, members, seed: 1 });
