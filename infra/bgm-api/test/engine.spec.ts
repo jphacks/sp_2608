@@ -262,11 +262,10 @@ describe('recommend：スコアの補正項', () => {
     expect(empty.chosen).toBeNull();
   });
 
-  it('直近3曲と同じアーティスト・前回のドライブで流した曲・低信頼度を減点する', () => {
+  it('直近3曲と同じアーティスト・低信頼度を減点する', () => {
     const pool = [
       track('base', {}),
       { ...track('same', {}), artist: 'X' },
-      track('recent', {}),
       track('lowconf', { conf: 0.3 }),
     ];
     const r = recommend({
@@ -274,13 +273,11 @@ describe('recommend：スコアの補正項', () => {
       scene,
       members: ONE,
       history: [{ track_id: 'played', artist: 'X' }],
-      recent_track_ids: ['recent'],
       seed: 1,
     });
     const s = Object.fromEntries(r.candidates.map((c) => [c.title, c]));
     // 全曲が同じ特徴量なので距離は等しく、差は補正項だけ
     expect(s.base.score - s.same.score).toBeCloseTo(0.15, 3);
-    expect(s.base.score - s.recent.score).toBeCloseTo(0.3, 3);
     expect(s.base.score - s.lowconf.score).toBeCloseTo(0.2 * 0.3, 3);
     expect(r.chosen?.title).toBe('base');
   });

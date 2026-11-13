@@ -61,7 +61,6 @@ export type RecommendInput = {
   cabin?: CabinState;
   members: Member[];
   history?: HistoryEntry[]; // このドライブで流した曲（古い順）
-  recent_track_ids?: string[]; // 前回までのドライブで流した曲
   top_k?: number;
   seed?: number;
   // 前の曲を選んだときのターゲット（前回の応答の plan.target）。曲調が急に飛ばないよう、差を抑える
@@ -126,7 +125,7 @@ const CABIN_LABEL: Record<CabinState, string | null> = {
 
 // モードによらない係数。soft: ソフトな上限（vocal）のはみ出し1あたりの減点
 // モードで変わる係数（知名度・共有・所有者の偏り・プレイリストの加点）は modes.ts の MODE_PARAMS
-const LAMBDA = { rep: 0.3, artist: 0.15, conf: 0.2, cap: 1.0, soft: 0.3 };
+const LAMBDA = { artist: 0.15, conf: 0.2, cap: 1.0, soft: 0.3 };
 const FAM_BOOST = 2.5; // 静か・名道区間で「みんな知ってる曲」の加点を強める倍率
 // くじ引きの対象。同じ景色で毎回同じ数曲にならないよう、最高点から scoreWindow 以内の曲を最大 maxTracks 曲まで広げる。
 // 点数が高いほど選ばれやすいことは変えない（tau が温度）。返す candidates（再生できなかったときの次点）とは別。
@@ -294,7 +293,6 @@ export function recommend(input: RecommendInput) {
 
   // このドライブで流した曲は候補から外す。playlist モードでは誰かのリストにある曲だけにする
   const played = new Set(history.map((h) => h.track_id));
-  const recent = new Set(input.recent_track_ids ?? []);
   const available = input.pool.filter((t) => !played.has(t.track_id));
   const capKeys = Object.keys(plan.caps) as Axis[];
   const capValue = (t: PoolTrack, a: Axis) => (a === 'energy' ? (t.energy_cap ?? t.energy) : t[a]);
@@ -369,7 +367,6 @@ export function recommend(input: RecommendInput) {
     .map((t) => {
       const owners = ownersOf(t);
       const d = distTo(ref, t);
-      const R = recent.has(t.track_id) ? 1 : 0;
       const A = recentArtists.has(t.artist) ? 1 : 0;
       const O = owners.length ? Math.min(...owners.map((o) => Math.max(0, share(o) - 1 / N))) : 0;
       const F = N > 1 && owners.length > 0 ? (owners.length - 1) / (N - 1) : 0;
@@ -383,7 +380,6 @@ export function recommend(input: RecommendInput) {
       const prefBonus = pref === 'track' ? M.prefTrack : pref === 'artist' ? M.prefArtist : 0;
       const score =
         -d -
-        LAMBDA.rep * R -
         LAMBDA.artist * A -
         M.owner * O +
         M.shared * plan.famBoost * F +
@@ -401,7 +397,6 @@ export function recommend(input: RecommendInput) {
           distance: round(d),
           over_cap: round(overCap.get(t.track_id) ?? 0),
           over_soft: round(S),
-          recent: R,
           same_artist: A,
           owner_bias: round(O),
           shared: round(F),

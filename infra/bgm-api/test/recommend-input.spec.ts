@@ -16,7 +16,7 @@ describe('recommendation input', () => {
     { pool: [{ track_id: 'a', owners: ['unknown'] }] }, { members: [null] }, { members: [] },
     { members: [valid.members[0], valid.members[0]] }, { cabin: 'invalid' }, { cabin: ['quiet'] }, { top_k: 0 }, { seed: 1.5 },
     { scene: null }, { scene: { features: [] } }, { scene: { features: null } }, { scene: { features: { sea_proximity: { v: 2 } } } },
-    { scene: { hour: 24 } }, { include_catalog: 'true' }, { recent_track_ids: {} }, { previous_target: { energy: -1 } },
+    { scene: { hour: 24 } }, { include_catalog: 'true' }, { previous_target: { energy: -1 } },
     { route: { position_m: -1, timeline: [] } }, { route: { position_m: 0, timeline: [null] } },
     { route: { position_m: 0, timeline: [{ start_m: 10, end_m: 5, category: 'sea' }] } },
     { route: { position_m: 0, timeline: [{ start_m: 0, end_m: 10, category: 'sea', recommended_rank: ['signature'] }] } },

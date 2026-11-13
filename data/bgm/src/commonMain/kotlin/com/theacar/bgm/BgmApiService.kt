@@ -198,9 +198,6 @@ class BgmApiService(
                 }
             }
         }
-        if (request.recentTrackIds.isNotEmpty()) {
-            putJsonArray("recent_track_ids") { request.recentTrackIds.forEach { add(it) } }
-        }
         request.scenery?.let { putJsonObject("route") { route(it, inlineTimeline) } }
         // 区間ごとの運転条件は景観エンジンから取れないので、分かるぶんだけ scene で足す。
         // route の景観はサーバー側で保たれ、ここで指定した項目だけが上書きされる。
