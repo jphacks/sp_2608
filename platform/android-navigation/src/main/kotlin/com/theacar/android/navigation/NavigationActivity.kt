@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.graphics.Insets
@@ -24,18 +23,20 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.theacar.model.Coordinate
 import com.theacar.location.LocationStatus
 import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
-import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.MiniPlayer
 import com.theacar.ui.MiniPlayerProgress
 import com.theacar.ui.PermissionDisclosure
-import com.theacar.ui.Sky
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.Modifier
+import com.theacar.ui.Regent
 import com.theacar.ui.Tab
 import com.theacar.ui.TabiBottomBar
 import com.theacar.ui.TheaCarTheme
@@ -48,7 +49,6 @@ class NavigationActivity : ComponentActivity() {
     private var mapController: NavigationMapController? = null
     private val viaPoints = mutableStateListOf<Coordinate>()
     private var selectedDestination by mutableStateOf<Destination?>(null)
-    private var bandShown = true
     private val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         runtime.locations.acquire(this)
     }
@@ -64,7 +64,7 @@ class NavigationActivity : ComponentActivity() {
         }
         savedInstanceState?.getDoubleArray("selectedDestination")?.takeIf { it.size == 2 }?.let { point ->
             selectedDestination = Destination("map:${point[0]},${point[1]}",
-                savedInstanceState.getString("selectedDestinationTitle") ?: "地図で選択した場所", Coordinate(point[0], point[1]))
+                savedInstanceState.getString("selectedDestinationTitle") ?: PICKED_PLACE_TITLE, Coordinate(point[0], point[1]))
         }
         val layout = FrameLayout(this)
         mapController = NavigationMapController(this, runtime, lifecycleScope).also { controller ->
@@ -94,7 +94,7 @@ class NavigationActivity : ComponentActivity() {
                 val savedMemoryId = recording?.lastSavedId?.collectAsState()?.value
                 val memorySaveFailed = recording?.saveFailed?.collectAsState()?.value == true
                 val mapState = mapController?.displayState?.collectAsState()?.value ?: MapDisplayState.DISABLED
-                TheaCarTheme {
+                TheaCarTheme { MapOverlayText {
                     NavigationControls(state, location, runtime.configuration, voice, viaPoints.size,
                         selectedDestination = selectedDestination,
                         mapState = mapState,
@@ -180,32 +180,23 @@ class NavigationActivity : ComponentActivity() {
                         onMapInsetsChanged = { top, right, bottom -> mapController?.setPadding(0, top, right, bottom) },
                         companion = companion,
                     )
-                }
+                } }
             }
         }
         layout.addView(controls, FrameLayout.LayoutParams(-1, -1))
-        // 下端のシステムバー分の余白はタブバーが受け持つので、地図とコントロールには渡さない。
-        // 上端も、見出し帯を出している間は帯が受け持つ
+        // システムバー分の余白は、上はタブの色の帯が、下はタブバーが受け持つので、地図とコントロールには渡さない
         ViewCompat.setOnApplyWindowInsetsListener(layout) { _, insets ->
             val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val status = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             WindowInsetsCompat.Builder(insets)
                 .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(nav.left, nav.top, nav.right, 0))
-                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(status.left, if (bandShown) 0 else status.top, status.right, status.bottom))
+                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(status.left, 0, status.right, status.bottom))
                 .build()
         }
+        // ほかのタブの見出し帯と色をそろえ、地図の面積は削らないよう、ステータスバーの裏だけに色を敷く
         val band = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { TheaCarTheme { CompactHeaderBand("DRIVE", Sky) } }
-        }
-        // 案内中は案内カードに場所を譲るため、帯を隠す
-        lifecycleScope.launch {
-            runtime.session.state.map { it.phase != NavigationPhase.GUIDING && it.phase != NavigationPhase.ARRIVED }
-                .distinctUntilChanged().collect { shown ->
-                    bandShown = shown
-                    band.visibility = if (shown) View.VISIBLE else View.GONE
-                    ViewCompat.requestApplyInsets(layout)
-                }
+            setContent { TheaCarTheme { Box(Modifier.fillMaxWidth().background(Regent).statusBarsPadding()) } }
         }
         val miniPlayer = (application as AndroidNavigationOwner).miniPlayer
         val player = ComposeView(this).apply {
@@ -217,6 +208,7 @@ class NavigationActivity : ComponentActivity() {
                         MiniPlayer(player.title, player.isPlaying, miniPlayer::toggle, { miniPlayer.open(this@NavigationActivity) },
                             subtitle = player.subtitle, actionLabel = player.actionLabel,
                             onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator,
+                            actionReplacesPlay = player.actionReplacesPlay,
                             progress = player.progress?.let { MiniPlayerProgress(it.positionMillis, it.durationMillis, it.anchorMillis, it.playing) },
                             clock = miniPlayer::clock)
                     }

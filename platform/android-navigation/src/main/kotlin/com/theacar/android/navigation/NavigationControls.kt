@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.unit.dp
 import com.theacar.location.LocationState
 import com.theacar.location.LocationStatus
@@ -49,7 +51,9 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.ui.unit.sp
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mountains
+import com.theacar.ui.Spruce
+import com.theacar.ui.FadedOrange
+import com.theacar.ui.Cream
 import com.theacar.ui.Muted
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.jost
@@ -216,16 +220,12 @@ internal fun NavigationControls(
                             if (selectedDestination == null && viaPointCount == 0) { keyboard?.hide(); showRoundTrip = true }
                             else startRouteSearch()
                         }, enabled = !busy && (selectedDestination != null || viaPointCount == 0 || location.fix != null),
-                        modifier = Modifier.size(48.dp), shape = CircleShape, color = Mountains) {
+                        modifier = Modifier.size(48.dp), shape = CircleShape, color = Spruce) {
                         Icon(Icons.Rounded.ArrowForward, contentDescription = "経路を探す",
-                            tint = SurfaceColor, modifier = Modifier.size(48.dp).padding(12.dp))
+                            tint = Cream, modifier = Modifier.size(48.dp).padding(12.dp))
                     }
                 } else Spacer(Modifier.weight(1f))
                 MapIconButton(Icons.Rounded.Tune, "ナビの設定", { showSettings = true })
-            }
-            if (planning && viaPointCount == 0) {
-                ScenicChipRow(scenicPreference, { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
-                    scenicSettings.copy(roundTrip = roundTripMode), updateScenic, enabled = !busy)
             }
             when (mapState) {
                 MapDisplayState.LOADING -> Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
@@ -265,11 +265,21 @@ internal fun NavigationControls(
         Column(Modifier.align(if (wide) Alignment.BottomEnd else Alignment.BottomCenter)
             .widthIn(max = if (wide) 340.dp else 600.dp).fillMaxWidth().padding(12.dp)
             .onSizeChanged { bottomHeight = it.height; panelWidth = it.width }, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            MapIconButton(Icons.Rounded.MyLocation, "現在地", onRecenter, Modifier.align(Alignment.End))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                // 地図の出典は、地図の左下の隅に小さく出す
+                Text("© OpenMapTiles © OpenStreetMap", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                    color = Muted, modifier = Modifier.weight(1f))
+                MapIconButton(Icons.Rounded.MyLocation, "現在地", onRecenter)
+            }
             if (state.phase == NavigationPhase.GUIDING) companion?.GuidanceContent()
-            Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
+            // 何も選んでいないときは、空の枠を出さない
+            val panelHasContent = roundTripSheet || selectedDestination != null || state.route != null || state.failure != null ||
+                busy || viaPointCount > 0 || state.previewNeedsRefresh || state.phase != NavigationPhase.IDLE ||
+                !configuration.configured || configuration.mapStyleUrl.isBlank() ||
+                location.usableFix(LocationUse.ROUTE_PREVIEW, locationNow) == null
+            if (panelHasContent) Surface(shape = RoundedCornerShape(CardCorner), border = FloatingBorder) {
                 Column(Modifier.fillMaxWidth().heightIn(max = maxPanelHeight)) {
-                    val panelTitle = selectedDestination?.title ?: state.route?.destination?.title
+                    val panelTitle = (selectedDestination ?: state.route?.destination)?.displayName
                     var showRoundTripHelp by rememberSaveable { mutableStateOf(false) }
                     // 目的地を入れずに矢印を押したときだけ、周遊ルートの設定が下から出る
                     AnimatedVisibility(roundTripSheet, modifier = Modifier.weight(1f, fill = false),
@@ -290,7 +300,7 @@ internal fun NavigationControls(
                                 ScenicSearchControls(scenicPreference, extraMinutes,
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
-                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true, showChips = false,
+                                    settings = scenicSettings.copy(roundTrip = true), onSettings = updateScenic, compact = true, showButtons = false,
                                     onQuickSearch = if (location.fix != null) { quick ->
                                         location.fix?.let { fix ->
                                             keyboard?.hide()
@@ -299,7 +309,7 @@ internal fun NavigationControls(
                                         }
                                     } else null)
                                 Button(onClick = startRouteSearch, enabled = !busy && location.fix != null,
-                                    shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Mountains, contentColor = SurfaceColor),
+                                    shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Spruce, contentColor = Cream),
                                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("${totalMinutes}分以内の周遊ルートを探す") }
                                 if (location.fix == null) Text("現在地を取得すると周遊ルートを探せます", style = MaterialTheme.typography.bodySmall, color = Muted)
                             }
@@ -307,7 +317,7 @@ internal fun NavigationControls(
                     }
                     if (showRoundTripHelp) AlertDialog(onDismissRequest = { showRoundTripHelp = false },
                         title = { Text("周遊ルート") },
-                        text = { Text("目的地を入れずに矢印を押すと、現在地から出発して現在地に戻るルートを探します。長さは「周遊全体の上限」で決められます。目的地を入れると、目的地までのルートを探します。") },
+                        text = { Text("目的地を入れずに矢印を押すと、現在地から出発して現在地に戻るルートを探します。長さ（休憩込み）はスライダーで決められます。目的地を入れると、目的地までのルートを探します。") },
                         confirmButton = { TextButton(onClick = { showRoundTripHelp = false }) { Text("閉じる") } })
                     if (panelTitle != null || state.route != null) {
                         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -339,7 +349,8 @@ internal fun NavigationControls(
                                 if (viaPointCount == 0) ScenicSearchControls(scenicPreference, extraMinutes,
                                     { if (scenicPreference != it) onInvalidatePreview(); scenicPreference = it },
                                     { if (extraMinutes != it) onInvalidatePreview(); extraMinutes = it }, enabled = !busy,
-                                    settings = scenicSettings, onSettings = updateScenic, compact = !panelExpanded, showChips = false,
+                                    settings = scenicSettings, onSettings = updateScenic, compact = !panelExpanded,
+                                    showButtons = false,
                                     onQuickSearch = { quick ->
                                         keyboard?.hide(); awaitingPreview = true
                                         onPreview(selectedDestination, options.copy(scenic = quick))
@@ -350,16 +361,15 @@ internal fun NavigationControls(
                                     Text("目的地 · ${coordinateLabel(selectedDestination)}", style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Button(onClick = { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
-                                        enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("ここまでのルートを見る") }
-                                    // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
-                                    Surface(onClick = onClearSelection, modifier = Modifier.size(52.dp), shape = CircleShape,
-                                        color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)) {
-                                        Icon(Icons.Rounded.Close, contentDescription = "目的地の選択を取り消す", tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.padding(14.dp))
-                                    }
+                                // 地図を誤ってタップして選んだ目的地を、すぐ取り消して選び直せるようにする
+                                // 寄り道の分数はスライダーの上ではなく、ここに出す
+                                val routeLabel = when {
+                                    viaPointCount > 0 -> "経路"
+                                    extraMinutes == 0 -> "最短の経路"
+                                    else -> "寄り道＋${scenicDetourLabel(extraMinutes)}の経路"
                                 }
+                                ActionWithClose(routeLabel, { keyboard?.hide(); awaitingPreview = true; onPreview(selectedDestination, options) },
+                                    onClearSelection, "目的地の選択を取り消す", enabled = !busy)
                                 if (panelExpanded) TextButton(onClick = onAddViaPoint, enabled = !busy && viaPointCount < 126) { Text("寄り道に追加") }
                             } else if (canPlan && state.route == null && !busy) {
                                 if (viaPointCount > 0) {
@@ -374,13 +384,14 @@ internal fun NavigationControls(
                                     color = MaterialTheme.colorScheme.primary)
                             }
                             if (busy) {
-                                LinearProgressIndicator(Modifier.fillMaxWidth())
+                                TabiProgress(Modifier.fillMaxWidth())
                                 if (options.scenic != null && state.phase == NavigationPhase.PREVIEWING) {
                                     Text("景観区間をつなぎ、候補を改善しています（最大約2分）", style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                             state.route?.takeIf { selectedDestination == null }?.let { route ->
-                                if (panelExpanded || state.phase == NavigationPhase.ARRIVED) Text(if (state.phase == NavigationPhase.ARRIVED) "到着しました" else route.destination.title,
+                                // 目的地の名前は見出しに出ているので、ここでは到着したときだけ
+                                if (state.phase == NavigationPhase.ARRIVED) Text("到着しました",
                                     style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 if (!panelExpanded && compactTimeline.isEmpty()) {
                                     Text(jostNumbers("${((state.progress?.remainingSeconds ?: route.durationSeconds) + 59) / 60}分 · ${((state.progress?.remainingMeters ?: route.distanceMeters) / 100) / 10.0}km"),
@@ -391,7 +402,7 @@ internal fun NavigationControls(
                                 }
                                 if (state.phase == NavigationPhase.PREVIEW) {
                                     if (state.previewImproving) {
-                                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                                        TabiProgress(Modifier.fillMaxWidth())
                                         Text("候補を表示しました。ほかの経路も探索中です。選択・案内開始できます。",
                                             style = MaterialTheme.typography.labelSmall)
                                     }
@@ -412,7 +423,8 @@ internal fun NavigationControls(
                                     Text("旅の記録を保存できませんでした。端末の空き容量を確認してください。", style = MaterialTheme.typography.bodySmall)
                                     TextButton(onClick = onRetryMemorySave) { Text("記録の保存を再試行") }
                                 }
-                                if (panelExpanded || state.phase != NavigationPhase.PREVIEW) Row(Modifier.fillMaxWidth(),
+                                // 経路を見ている間は、バツと設定の音声案内と重なるので出さない。案内中だけ出す
+                                if (state.phase != NavigationPhase.PREVIEW) Row(Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                     LabeledSwitch("音声案内", voiceEnabled, onVoiceChanged)
                                     TextButton(onClick = if (state.phase == NavigationPhase.PREVIEW) onInvalidatePreview else onStop, enabled = state.phase != NavigationPhase.STOPPING) {
@@ -433,7 +445,7 @@ internal fun NavigationControls(
                                 }
                                 if (it == NavigationFailure.SCENIC_UNAVAILABLE && retryWithoutScenic != null) {
                                     TextButton(onClick = retryWithoutScenic, enabled = !busy,
-                                        colors = ButtonDefaults.textButtonColors(contentColor = Mountains)) { Text("景観なしで探す") }
+                                        colors = ButtonDefaults.textButtonColors(contentColor = Spruce)) { Text("景観なしで探す") }
                                 }
                             }
                             if (configuration.mapStyleUrl.isBlank()) {
@@ -441,20 +453,14 @@ internal fun NavigationControls(
                             }
                         }
                     }
-                    // 出典表示は常に見える固定位置に置く
-                    Text("© OpenMapTiles · © OpenStreetMap contributors", style = MaterialTheme.typography.bodySmall,
-                        color = Muted, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 10.dp))
                     if (state.phase == NavigationPhase.PREVIEW && selectedDestination == null) {
-                        // 開始ボタンと同じ固定領域に置き、詳細のスクロール位置に関係なく開始前に確認できるようにする。
-                        companion?.let { Box(Modifier.padding(horizontal = 16.dp)) { it.PreviewContent() } }
-                        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, bottom = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Button(onClick = onStart, enabled = canGuide,
-                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
-                                Text(if (canGuide) "案内を開始" else "現在地を確認中…")
-                            }
-                            TextButton(onClick = onInvalidatePreview) { Text("変更") }
-                        }
+                        // 経路が古い・外れているときは案内を始められないので、その場で選び直せるボタンにする
+                        val replan = state.failure == NavigationFailure.PREVIEW_EXPIRED || state.failure == NavigationFailure.AWAY_FROM_ROUTE
+                        if (replan) ActionWithClose("経路を変更", onInvalidatePreview, onInvalidatePreview, "経路を選び直す",
+                            Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = FadedOrange, contentColor = Spruce))
+                        else ActionWithClose(if (canGuide) "案内を開始" else "現在地を確認中…", onStart, onInvalidatePreview, "経路を選び直す",
+                            Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp), enabled = canGuide)
                     }
                 }
             }
@@ -466,7 +472,8 @@ internal fun NavigationControls(
             avoidHighways, { if (avoidHighways != it) onInvalidatePreview(); avoidHighways = it }, voiceEnabled, onVoiceChanged, canPlan, { showSettings = false },
             tokenLoaded = routingTokenLoaded, tokenError = routingTokenError,
             tokenFromBuild = routingTokenFromBuild, routingUrl = configuration.routingUrl,
-            builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged)
+            builtInRoutingUrl = configuration.builtInRoutingUrl, onRoutingUrlChanged = onRoutingUrlChanged,
+            scenic = scenicSettings, onScenicChanged = updateScenic)
     }
     if (showSearch && canPlan) {
         DestinationSearchDialog(state, true, onSearch,
@@ -480,9 +487,10 @@ private fun coordinateLabel(destination: Destination): String =
 
 @Composable
 private fun RouteMetric(value: String, unit: String) {
-    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(value, style = MaterialTheme.jost.stat.copy(fontSize = 32.sp, lineHeight = 36.sp))
-        Text(unit, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(bottom = 4.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    // 数字と単位を文字の下の線でそろえる
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(value, style = MaterialTheme.jost.stat.copy(fontSize = 32.sp, lineHeight = 36.sp), modifier = Modifier.alignByBaseline())
+        Text(unit, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline(), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -506,13 +514,9 @@ private fun LocationNotice(location: LocationState, now: Long, onRequestPermissi
             !canPreview -> "位置の誤差が大きいため、より正確な位置を待っています"
             (location.fix?.accuracyMeters ?: 101f) > 100 -> "おおよその現在地から検索できます · 案内は精度向上を待機"
             (location.fix?.accuracyMeters ?: 100f) > 40 -> "案内を開始できます · 右左折の案内は精度が上がってから"
-            else -> "青い点が現在地です"
+            else -> null
         }
         else -> null
     }
     message?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-    location.fix?.let { fix ->
-        Text("測位精度 約 ${kotlin.math.ceil(fix.accuracyMeters).toInt()} m · ${((now - fix.elapsedRealtimeMillis) / 1_000).coerceAtLeast(0)} 秒前",
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
 }

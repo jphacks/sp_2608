@@ -29,6 +29,7 @@ data class MiniPlayerState(
     val subtitle: String? = null,
     val actionLabel: String? = null,
     val showIndicator: Boolean = false,
+    val actionReplacesPlay: Boolean = false,
     /** 流れている曲の再生位置。長さか位置が分からないときは null で、バーを出さない。 */
     val progress: MiniPlayerSongPosition? = null,
 )
@@ -64,8 +65,10 @@ class AndroidNavigationRuntime(application: Application) {
     val routingTokenFromBuild = credentials.usingBuiltIn
     suspend fun setRoutingToken(token: String): Boolean = credentials.save(token)
     val locations = AndroidLocationSource(application, scope)
+    /** 開発用。経路を探すときの出発時刻を、今ではなくこの時刻にする（Debug ビルドの受信口から入れる） */
+    @Volatile var departureOverride: java.time.OffsetDateTime? = null
     val engine = LocalNavigationEngine(ScenicRecommendationClient(configuration.routingUrl, client,
-        { java.time.OffsetDateTime.now().toString() }, { routingToken.value }), locations, scope, SystemClock::elapsedRealtime)
+        { (departureOverride ?: java.time.OffsetDateTime.now()).toString() }, { routingToken.value }), locations, scope, SystemClock::elapsedRealtime)
     val session = NavigationSession(OsmDestinationSearch(
         configuration.geocodingUrl.ifBlank { configuration.routingUrl }, client,
         { if (configuration.geocodingUrl.isBlank()) routingToken.value else "" }), engine, scope)

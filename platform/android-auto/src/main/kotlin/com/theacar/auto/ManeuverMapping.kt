@@ -54,10 +54,35 @@ internal object ManeuverMapping {
         else -> R.drawable.ic_maneuver_straight
     }
 
+    /** 車の画面は 800×480 で文字が大きいので、案内は「左折」のような短い言葉にする。知らない種類は案内文の最初の1文 */
+    fun shortCue(carType: Int, instruction: String): String = when (carType) {
+        Maneuver.TYPE_DEPART -> "出発"
+        Maneuver.TYPE_DESTINATION -> "目的地"
+        Maneuver.TYPE_DESTINATION_LEFT -> "目的地（左側）"
+        Maneuver.TYPE_DESTINATION_RIGHT -> "目的地（右側）"
+        Maneuver.TYPE_STRAIGHT, Maneuver.TYPE_NAME_CHANGE -> "直進"
+        Maneuver.TYPE_TURN_SLIGHT_LEFT -> "やや左"
+        Maneuver.TYPE_TURN_SLIGHT_RIGHT -> "やや右"
+        Maneuver.TYPE_TURN_NORMAL_LEFT -> "左折"
+        Maneuver.TYPE_TURN_NORMAL_RIGHT -> "右折"
+        Maneuver.TYPE_TURN_SHARP_LEFT -> "大きく左"
+        Maneuver.TYPE_TURN_SHARP_RIGHT -> "大きく右"
+        Maneuver.TYPE_U_TURN_LEFT, Maneuver.TYPE_U_TURN_RIGHT -> "Uターン"
+        Maneuver.TYPE_KEEP_LEFT -> "左側を進む"
+        Maneuver.TYPE_KEEP_RIGHT -> "右側を進む"
+        Maneuver.TYPE_ON_RAMP_NORMAL_LEFT, Maneuver.TYPE_ON_RAMP_NORMAL_RIGHT -> "入口へ"
+        Maneuver.TYPE_OFF_RAMP_NORMAL_LEFT, Maneuver.TYPE_OFF_RAMP_NORMAL_RIGHT -> "出口へ"
+        Maneuver.TYPE_MERGE_SIDE_UNSPECIFIED, Maneuver.TYPE_MERGE_LEFT, Maneuver.TYPE_MERGE_RIGHT -> "合流"
+        Maneuver.TYPE_ROUNDABOUT_ENTER_CW -> "ロータリーへ"
+        Maneuver.TYPE_ROUNDABOUT_EXIT_CW -> "ロータリーを出る"
+        Maneuver.TYPE_FERRY_BOAT -> "フェリー"
+        else -> instruction.substringBefore("。")
+    }
+
     fun step(context: Context, instruction: String, road: String, valhallaType: Int): Step {
         val type = carType(valhallaType)
         val icon = CarIcon.Builder(IconCompat.createWithResource(context, iconRes(type))).setTint(CarColor.DEFAULT).build()
-        return Step.Builder().setCue(instruction).setRoad(road)
+        return Step.Builder().setCue(shortCue(type, instruction)).setRoad(road)
             .setManeuver(Maneuver.Builder(type).setIcon(icon).build()).build()
     }
 }

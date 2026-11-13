@@ -27,4 +27,11 @@ class ScenicDetourBudgetTest {
         assertEquals("1時間30分", scenicDetourLabel(90))
         assertEquals("6時間", scenicDetourLabel(360))
     }
+
+    @Test fun sliderPositionMapsSmoothlyBetweenTableValues() {
+        assertEquals(0, scenicDetourMinutesAt(0f))
+        assertEquals(360, scenicDetourMinutesAt(scenicDetourMinutes.lastIndex.toFloat()))
+        assertEquals(53, scenicDetourMinutesAt(7.5f))
+        listOf(0, 7, 52, 100, 360).forEach { assertEquals(it, scenicDetourMinutesAt(scenicDetourPosition(it))) }
+    }
 }

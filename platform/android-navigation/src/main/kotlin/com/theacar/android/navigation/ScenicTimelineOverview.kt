@@ -10,18 +10,6 @@ internal data class ScenicOverviewSection(
     val sourceRanges: List<ScenicRange>,
 )
 
-internal fun scenicSeaRanges(blocks: List<ScenicTimelineBlock>): List<ScenicRange> {
-    val ranges = mutableListOf<ScenicRange>()
-    blocks.filter { it.category == "sea" && it.range.endMeters > it.range.startMeters }
-        .sortedBy { it.range.startMeters }.forEach { block ->
-            val previous = ranges.lastOrNull()
-            if (previous != null && block.range.startMeters <= previous.endMeters) {
-                ranges[ranges.lastIndex] = ScenicRange(previous.startMeters, maxOf(previous.endMeters, block.range.endMeters))
-            } else ranges += block.range
-        }
-    return ranges
-}
-
 internal fun scenicTimelineOverview(blocks: List<ScenicTimelineBlock>, maxSections: Int = 24): List<ScenicOverviewSection> {
     require(maxSections > 0)
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: return emptyList()

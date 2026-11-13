@@ -5,6 +5,7 @@ import com.theacar.navigation.NavigationFailure
 fun NavigationFailure.message(): String = when (this) {
     NavigationFailure.SEARCH -> "検索できませんでした。緯度,経度でも指定できます。"
     NavigationFailure.NO_RESULTS -> "目的地が見つかりません。"
+    NavigationFailure.MORE_ROUTES_UNAVAILABLE -> "ほかの候補は探しきれませんでした。表示中の候補で案内できます。"
     NavigationFailure.NETWORK -> "経路サーバーへ接続できません。少し待ってから、もう一度お試しください。"
     NavigationFailure.NO_ROUTE -> "経路が見つかりません。対象地域・時間予算・道路条件・寄り道を確認してください。"
     NavigationFailure.PREVIEW_EXPIRED -> "景観ルートの確認から時間が経過しました。「経路を変更」から再検索してください。"

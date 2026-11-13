@@ -10,6 +10,8 @@
                 <action android:name="com.theacar.debug.DRIVE" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.theacar.android.debug.DepartureTimeReceiver" android:exported="true"
+            android:permission="android.permission.DUMP" />
         <!-- ドライブシミュレータ（simulator/）で走った位置を現在地として受け取る。DRIVE と同じく adb からだけ -->
         <receiver android:name="com.theacar.android.debug.SimulatorLinkReceiver" android:exported="true"
             android:permission="android.permission.DUMP">

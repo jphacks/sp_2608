@@ -1,5 +1,7 @@
 package com.theacar.android.navigation
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -26,14 +28,15 @@ import com.theacar.route.*
 import com.theacar.ui.CardCorner
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mountains
-import com.theacar.ui.Sky
+import com.theacar.ui.Spruce
+import com.theacar.ui.Regent
 import com.theacar.ui.jost
 
 @Composable
 internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId: String, onSelect: (String) -> Unit,
     onHighlightRoad: (ScenicRoadHighlight) -> Unit) {
-    val routes = alternatives.filter { it.scenic != null }
+    var sortBy by rememberSaveable { mutableStateOf<ScenicPreference?>(null) }
+    val routes = sortRoutes(alternatives.filter { it.scenic != null }, sortBy)
     val titles = remember(routes) { routes.associate { it.plan.id to routeChoiceTitle(it, routes) } }
     val traits = remember(routes) { routes.associate { it.plan.id to routeChoiceTraits(it, routes) } }
     var comparing by rememberSaveable { mutableStateOf(false) }
@@ -47,16 +50,21 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("${routes.size}案の特徴", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            ScenicSortButton(sortBy) { sortBy = it }
             TextButton(onClick = { comparing = true }, contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Text("通常ルート・候補を比較")
+                Text("比較")
             }
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        val listState = rememberLazyListState()
+        // 並べ替えたら、1番目の候補が見えるように左端へ戻す
+        LaunchedEffect(sortBy) { listState.scrollToItem(0) }
+        LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(routes, key = { _, route -> route.plan.id }) { index, route ->
                 val selected = route.plan.id == selectedId
                 Surface(onClick = { onSelect(route.plan.id) }, shape = RoundedCornerShape(CardCorner),
-                    color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    // 色を増やさないよう、選んだ候補は塗らずに濃い枠で示す
+                    color = MaterialTheme.colorScheme.surface,
+                    border = if (selected) BorderStroke(2.dp, Spruce) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.width(224.dp).semantics {
                         contentDescription = "候補${index + 1}。${if (selected) "選択中。" else ""}${titles.getValue(route.plan.id)}"
                     }) {
@@ -67,24 +75,16 @@ internal fun ScenicRouteChoices(alternatives: List<RouteAlternative>, selectedId
                             style = MaterialTheme.typography.bodySmall)
                         SceneryStrip(route.explanation?.timeline.orEmpty(), normalized = true, axisMeters = 1.0,
                             modifier = Modifier.fillMaxWidth().height(12.dp))
-                        ScenicRoadTimeline(route.explanation?.timeline.orEmpty(),
-                            route.explanation?.timeline?.maxOfOrNull { it.range.endMeters } ?: 0.0,
-                            onHighlight = { showRoad(route.plan.id, it) })
                         Text(traits.getValue(route.plan.id).joinToString(" · "), style = MaterialTheme.typography.labelSmall,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
         }
-        if (routes.any { route -> route.explanation?.timeline?.any { it.recommendedRoads.isNotEmpty() } == true }) {
-            ScenicRoadRankLegend()
-        }
         highlighted?.takeIf { it.first == selectedId }?.second?.let { road ->
             Text("${road.road.rank.label} · ${road.road.name}", color = rankColor(road.road.rank),
                 style = MaterialTheme.typography.bodySmall)
         }
-        Text("帯は全体を100%にそろえた景観の流れ。下端の青線は海に近い区間です", style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (comparing) ScenicRouteComparisonDialog(routes, selectedId,
         onSelect = { onSelect(it); comparing = false }, onDismiss = { comparing = false }, onHighlightRoad = showRoad)
@@ -197,13 +197,13 @@ private fun RouteComparisonCard(index: Int, route: RouteAlternative, all: List<R
     val difference = reference?.let(summary::differenceFrom)
     Surface(shape = RoundedCornerShape(CardCorner),
         border = BorderStroke(if (selected) 2.dp else 1.dp,
-            if (selected) Sky else MaterialTheme.colorScheme.outlineVariant)) {
+            if (selected) Regent else MaterialTheme.colorScheme.outlineVariant)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${index + 1}", style = MaterialTheme.typography.titleLarge.copy(fontFamily = MaterialTheme.jost.statUnit.fontFamily), color = Mountains,
+                Text("${index + 1}", style = MaterialTheme.typography.titleLarge.copy(fontFamily = MaterialTheme.jost.statUnit.fontFamily), color = Spruce,
                     modifier = Modifier.padding(end = 10.dp))
                 Text(routeChoiceTitle(route, all), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                if (selected) Text("選択中", style = MaterialTheme.typography.labelMedium, color = Mountains)
+                if (selected) Text("選択中", style = MaterialTheme.typography.labelMedium, color = Spruce)
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 routeChoiceTraits(route, all).forEach { trait ->
@@ -215,7 +215,7 @@ private fun RouteComparisonCard(index: Int, route: RouteAlternative, all: List<R
             Text(jostNumbers("走行${routeMinutes(summary.drivingSeconds)} · 休憩${routeMinutes(summary.stopSeconds)} · ${routeDistance(summary.distanceMeters)}"),
                 style = MaterialTheme.typography.bodyMedium)
             if (difference != null) Text(jostNumbers("通常ルートより ${routeTimeDelta(difference.drivingSeconds)} / ${routeDistanceDelta(difference.distanceMeters)}"),
-                style = MaterialTheme.typography.bodySmall, color = Mountains)
+                style = MaterialTheme.typography.bodySmall, color = Spruce)
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 if (reference != null) {
                     Text("通常ルート", style = MaterialTheme.typography.labelSmall)
@@ -289,7 +289,6 @@ private fun SceneryLegend(blocks: List<ScenicTimelineBlock>) {
 @Composable
 internal fun SceneryStrip(blocks: List<ScenicTimelineBlock>, normalized: Boolean, axisMeters: Double, modifier: Modifier = Modifier) {
     val sections = remember(blocks) { scenicTimelineOverview(blocks, 32) }
-    val seaRanges = remember(blocks) { scenicSeaRanges(blocks) }
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: 0.0
     val axis = sceneryAxisMeters(blocks, normalized, axisMeters)
     val background = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -301,11 +300,6 @@ internal fun SceneryStrip(blocks: List<ScenicTimelineBlock>, normalized: Boolean
             val width = ((section.range.endMeters - section.range.startMeters) / axis * size.width).toFloat()
             drawRoundRect(categoryColor(section.category), topLeft = Offset(x, 0f),
                 size = Size((width - 1.dp.toPx()).coerceAtLeast(0f), size.height), cornerRadius = CornerRadius(2.dp.toPx()))
-        }
-        seaRanges.forEach { range ->
-            drawRect(categoryColor("sea"),
-                Offset((range.startMeters / axis * size.width).toFloat(), size.height - 3.dp.toPx()),
-                Size(((range.endMeters - range.startMeters) / axis * size.width).toFloat(), 3.dp.toPx()))
         }
         if (!normalized && total > 0) {
             val end = (total / axis * size.width).toFloat().coerceIn(0f, (size.width - 1f).coerceAtLeast(0f))

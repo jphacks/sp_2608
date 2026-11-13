@@ -15,7 +15,12 @@ const val STICKER_ROUTE_MARGIN = 0.12
 /** 写真面の中の位置。0..1 の正規化座標で、x は右向き、y は下向き。 */
 data class StickerPoint(val x: Double, val y: Double)
 
-data class StickerProjection(val route: List<StickerPoint>, val photoSpot: StickerPoint?)
+/** [outline] は経路と同じ縮尺で写した地図の線。枠には合わせないので、写真面からはみ出してよい。 */
+data class StickerProjection(
+    val route: List<StickerPoint>,
+    val photoSpot: StickerPoint?,
+    val outline: List<List<StickerPoint>> = emptyList(),
+)
 
 /**
  * 経路（と写真の位置）を写真面に収める。経度は cos(緯度) で縮め、縦横比を保ったまま中央寄せし、
@@ -26,6 +31,7 @@ fun projectRoute(
     photoLocation: Coordinate? = null,
     aspect: Double = STICKER_WIDTH_MM / (STICKER_HEIGHT_MM * STICKER_PHOTO_FRACTION),
     margin: Double = STICKER_ROUTE_MARGIN,
+    outline: List<List<Coordinate>> = emptyList(),
 ): StickerProjection {
     require(aspect > 0 && margin >= 0 && margin < 0.5)
     val all = geometry + listOfNotNull(photoLocation)
@@ -48,5 +54,5 @@ fun projectRoute(
         x = 0.5 + (c.longitude * scaleX - centerX) * scale / aspect,
         y = 0.5 - (c.latitude - centerY) * scale,
     )
-    return StickerProjection(geometry.map(::place), photoLocation?.let(::place))
+    return StickerProjection(geometry.map(::place), photoLocation?.let(::place), outline.map { it.map(::place) })
 }

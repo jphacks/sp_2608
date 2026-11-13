@@ -28,10 +28,14 @@ import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 
 enum class MapDisplayState { LOADING, READY, ERROR, DISABLED }
+
+/** 地図で選んだ、名前の無い場所の呼び方 */
+internal const val PICKED_PLACE_TITLE = "指定した地点"
 
 class NavigationMapController(context: Context, private val runtime: AndroidNavigationRuntime, private val scope: CoroutineScope) {
     val view: MapView
@@ -88,7 +92,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
 
     init {
         MapLibre.getInstance(context)
-        view = MapView(context)
+        // 漢字も同梱の Noto Sans JP で描くため、端末の書体は使わない
+        view = MapView(context, MapLibreMapOptions.createFromAttributes(context).localIdeographFontFamilyEnabled(false))
         view.onCreate(null)
         view.addOnDidFailLoadingMapListener {
             if (!closed) { loadTimeout?.cancel(); mutableDisplayState.value = MapDisplayState.ERROR }
@@ -157,13 +162,22 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             delay(25_000)
             if (!closed && mutableDisplayState.value == MapDisplayState.LOADING) mutableDisplayState.value = MapDisplayState.ERROR
         }
-        val style = if (runtime.configuration.mapStyleUrl.isBlank()) {
-            Style.Builder().fromJson("{\"version\":8,\"sources\":{},\"layers\":[{\"id\":\"background\",\"type\":\"background\",\"paint\":{\"background-color\":\"#e8eeea\"}}]}")
-        } else Style.Builder().fromUri(runtime.configuration.mapStyleUrl)
+        val url = runtime.configuration.mapStyleUrl
+        if (url.isBlank()) {
+            applyStyle(target, Style.Builder().fromJson("{\"version\":8,\"sources\":{},\"layers\":[{\"id\":\"background\",\"type\":\"background\",\"paint\":{\"background-color\":\"#e8eeea\"}}]}"))
+        } else scope.launch {
+            // 読めなければ、配信元の書体のまま出す
+            val json = runCatching { tabiStyleJson(url) }.getOrNull()
+            if (!closed) applyStyle(target, json?.let { Style.Builder().fromJson(it) } ?: Style.Builder().fromUri(url))
+        }
+    }
+
+    private fun applyStyle(target: MapLibreMap, style: Style.Builder) {
         target.setStyle(style) {
             if (closed) return@setStyle
             styleLoaded = true
             applyTabiMapColors(it, dark)
+            applyTabiMapLabels(it)
             if (runtime.configuration.mapStyleUrl.isBlank()) {
                 loadTimeout?.cancel()
                 mutableDisplayState.value = MapDisplayState.DISABLED
@@ -190,7 +204,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
                 }
         }
         follow = false
-        onDestinationSelected?.invoke(Destination("map:${point.latitude},${point.longitude}", name ?: "地図で選択した場所", Coordinate(point.latitude, point.longitude)))
+        onDestinationSelected?.invoke(Destination("map:${point.latitude},${point.longitude}", name ?: PICKED_PLACE_TITLE, Coordinate(point.latitude, point.longitude)))
     }
 
     fun showSelectedDestination(destination: Destination?) {
@@ -224,7 +238,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val highlighted = ranges.map(index::slice).filter { it.isNotEmpty() }
         highlighted.filter { it.size >= 2 }.forEach { points ->
             evidenceLines += target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-                .color(color).width(8f))
+                .color(color).width(5f))
         }
         evidenceFocus = highlighted.flatten().map { LatLng(it.latitude, it.longitude) }
         if (title != null && evidenceFocus.isNotEmpty()) {
@@ -296,7 +310,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val left = contentPadding[0] + margin
         val top = contentPadding[1] + margin
         val right = contentPadding[2] + margin
-        val bottom = contentPadding[3] + margin
+        // 下の枠を広げると見える地図がわずかになり、経路を収めようとして引きすぎるので、下の余白は画面の半分までにする
+        val bottom = minOf(contentPadding[3], view.height / 2) + margin
         if (view.width <= left + right || view.height <= top + bottom) return
         val bounds = LatLngBounds.Builder().includes(route.geometry.map { LatLng(it.latitude, it.longitude) }).build()
         target.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, left, top, right, bottom))
@@ -340,7 +355,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             val points = index.slice(range)
             if (points.size < 2) return@forEach
             sceneryLines += target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-                .color(color).width(10f))
+                .color(color).width(6f))
         }
         // 後から引いた線が上に乗るので、通過済みの線は塗り分けの後に引き直す
         clearTraveled(target)
@@ -377,7 +392,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         val points = index.slice(ScenicRange(0.0, traveled))
         if (points.size < 2) return
         traveledLine = target.addPolyline(PolylineOptions().addAll(points.map { LatLng(it.latitude, it.longitude) })
-            .color(traveledColor()).width(10f))
+            .color(traveledColor()).width(6f))
     }
 
     private fun render() {
@@ -413,10 +428,10 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
             clearTraveled(target)
             val routePoints = route?.takeIf { it.geometry.size >= 2 }?.geometry?.map { coordinate -> LatLng(coordinate.latitude, coordinate.longitude) }
             routeCasing = routePoints?.let {
-                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(14f))
+                target.addPolyline(PolylineOptions().addAll(it).color(android.graphics.Color.argb(153, 30, 42, 36)).width(9f))
             }
             routeLine = routePoints?.let {
-                target.addPolyline(PolylineOptions().addAll(it).color(routeColor()).width(10f))
+                target.addPolyline(PolylineOptions().addAll(it).color(routeColor()).width(6f))
             }
             routeKey = key
             if (route != null && state.phase == NavigationPhase.PREVIEW) {

@@ -3,6 +3,9 @@
   <node id="1" lat="43.06" lon="141.35">
     <tag k="name" v="テスト駅"/><tag k="name:en" v="Test Station"/><tag k="railway" v="station"/>
   </node>
+  <node id="5" lat="43.0601" lon="141.35">
+    <tag k="name" v="テスト駅"/><tag k="railway" v="stop"/><tag k="public_transport" v="stop_position"/>
+  </node>
   <node id="2" lat="43.07" lon="141.36"/>
   <node id="3" lat="43.08" lon="141.37"/>
   <node id="4" lat="43.09" lon="141.38">
