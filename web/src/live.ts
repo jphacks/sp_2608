@@ -40,6 +40,8 @@ export type LivePlayed = {
   artist: string;
   message: string | null;
   theme: string | null;
+  /** その曲を決めたときに見ていた区間で一番多かった景色（理由の一言と同じ景色） */
+  scene: string | null;
   startM: number | null;
   endM: number | null;
 };
@@ -249,6 +251,7 @@ export function parseLiveUpload(raw: unknown): LiveUpload {
         artist: text(p.artist ?? "", `played[${i}].artist`),
         message: optText(p.message, `played[${i}].message`, 200),
         theme: optText(p.theme, `played[${i}].theme`, 32),
+        scene: optText(p.scene, `played[${i}].scene`, 32),
         startM: p.startM == null ? null : num(p.startM, `played[${i}].startM`, 0),
         endM: p.endM == null ? null : num(p.endM, `played[${i}].endM`, 0),
       };

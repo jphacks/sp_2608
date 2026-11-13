@@ -144,7 +144,7 @@ h1{font-size:22px;margin:0;font-weight:700}
 .pick-step .step-n{background:var(--ink)}
 .pick-badge{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:var(--mountains);color:#fff}
 .pick-badge.decided{background:var(--sunset)}
-.pick-title{font-size:32px;font-weight:900;line-height:1.25;margin:12px 0 2px;word-break:break-word}
+.pick-title{font-size:32px;font-weight:900;line-height:1.25;margin:12px 0 2px;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pick-artist{font-size:16px;color:var(--muted)}
 .pick-msg{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--card);border-left:5px solid var(--scene);font-size:17px;font-weight:700;line-height:1.6}
 .pick-why{display:grid;gap:10px;margin-top:16px}
@@ -232,6 +232,59 @@ h1{font-size:22px;margin:0;font-weight:700}
 .demo-actions a{display:inline-flex;align-items:center;min-height:46px;padding:0 20px;border-radius:999px;background:var(--soft);color:var(--ink);font-weight:700;text-decoration:none;font-size:15px}
 .demo-actions a.main{background:var(--sunset);color:#fff}
 footer{margin-top:28px;font-size:12px;color:var(--muted)}
+
+/* モニターに映しっぱなしにする横長の画面：1920×1080 の1枚に組み、画面の大きさに合わせて拡大・縮小する（スクロールさせない） */
+html.fit,html.fit body{height:100%;overflow:hidden}
+html.fit main{position:absolute;left:0;top:0;width:1920px;height:1080px;max-width:none;margin:0;padding:22px 30px;transform-origin:0 0;
+  display:grid;gap:16px 18px;grid-template-columns:500px minmax(0,1fr) 620px;grid-template-rows:auto 450px minmax(0,1fr) auto auto;
+  grid-template-areas:"head head head" "hero hero hero" "map journey cands" "now journey cands" "cabin journey cands"}
+html.fit header{grid-area:head;margin:0}
+html.fit .hero{grid-area:hero;margin:0;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr) 40px minmax(0,1.2fr);align-items:stretch;min-height:0}
+html.fit .flow::before{content:"→"}
+html.fit .step{overflow:hidden;padding:18px 22px}
+html.fit .radar{max-width:262px}
+html.fit .radar .lbl{font-size:15px}
+html.fit .step-head{margin-bottom:10px}
+html.fit .step-head h3{font-size:24px}
+html.fit .step-head .sub{font-size:15px}
+html.fit .step-n{width:34px;height:34px;font-size:18px}
+html.fit .scene-big b{font-size:76px}
+html.fit .scene-big span{font-size:22px}
+html.fit .scene-row{font-size:20px;grid-template-columns:90px 1fr 64px}
+html.fit .scene-row .bar{height:18px;border-radius:9px}
+html.fit .because{font-size:16px;margin-top:14px}
+html.fit .chip{font-size:18px;padding:6px 16px}
+html.fit .radar-legend{font-size:15px;margin-top:0}
+html.fit .pick-badge{font-size:16px;padding:5px 14px}
+html.fit .pick-title{font-size:46px;-webkit-line-clamp:2}
+html.fit .pick-artist{font-size:20px}
+html.fit .pick-msg{font-size:23px;padding:14px 18px}
+html.fit .pick-why{gap:8px;margin-top:12px}
+html.fit .why-row{font-size:18px;grid-template-columns:150px 1fr auto}
+html.fit .why-row .bar{height:14px;border-radius:7px}
+html.fit .why-row b{font-size:22px}
+html.fit .pick-foot{display:none}
+html.fit .grid,html.fit .col{display:contents}
+html.fit .card{margin:0;padding:14px 18px;overflow:hidden}
+html.fit .c-journey{grid-area:journey}
+html.fit .c-map{grid-area:map;display:flex;flex-direction:column;min-height:0}
+html.fit #map{height:auto;flex:1;min-height:0}
+html.fit .facts{margin-top:8px}
+html.fit .c-now{grid-area:now}
+html.fit .c-cabin{grid-area:cabin}
+html.fit .c-cabin .lead,html.fit .c-cands .lead,html.fit .formula{display:none}
+html.fit .c-cands{grid-area:cands}
+html.fit .cands li:nth-child(n+6){display:none}
+html.fit .journey-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+html.fit .progress{margin:8px 0 4px}
+html.fit .c-now h2,html.fit .c-cabin h2{margin-bottom:2px}
+html.fit .now-title{font-size:18px}
+html.fit .countdown{margin-top:6px}
+html.fit footer{display:none}
+html.fit #ended{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;padding:8px 22px;font-size:17px;box-shadow:0 6px 24px rgba(30,42,36,.18)}
+html.fit #ended br{display:none}
+html.fit #ended a{margin:0 0 0 14px}
+html.fit #demo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;z-index:5;box-shadow:0 20px 60px rgba(30,42,36,.25)}
 footer a{color:inherit}
 </style>
 </head>
@@ -267,7 +320,7 @@ ${demo ? `<section id="demo" class="card demo">
   </section>
 </div>
 
-<section class="card journey">
+<section class="card journey c-journey">
   <h2>Scenery &amp; Songs</h2>
   <p class="lead">経路全体の景色と、どこでどの曲を流したか。番号は下の曲の番号です。枠は次の曲が流れる区間です。</p>
   <div class="journey-track">
@@ -280,23 +333,23 @@ ${demo ? `<section id="demo" class="card demo">
 
 <div class="grid">
   <div class="col">
-    <section class="card">
+    <section class="card c-map">
       <h2>Now Driving</h2>
       <div id="map" role="img" aria-label="車の位置と経路の地図"></div>
       <div class="facts" id="facts"></div>
     </section>
-    <section class="card">
+    <section class="card c-now">
       <h2>Now Playing</h2>
       <div id="now"><span class="empty">まだ曲が流れていません</span></div>
     </section>
-    <section class="card">
+    <section class="card c-cabin">
       <h2>In the Car</h2>
       <p class="lead">マイクで「誰かが話していたか」だけを1秒ごとに見ています。音声は送っていません。</p>
       <div class="cabin" id="cabin"><span class="empty">まだ届いていません</span></div>
     </section>
   </div>
   <div class="col">
-    <section class="card">
+    <section class="card c-cands">
       <h2>Candidates</h2>
       <p class="lead">欲しい曲調に近い曲ほど点が高く、点の近い曲の中からくじ引きで1曲を選びます。線は表示を開いてからの点の動きです。</p>
       <div id="eval-head" class="eval-head"></div>
@@ -316,6 +369,29 @@ ${demo ? `<section id="demo" class="card demo">
 (function(){
   "use strict";
   var C = ${jsonForScript(config)};
+  var params = new URLSearchParams(location.search);
+
+  // 横長の大きな画面（モニター）では、1920×1080 の1枚に組んで画面に合わせて拡大・縮小する。
+  // ?screen=1 で常に、?screen=0 で使わない
+  var fitting = false;
+  function applyFit(){
+    var forced = params.get("screen");
+    var on = forced === "1" || (forced !== "0" && innerWidth >= 1000 && innerWidth / innerHeight >= 1.3);
+    var main = document.querySelector("main");
+    document.documentElement.classList.toggle("fit", on);
+    if (on) {
+      var s = Math.min(innerWidth / 1920, innerHeight / 1080);
+      main.style.transform = "translate(" + ((innerWidth - 1920 * s) / 2) + "px," + ((innerHeight - 1080 * s) / 2) + "px) scale(" + s + ")";
+    } else main.style.transform = "";
+    if (on !== fitting) { fitting = on; if (snap) renderJourney(); }
+    if (typeof map !== "undefined" && map) map.resize();
+  }
+  applyFit();
+  addEventListener("resize", applyFit);
+  // 映しっぱなしにするので、できれば画面を消さない（対応していないブラウザでは何もしない）
+  function keepAwake(){ try { if (fitting && navigator.wakeLock && document.visibilityState === "visible") navigator.wakeLock.request("screen").catch(function(){}); } catch (e) {} }
+  keepAwake();
+  document.addEventListener("visibilitychange", keepAwake);
   var POLL_MS = 1000, STALE_MS = 15000, DECIDE_BEFORE_MS = 30000, HISTORY = 90;
   var AXES = ["energy", "valence", "tempo", "acoustic", "spacious", "vocal"];
 
@@ -331,6 +407,22 @@ ${demo ? `<section id="demo" class="card demo">
   function keyOf(c){ return c.title + "|" + c.artist; }
   /** 曲調の遠さ（0〜おおむね0.5）を、近さの割合にする */
   function closeness(d){ return clamp(1 - d / 0.5, 0, 1); }
+  /** その曲を流している間（流し終えていなければ曲の長さぶん先まで）に一番長かった景色 */
+  function sceneDuring(p){
+    var r = snap && snap.route; if (!r) return null;
+    var end = p.endM;
+    if (end == null) {
+      var n = snap.nowPlaying, v = snap.car ? Math.max(snap.car.speedKmh, 20) / 3.6 : 11;
+      end = p.startM + (n && n.durationMs ? n.durationMs / 1000 * v : 3000);
+    }
+    var best = null, bestLen = 0;
+    var lens = {};
+    r.segments.forEach(function(g){
+      var len = Math.min(g.endM, end) - Math.max(g.startM, p.startM);
+      if (len > 0) { lens[g.category] = (lens[g.category] || 0) + len; if (lens[g.category] > bestLen) { bestLen = lens[g.category]; best = g.category; } }
+    });
+    return best;
+  }
   function categoryAt(m){
     var r = snap && snap.route; if (!r) return null;
     for (var i = 0; i < r.segments.length; i++) if (r.segments[i].startM <= m && m < r.segments[i].endM) return r.segments[i].category;
@@ -361,6 +453,8 @@ ${demo ? `<section id="demo" class="card demo">
       car.style.cssText = "width:20px;height:20px;border-radius:50%;background:#EB6B40;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)";
       carMarker = new maplibregl.Marker({ element: car });
       mapReady = true;
+      // 枠の大きさが決まる前に作ると、地図の画像が一部にしか描かれないので、描き直させる
+      map.resize(); setTimeout(function(){ map.resize(); }, 300);
       drawRoute();
     });
   } } catch (err) {
@@ -510,7 +604,9 @@ ${demo ? `<section id="demo" class="card demo">
     var shares = Object.keys(e.shares).filter(function(k){ return e.shares[k] > 0.005; }).sort(function(a, b){ return e.shares[b] - e.shares[a]; });
     var top = shares[0];
     document.documentElement.style.setProperty("--scene", top ? cat(top).color : "#7F8590");
-    $("scene-sub").textContent = e.window ? "次の曲が流れる " + km(e.window.endM - e.window.startM) : "";
+    // 区間は経路の終点より先まで伸びることがある（曲の途中で着く）ので、終点で止めて出す
+    var winEnd = e.window ? Math.min(e.window.endM, snap.route ? snap.route.totalM : e.window.endM) : 0;
+    $("scene-sub").textContent = e.window ? "次の曲が流れる " + km(Math.max(0, winEnd - e.window.startM)) : "";
     var scene = $("scene"); clear(scene);
     if (top) {
       var big = el("div", "scene-big"); big.appendChild(el("b", null, cat(top).label)); big.appendChild(el("span", null, "が " + Math.round(e.shares[top] * 100) + "%"));
@@ -609,9 +705,11 @@ ${demo ? `<section id="demo" class="card demo">
     if (w && snap.status !== "arrived") { var box = el("div", "win"); box.style.left = (w.startM / total * 100) + "%"; box.style.width = Math.max((w.endM - w.startM) / total * 100, 1) + "%"; band.appendChild(box); }
     var played = snap.played.filter(function(p){ return p.startM != null; }).slice().reverse();
     if (!played.length) { list.appendChild(el("li", "empty", "まだ曲を流していません")); return; }
+    var firstShown = fitting ? Math.max(0, played.length - 4) : 0;
     played.forEach(function(p, i){
       var pin = el("div", "pin"); pin.style.left = (p.startM / total * 100) + "%"; pin.appendChild(el("span", null, String(i + 1))); songs.appendChild(pin);
-      var li = el("li"), where = categoryAt(p.startM + 1);
+      if (i < firstShown) return;
+      var li = el("li"), where = p.scene || sceneDuring(p);
       li.appendChild(el("span", "no", String(i + 1)));
       var w2 = el("span", "where", where ? cat(where).label : "—"); w2.style.background = where ? cat(where).color : "#9AA09A"; li.appendChild(w2);
       var body = el("div"), t = el("div", "t", p.title);
@@ -722,13 +820,15 @@ ${demo ? `<section id="demo" class="card demo">
           });
         }
         if (i < d.frames.length - 1) timer = setTimeout(frame, 200);
+        // ?loop=1 なら、着いてしばらくしたら最初から再生し直す（展示で映しっぱなしにするため）
+        else if (params.get("loop") === "1") timer = setTimeout(function(){ location.reload(); }, 20000);
       }
       frame();
     }).catch(function(){ setStatus("", "デモを読み込めませんでした"); });
   }
 
   if (C.demo) {
-    var speed = Number(new URLSearchParams(location.search).get("speed"));
+    var speed = Number(params.get("speed"));
     if ([1, 2, 4].indexOf(speed) >= 0) playDemo(speed);
     else setStatus("", "開始を押すと再生します");
   } else poll();

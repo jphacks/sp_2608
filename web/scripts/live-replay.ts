@@ -109,10 +109,10 @@ let positionM = 0;
 let speechRatio = 0.15;
 let quietSinceMs: number | null = null;
 const history: HistoryEntry[] = [];
-const played: { title: string; artist: string; message: string | null; theme: string | null; startM: number; endM: number | null }[] = [];
+const played: { title: string; artist: string; message: string | null; theme: string | null; scene: string | null; startM: number; endM: number | null }[] = [];
 let previousTarget: Partial<Vec> | undefined;
 let current: { track: PoolTrack; startedAtMs: number; message: string | null } | null = null;
-let next: { track: PoolTrack; message: string | null; theme: string | null } | null = null;
+let next: { track: PoolTrack; message: string | null; theme: string | null; scene: string | null } | null = null;
 let evaluation: ReturnType<typeof toEvaluation> | null = null;
 let seed = 1;
 let lastPreviewS = -Infinity;
@@ -181,11 +181,19 @@ function trackOf(r: ReturnType<typeof recommend>): PoolTrack | null {
   return r.chosen ? pool.find((t) => t.track_id === r.chosen!.track_id) ?? null : null;
 }
 
-function startSong(track: PoolTrack, message: string | null, theme: string | null) {
+/** 決めたときに見ていた区間で一番多かった景色 */
+function dominantScene(e: { shares: Record<string, number> } | null): string | null {
+  if (!e) return null;
+  let best: string | null = null;
+  for (const [k, v] of Object.entries(e.shares)) if (best === null || v > e.shares[best]) best = k;
+  return best;
+}
+
+function startSong(track: PoolTrack, message: string | null, theme: string | null, scene: string | null) {
   current = { track, startedAtMs: simMs, message };
   history.push({ track_id: track.track_id, artist: track.artist });
   if (played[0]) played[0] = { ...played[0], endM: Math.round(positionM) };
-  played.unshift({ title: track.title, artist: track.artist, message, theme, startM: Math.round(positionM), endM: null });
+  played.unshift({ title: track.title, artist: track.artist, message, theme, scene, startM: Math.round(positionM), endM: null });
   played.splice(30);
   seed++;
   next = null;
@@ -206,18 +214,18 @@ function step() {
     const { result, evaluation: e } = evaluate("decided", 210_000);
     const t = trackOf(result);
     evaluation = e;
-    if (t) startSong(t, result.chosen?.message ?? null, chosenTheme(result));
+    if (t) startSong(t, result.chosen?.message ?? null, chosenTheme(result), dominantScene(e));
   } else if (!arrived) {
     const duration = current.track.duration_ms ?? 210_000;
     const elapsed = simMs - current.startedAtMs;
     if (elapsed >= duration && next) {
       previousTarget = evaluation?.target;
-      startSong(next.track, next.message, next.theme);
+      startSong(next.track, next.message, next.theme, next.scene);
     } else if (!next && duration - elapsed <= DECIDE_BEFORE_MS) {
       const { result, evaluation: e } = evaluate("decided", 210_000);
       evaluation = e;
       const t = trackOf(result);
-      if (t) next = { track: t, message: result.chosen?.message ?? null, theme: chosenTheme(result) };
+      if (t) next = { track: t, message: result.chosen?.message ?? null, theme: chosenTheme(result), scene: dominantScene(e) };
     } else if (!next && simMs / 1000 - lastPreviewS >= PREVIEW_EVERY_S) {
       lastPreviewS = simMs / 1000;
       evaluation = evaluate("preview", 210_000).evaluation;
