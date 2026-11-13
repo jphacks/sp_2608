@@ -121,7 +121,7 @@ PBFや公開ZIPを取得し直す場合は、内容と利用条件を確認し�
 
 ```sh
 export VALHALLA_DATA_DIR="$PWD/infra/valhalla/data/japan-test"
-export SCENIC_REGISTRY_FILE=road-recommendations-research-20261018-v7.sqlite
+export SCENIC_REGISTRY_FILE=road-recommendations-research-20261111-v8.sqlite
 
 .venv-scenic/bin/python infra/scenic/import_recommended_roads.py \
   "$VALHALLA_DATA_DIR/region.osm.pbf" \
