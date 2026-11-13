@@ -2,3 +2,7 @@ node_modules/
 .wrangler/
 .dev.vars
 dist/
+
+# 自分のアカウントに出すときの設定と、そのアップロード用トークン（秘密）
+wrangler.local.jsonc
+.deploy-token
