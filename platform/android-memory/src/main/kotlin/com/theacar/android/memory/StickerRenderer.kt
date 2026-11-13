@@ -88,16 +88,6 @@ class StickerRenderer(context: Context, private val memoryUrl: (String) -> Strin
         val outer = lineWidth * 1.1f
         val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = SURFACE; style = Paint.Style.FILL }
         canvas.drawPath(star(cx, cy, outer, outer * 0.45f), fill)
-        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = SURFACE; typeface = jostBold; textSize = 34f * s; textAlign = Paint.Align.RIGHT }
-        val lineHeight = 36f * s
-        val labelWidth = max(text.measureText("PHOTO"), text.measureText("SPOT"))
-        val safe = SAFE_MARGIN_PX * s
-        // 星の左下に置き、はみ出すなら右側か内側に寄せる
-        var right = cx - outer - 14f * s
-        if (right - labelWidth < safe) right = (cx + outer + 14f * s + labelWidth).coerceAtMost(width - safe)
-        val top = (cy + 6f * s).coerceIn(safe, photoHeight - safe - 2 * lineHeight)
-        drawTextTop(canvas, "PHOTO", right, top, text)
-        drawTextTop(canvas, "SPOT", right, top + lineHeight, text)
     }
 
     private fun drawInfoArea(canvas: Canvas, memory: TripMemory, width: Float, top: Float, bottom: Float, s: Float) {
