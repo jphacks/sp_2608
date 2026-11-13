@@ -9,6 +9,7 @@ import com.theacar.android.memory.AndroidMemoryRuntime
 import com.theacar.android.memory.TripRecorder
 import com.theacar.android.memory.MemoryActivity
 import com.theacar.android.navigation.NavigationTripRecording
+import com.theacar.android.music.DriveBgmLine
 import com.theacar.android.music.driveBgmLine
 import com.theacar.android.music.installId
 import com.theacar.android.music.perform
@@ -47,6 +48,9 @@ import com.theacar.android.window.AndroidWindowRuntime
 import com.theacar.android.window.CabinNoticeSpeaker
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import com.theacar.android.navigation.MiniPlayerSongPosition
+import com.theacar.music.NowPlaying
+import android.os.SystemClock
 
 class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOwner, AndroidMusicOwner, AndroidWindowOwner,
     NavigationCompanionOwner, CabinNoticeOwner, AndroidMemoryOwner {
@@ -83,18 +87,21 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         val link = music.driveBgm
         val guiding = navigationRuntime.session.state.map { it.phase == NavigationPhase.GUIDING }.distinctUntilChanged()
         val line = combine(music.connection, music.displayPlayback, link.state, guiding) { connection, now, bgm, isGuiding ->
-            driveBgmLine(bgm, now, connection.connected, isGuiding)
+            driveBgmLine(bgm, now, connection.connected, isGuiding) to now
         }.stateIn(scope, SharingStarted.WhileSubscribed(5_000),
-            driveBgmLine(link.state.value, null, music.connection.value.connected, false))
-        val mapped = line.map { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator) }
-            .stateIn(scope, SharingStarted.WhileSubscribed(5_000), line.value.let { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator) })
+            driveBgmLine(link.state.value, null, music.connection.value.connected, false) to null)
+        fun state(pair: Pair<DriveBgmLine, NowPlaying?>) = pair.let { (it, now) ->
+            MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator, now?.progress())
+        }
+        val mapped = line.map(::state).stateIn(scope, SharingStarted.WhileSubscribed(5_000), state(line.value))
         object : MiniPlayerSource {
             override val state = mapped
+            override fun clock() = SystemClock.elapsedRealtime()
             override fun toggle() { music.togglePlayback() }
             override fun open(context: Context) {
                 context.startActivity(Intent(context, SpotifyMusicActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
             }
-            override fun action(context: Context) { line.value.action?.let { link.perform(it, context) } }
+            override fun action(context: Context) { line.value.first.action?.let { link.perform(it, context) } }
         }
     }
     override val isDemo get() = graph.demoControls != null
@@ -133,4 +140,11 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         speaker = runCatching { CabinNoticeSpeaker(this) }.getOrNull()
         speaker?.let { speech -> scope.launch { windowRuntime.notices.collect(speech::speak) } }
     }
+}
+
+/** ミニプレーヤーの再生位置。曲の長さと位置の両方が分かるときだけ。 */
+private fun NowPlaying.progress(): MiniPlayerSongPosition? {
+    val duration = playback.track?.durationMillis ?: return null
+    val position = playback.positionMillis ?: return null
+    return MiniPlayerSongPosition(position.toLong(), duration.toLong(), receivedAtMillis, playback.playing)
 }

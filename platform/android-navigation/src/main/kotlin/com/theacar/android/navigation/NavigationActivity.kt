@@ -33,6 +33,7 @@ import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
 import com.theacar.ui.CompactHeaderBand
 import com.theacar.ui.MiniPlayer
+import com.theacar.ui.MiniPlayerProgress
 import com.theacar.ui.PermissionDisclosure
 import com.theacar.ui.Sky
 import com.theacar.ui.Tab
@@ -215,7 +216,9 @@ class NavigationActivity : ComponentActivity() {
                     TheaCarTheme {
                         MiniPlayer(player.title, player.isPlaying, miniPlayer::toggle, { miniPlayer.open(this@NavigationActivity) },
                             subtitle = player.subtitle, actionLabel = player.actionLabel,
-                            onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator)
+                            onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator,
+                            progress = player.progress?.let { MiniPlayerProgress(it.positionMillis, it.durationMillis, it.anchorMillis, it.playing) },
+                            clock = miniPlayer::clock)
                     }
                 }
             }

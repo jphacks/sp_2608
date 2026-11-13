@@ -29,10 +29,17 @@ data class MiniPlayerState(
     val subtitle: String? = null,
     val actionLabel: String? = null,
     val showIndicator: Boolean = false,
+    /** 流れている曲の再生位置。長さか位置が分からないときは null で、バーを出さない。 */
+    val progress: MiniPlayerSongPosition? = null,
 )
+
+/** 曲の再生位置。[positionMillis] は [anchorMillis]（[MiniPlayerSource.clock] と同じ時計）の時点の位置。 */
+data class MiniPlayerSongPosition(val positionMillis: Long, val durationMillis: Long, val anchorMillis: Long, val playing: Boolean)
 
 interface MiniPlayerSource {
     val state: StateFlow<MiniPlayerState>
+    /** [MiniPlayerProgress.anchorMillis] と同じ時計。 */
+    fun clock(): Long
     fun toggle()
     fun open(context: Context)
     /** [MiniPlayerState.actionLabel] のボタン。 */
