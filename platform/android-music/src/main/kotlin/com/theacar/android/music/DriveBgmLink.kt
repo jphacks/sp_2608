@@ -58,6 +58,8 @@ internal interface DriveBgmPort {
     /** 景観が届くのを少し待ってから、景観BGMを始める。 */
     fun startBgm(members: List<MusicMember>)
     fun stopBgm()
+    /** 目的地に着いたとき。次の曲は選ばず、今の曲の終わりで一時停止して終える。 */
+    fun finishBgm()
     fun pause(deviceId: String)
     val microphoneGranted: Boolean
     /** 車内の雰囲気の判定を前景サービスで始める。 */
@@ -185,12 +187,15 @@ class DriveBgmLink internal constructor(
         if (wanted.value) begin(restart = true)
     }
 
-    fun onGuidanceEnded() {
+    /**
+     * [arrived] が真なら目的地に着いた。景観BGMで流している曲の終わりで一時停止する。
+     * 着いたあとに景色と関係のない曲が続かないように。途中で「案内を終了」したときは推薦だけを止め、流れている曲は最後まで流れる。
+     */
+    fun onGuidanceEnded(arrived: Boolean = false) {
         guiding = false
         startJob?.cancel()
         startJob = null
-        // 推薦だけを止める。流れている曲は最後まで流れる。
-        if (startedHere) port.stopBgm()
+        if (startedHere) { if (arrived) port.finishBgm() else port.stopBgm() }
         startedHere = false
         port.finishDriveLog()
     }

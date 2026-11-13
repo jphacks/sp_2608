@@ -68,8 +68,13 @@ class BgmPlaybackLoop(
                 val remaining = if (current.playing) bgm.remainingMillis(current) else null
                 delay(if (remaining != null && remaining <= END_WATCH_MILLIS) END_INTERVAL_MILLIS else IDLE_INTERVAL_MILLIS)
             }
+            // 着いたあと今の曲の終わりで推薦が終わった。推薦中だけの表示を片付ける。
+            if (isActive && !bgm.state.value.enabled) playback.clear()
         }
     }
+
+    /** 目的地に着いたとき。次の曲は選ばず、今の曲の終わりで一時停止して推薦を終える。確かめ続けるのでループは止めない。 */
+    fun finish(note: String) = bgm.finishAfterCurrent(note)
 
     /** 推薦を止める。流れている曲はそのまま。 */
     fun halt() {

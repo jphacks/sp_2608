@@ -20,7 +20,8 @@ class BgmMusicSessionTest {
         override suspend fun playback() = MusicPlayback()
         override suspend fun play(trackUri: String?, deviceId: String) { played += requireNotNull(trackUri) }
         override suspend fun playMix(tracks: List<MusicTrack>, deviceId: String) = Unit
-        override suspend fun pause(deviceId: String) = Unit
+        val paused = mutableListOf<String>()
+        override suspend fun pause(deviceId: String) { paused += deviceId }
         override suspend fun next(deviceId: String) = Unit
         override suspend fun previous(deviceId: String) = Unit
     }
@@ -401,6 +402,63 @@ class BgmMusicSessionTest {
         runCurrent()
         assertEquals(listOf(firstUri, secondUri), fixture.music.played)
         assertEquals(second, fixture.session.state.value.playing)
+    }
+
+    @Test fun afterArrivalOurSongPausesAtItsEndWithoutPickingTheNextOne() = runTest {
+        val fixture = Fixture(this)
+        fixture.session.start(members, emptyList())
+        fixture.tick()
+        runCurrent()
+        fixture.time += 20_000
+        fixture.tick(playbackOf(firstUri, 200_000, 180_000))
+        runCurrent()
+        // 次の曲を準備したあとに着いた。準備した曲は流さない。
+        fixture.session.finishAfterCurrent("着いた")
+        assertEquals("着いた", fixture.session.state.value.message)
+        assertNull(fixture.session.state.value.upNextUri)
+        fixture.time += 20_000
+        fixture.tick(playbackOf(firstUri, 200_000, 190_000))
+        runCurrent()
+        assertTrue(fixture.session.state.value.enabled)
+        assertEquals(emptyList(), fixture.music.paused)
+        fixture.tick(playbackOf(firstUri, 200_000, 199_000))
+        runCurrent()
+        assertEquals(listOf("phone"), fixture.music.paused)
+        assertEquals(listOf(firstUri), fixture.music.played)
+        assertFalse(fixture.session.state.value.enabled)
+        assertTrue(fixture.session.state.value.finishedOnArrival)
+        assertEquals(2, fixture.recommendations.requests.size)
+    }
+
+    @Test fun afterArrivalSpotifyMovingOnByItselfIsPaused() = runTest {
+        val fixture = Fixture(this)
+        fixture.session.start(members, emptyList())
+        fixture.tick()
+        runCurrent()
+        fixture.session.finishAfterCurrent("着いた")
+        fixture.tick(playbackOf(firstUri, 200_000, 195_000))
+        runCurrent()
+        // 止める前に、再生先がアルバムの続きへ進んだ。
+        fixture.tick(playbackOf(otherUri, 200_000, 1_000))
+        runCurrent()
+        assertEquals(listOf("phone"), fixture.music.paused)
+        assertFalse(fixture.session.state.value.enabled)
+    }
+
+    @Test fun afterArrivalASongTheUserPickedIsLeftPlaying() = runTest {
+        val fixture = Fixture(this)
+        fixture.session.start(members, emptyList())
+        fixture.tick()
+        runCurrent()
+        fixture.session.finishAfterCurrent("着いた")
+        fixture.tick(playbackOf(firstUri, 200_000, 60_000))
+        runCurrent()
+        // 曲の途中で利用者が別の曲にした。止めずに推薦だけを終える。
+        fixture.tick(playbackOf(otherUri, 200_000, 2_000))
+        runCurrent()
+        assertEquals(emptyList(), fixture.music.paused)
+        assertFalse(fixture.session.state.value.enabled)
+        assertFalse(fixture.session.state.value.finishedOnArrival)
     }
 
     @Test fun changingTheSongMidwayDropsThePreparedSong() = runTest {

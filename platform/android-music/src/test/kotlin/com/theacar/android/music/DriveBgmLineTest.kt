@@ -36,6 +36,15 @@ class DriveBgmLineTest {
         assertEquals("車内：会話が弾んでいます", line.subtitle)
     }
 
+    @Test fun afterArrivalThePausedSongSaysScenicBgmHasEnded() {
+        val finished = BgmMusicState(finishedOnArrival = true)
+        val line = driveBgmLine(state(finished), now(false), connected = true, guiding = false)
+        assertEquals("まつり · 藤井 風", line.title)
+        assertEquals("目的地に着いたので、景観BGMを終えました", line.subtitle)
+        // 再生し直したら、ふつうの表示に戻る
+        assertNull(driveBgmLine(state(finished), now(true), connected = true, guiding = false).subtitle)
+    }
+
     @Test fun pausedScenicBgmSaysItWillContinue() {
         val line = driveBgmLine(state(playingBgm), now(false), connected = true, guiding = true)
         assertEquals("一時停止中 · 再生すると景観BGMを続けます", line.subtitle)

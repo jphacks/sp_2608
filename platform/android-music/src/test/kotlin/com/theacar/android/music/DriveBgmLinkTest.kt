@@ -42,6 +42,7 @@ class DriveBgmLinkTest {
         override fun clearBgmFailure() = Unit
         override fun startBgm(members: List<MusicMember>) { started = members; bgm.update { it.copy(enabled = true) } }
         override fun stopBgm() { events += "stop"; bgm.update { it.copy(enabled = false) } }
+        override fun finishBgm() { events += "finish" }
         override fun pause(deviceId: String) { events += "pause $deviceId" }
         override fun startCabinListening() { events += "listen" }
         override fun beginDriveLog() { events += "log-start" }
@@ -66,6 +67,15 @@ class DriveBgmLinkTest {
 
         link.onGuidanceEnded(); runCurrent()
         assertEquals(listOf("stop", "log-finish"), port.events.drop(3))
+    }
+
+    @Test fun arrivingFinishesBgmAtTheEndOfTheSongInsteadOfStoppingIt() = runTest {
+        val port = Port().apply { music.value = MusicState(devices = listOf(phone)) }
+        val link = DriveBgmLink(port, Settings(), backgroundScope)
+        link.onGuidanceStarted(); runCurrent()
+        link.onGuidanceEnded(arrived = true); runCurrent()
+        assertEquals(listOf("finish", "log-finish"), port.events.takeLast(2))
+        assertFalse("stop" in port.events)
     }
 
     @Test fun leavesBgmStartedFromTheMusicScreenRunningAfterGuidance() = runTest {
