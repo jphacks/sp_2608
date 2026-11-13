@@ -102,3 +102,21 @@ npm run typecheck   # tsc --noEmit
 ## デプロイ
 
 本番のD1・R2・secretの作成は[デプロイ手順](../docs/memory-web.md#デプロイ手順)を参照。`wrangler.jsonc`の`database_id`は本番のD1を作ってから設定する。
+
+## ライブ表示（走行中の景観BGMの選曲を見る）
+
+`/live/{code}` は、走行中の「今どこを走っていて、車内はどう聞こえていて、次の曲の候補は何で、何点か」を1秒ごとに描き替えるページ。
+車の端末が `PUT /api/live/{code}`（共有トークン）で最新の様子を数秒ごとに上書きし、ページは `GET /api/live/{code}` を読む。
+`code` は端末が作る 22 文字の乱数。最後に届いてから30分（到着後は10分）で見られなくなる。
+
+アプリからの送信はまだ無い。スマホなしで画面を確かめるときは、模擬の走行を流すスクリプトを使う。
+選曲は bgm-api の本物の推薦エンジンと全曲カタログで計算する（経路・景色の区間・車内の話し声は作り物）。
+
+```sh
+# npm run dev を動かしたまま、別のターミナルで（bgm-api の依存が要る: cd ../infra/bgm-api && npm ci）
+npx wrangler d1 migrations apply tabireco --local   # 0002_live.sql を足したので、もう一度
+npx --prefix ../infra/bgm-api tsx scripts/live-replay.ts --speed 3
+# → 「ライブ表示: http://localhost:8787/live/...」の URL をブラウザで開く
+```
+
+`--speed` は何倍速で走るか（既定 3）。デモの経路は鎌倉から茅ヶ崎までの約15km。
