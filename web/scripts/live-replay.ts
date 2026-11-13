@@ -82,7 +82,9 @@ const TOTAL = cumulative[cumulative.length - 1];
 
 // 景色の区間（全長に対する割合で置く）
 const SEGMENTS = ([
-  [0, 0.08, "urban"], [0.08, 0.2, "sea"], [0.2, 0.27, "forest"], [0.27, 0.52, "sea"], [0.52, 0.58, "urban"],
+  // 0.46 は片瀬で境川を、0.54 は鵠沼で引地川を渡るあたり
+  [0, 0.08, "urban"], [0.08, 0.2, "sea"], [0.2, 0.27, "forest"], [0.27, 0.44, "sea"], [0.44, 0.475, "river"],
+  [0.475, 0.52, "sea"], [0.52, 0.53, "urban"], [0.53, 0.56, "river"], [0.56, 0.58, "urban"],
   [0.58, 0.8, "sea"], [0.8, 0.88, "forest"], [0.88, 1, "urban"],
 ] as const).map(([a, b, category]) => ({ startM: Math.round(a * TOTAL), endM: Math.round(b * TOTAL), category }));
 
