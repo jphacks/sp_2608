@@ -98,6 +98,7 @@ class NavigationActivity : ComponentActivity() {
                     NavigationControls(state, location, runtime.configuration, voice, viaPoints.size,
                         selectedDestination = selectedDestination,
                         mapState = mapState,
+                        onAutoDrive = if (debuggable) ::toggleAutoDrive else null,
                         onRetryMap = { mapController?.reloadMap() },
                         onSelectDestination = { destination ->
                             runtime.session.invalidatePreview()
@@ -290,5 +291,22 @@ class NavigationActivity : ComponentActivity() {
             Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         }
         startActivity(intent)
+    }
+
+    private val debuggable get() = applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+
+    /** 隠しボタン（残り時間・距離の長押し）：案内中の経路を目的地まで自動で走る。もう一度で止める。Debug 版だけ。 */
+    private fun toggleAutoDrive() {
+        val simulator = runtime.simulator
+        val message = when {
+            simulator.running.value -> { simulator.stop(); "自動走行を止めました" }
+            simulator.start(AUTO_DRIVE_KMH) -> "自動走行を始めました（${AUTO_DRIVE_KMH.toInt()}km/h）"
+            else -> "案内中の経路がありません"
+        }
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
+
+    private companion object {
+        const val AUTO_DRIVE_KMH = 60.0
     }
 }

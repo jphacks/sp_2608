@@ -48,7 +48,7 @@ internal class TheaCarSession(
     private var announcedFor: Pair<Long, String>? = null
     private var autoDrive = false
     private var controls: CarMapControls? = null
-    private val simulator by lazy { DriveSimulator(runtime) }
+    private val simulator get() = runtime.simulator
     private var announcedReveal: Double? = null
     private var announcedRoad: String? = null
 
