@@ -10,9 +10,14 @@ import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.SymbolLayer
 
 // 地図の配信元（OpenFreeMap liberty）の色を、読みやすい塗り分けに塗り替える。
-// [dark] のときは車載画面の夜の表示に合わせ、同じ塗り分けを暗い色で行う
-internal fun applyTabiMapColors(style: Style, dark: Boolean = false) {
-    val c = if (dark) DarkColors else LightColors
+// [dark] のときは車載画面の夜の表示に合わせ、同じ塗り分けを暗い色で行う。
+// [satellite] のときは航空写真の上に重ねる色にする（面は MapSatellite.kt で隠すので、線と文字だけが効く）
+internal fun applyTabiMapColors(style: Style, dark: Boolean = false, satellite: Boolean = false) {
+    val c = when {
+        satellite -> SatelliteColors
+        dark -> DarkColors
+        else -> LightColors
+    }
     style.layers.forEach { layer ->
         val id = layer.id
         when (layer) {
@@ -110,6 +115,32 @@ private val LightColors = MapColors(
     health = "#C5221F",
     nature = "#1E7A3C",
     lodging = "#B0306A",
+)
+
+// 航空写真の上では、Google マップの航空写真と同じく、幹線は黄色、ほかの道は半透明の白、文字は白に暗い縁取りにする。
+// land は写真のない所（沖合など）の地の色と、文字の縁取りに使う。面の色は使わない（面ごと隠す）
+private val SatelliteColors = MapColors(
+    land = "#0E1B24",
+    residential = "#0E1B24",
+    facility = "#0E1B24",
+    building = "#0E1B24",
+    green = "rgba(255, 255, 255, 0.35)",
+    wood = "#0E1B24",
+    water = "#0E1B24",
+    waterLine = "rgba(170, 211, 238, 0.5)",
+    sand = "#0E1B24",
+    majorRoad = "rgba(247, 210, 110, 0.85)",
+    road = "rgba(255, 255, 255, 0.5)",
+    casing = "rgba(0, 0, 0, 0)",
+    rail = "rgba(255, 255, 255, 0.35)",
+    ink = "#FFFFFF",
+    muted = "#F1F3F4",
+    waterText = "#AFD3F2",
+    food = "#F6B26B",
+    shop = "#9CC2FA",
+    health = "#F6A29B",
+    nature = "#97D7A8",
+    lodging = "#F5A3C4",
 )
 
 // 夜は ink を地にして、緑・水・幹線の色味だけを残す。文字は paper に寄せる
