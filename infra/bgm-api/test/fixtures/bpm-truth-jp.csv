@@ -1,0 +1,41 @@
+track_id,deezer_id,title,artist,gemini_bpm,true_bpm,source,note
+isrc:JPU901800227,1355376732,Lemon,米津玄師,87,87,karaoke-version(原曲テンポ表記)・萌娘百科・KeyTube,
+isrc:JPU902002290,1093338122,炎,LiSA,76,76,ChordWiki,
+isrc:JPWP00700855,14608231,愛をこめて花束を,Superfly,86,84,ChordWiki,KeyTubeは162(倍取り)
+isrc:JPW462364925,2438786935,晩餐歌 - Bansanka,tuki.,80,103,ChordWiki(103~104)・KeyTube・MIDI,
+isrc:JPPO01804452,556744622,春よ、来い,松任谷由実,88,88,KeyTube・ノスタルジア(RemyWiki),テンポ可変(ゲーム版表記55-88)
+isrc:JPPO02400480,2693558112,満ちてゆく,藤井 風,70,72,ChordWiki,単一ソース・要確認
+isrc:JPPO01615591,433983002,花束を君に,UTADA HIKARU,88,82,ChordWiki,AcousticBrainzは164(倍取り)
+isrc:JPU901900431,975875672,白日,King Gnu,93,93,BEMANI(RemyWiki)・ChordWiki,
+isrc:JPPC01900265,1073671352,Pretender,Official髭男dism,92,92,BEMANI(RemyWiki)・CHUNITHM wiki・ChordWiki,
+isrc:JPU902003218,1259955762,One Last Kiss,UTADA HIKARU,107,112,songdata.io(Spotify由来),低信頼・要確認(MIDIは100-112)
+isrc:JPVI02200563,2128227357,喜劇,星野 源,104,88,ChordWiki・KeyTube,
+isrc:JPWP01870687,630853682,マリーゴールド,あいみょん,106,106,ChordWiki・karaoke-version(原曲テンポ表記),
+isrc:TCJPK2087568,920971322,春を告げる,yama,106,120,ChordWiki・KeyTube,
+isrc:JPBV09401587,1567106462,4:00A.M.,大貫妙子,102,104,ChordWiki,単一ソース
+isrc:JPPO02202918,1863872967,NIGHT DANCER,imase,117,117,KeyTube・ギターTAB,
+isrc:JPPO02200420,1687095397,まつり,藤井 風,118,97,ChordWiki・karaoke-version(約97),テンポ可変
+isrc:JPU902304724,2541650211,SPECIALZ,King Gnu,115,117,KeyTube・karaoke-version(原曲テンポ表記),
+isrc:JPPC02212449,1946461687,Subtitle,Official髭男dism,118,130,ChordWiki・KeyTube,ハーフタイム感(体感は65)
+isrc:JPU902002911,1261533742,君は天然色,大瀧詠一,124,140,ChordWiki,シャッフル・単一ソース
+isrc:JPU902305217,2662404542,幾億光年,Omoinotake,124,96,ChordWiki(96~99)・KeyTube,
+isrc:JPP301900716,824731152,夜に駆ける,YOASOBI,130,130,maimai/CHUNITHM(SilentBlue)・BEMANI(RemyWiki),
+isrc:JPU901900905,1093334492,紅蓮華,LiSA,135,135,BEMANI(RemyWiki)・CHUNITHM・ChordWiki,
+isrc:JPPO02100708,1348443722,踊,Ado,128,128,BEMANI(RemyWiki)・maimai(SilentBlue),
+isrc:JPP302000760,1171495792,怪物,YOASOBI,130,170,CHUNITHM(SilentBlue)・ChordWiki,
+isrc:JPU901400608,975968052,unravel,TK from 凛として時雨,135,135,D4DJ登録値,ChordWikiは約140・要確認
+isrc:JPU900300821,1355560622,メリッサ,ポルノグラフィティ,138,165,ChordWiki,KeyTubeは171・要確認
+isrc:JPU902203154,1871863907,Overdose,なとり,128,118,ChordWiki・KeyTube,
+isrc:JPPO02201806,1849821957,新時代,Ado,142,175,ChordWiki・KeyTube,冒頭はルバート
+isrc:JPES00801041,976433002,ブルーバード,いきものがかり,152,152,BEMANI(RemyWiki)・ChordWiki,
+isrc:JPVI01527970,2122792287,新宝島,サカナクション,158,158,maimai(SilentBlue)・ChordWiki,jubeat版は149-158表記
+isrc:JPU902305042,2692719252,Bling-Bang-Bang-Born,Creepy Nuts,150,157,songbpm(Spotify由来),低信頼・要確認
+isrc:JPPC02210469,1781590897,ミックスナッツ,Official髭男dism,150,150,BEMANI(RemyWiki)・太鼓の達人(149.2-153.2)・KeyTube,ChordWiki/CHUNITHMは300表記(2倍)
+isrc:JPPO02303117,2448174235,最高到達点,SEKAI NO OWARI,140,132,KeyTube,単一ソース・要確認
+isrc:JPP302300157,2210493097,アイドル,YOASOBI,166,166,maimai/CHUNITHM(SilentBlue)・ChordWiki,ハーフタイム区間あり
+isrc:JPPO02002791,1110641342,うっせぇわ,Ado,178,178,BEMANI(RemyWiki)・ChordWiki・karaoke-version,
+isrc:JPU901401691,976040302,シルエット,KANA-BOON,168,183,BEMANI(RemyWiki)・ChordWiki,
+isrc:JPPC01300723,2122215077,紅蓮の弓矢,Linked Horizon,181,180,ChordWiki,冒頭のみ90・AcousticBrainzは178
+isrc:JPPO02401026,2737587691,ライラック,Mrs. GREEN APPLE,186,150,ChordWiki・KeyTube,
+isrc:JPVI01638830,2127576517,ようこそジャパリパークへ,どうぶつビスケッツ×PPP,172,170,maimai 登録値・ChordWiki,
+isrc:JPU902402129,2885598082,言えない,緑黄色社会,82,134,BPM まとめサイト（要確認）,

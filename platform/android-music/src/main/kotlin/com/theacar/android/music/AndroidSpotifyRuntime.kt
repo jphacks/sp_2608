@@ -77,7 +77,7 @@ class AndroidSpotifyRuntime(
         service, scope, System::currentTimeMillis, listener = object : BgmPlaybackListener {
             override fun onPlayed(track: RecommendedTrack, nowMillis: Long) = musicLog.onTrackStarted(track, nowMillis)
             override fun onStopped(nowMillis: Long) = musicLog.onTrackStopped(nowMillis)
-        })
+        }, trace = { Log.i(LOG_TAG, it) })
     /** 同乗者のリクエスト。QR コードから開いたページで探した曲を、景観BGMの予約の列か「今すぐ」で流す。 */
     val guests = GuestRequestSession(bgmApi, bgmMusic, { request -> playRequest(request) { } }, ::sharedNowPlaying, scope)
 
@@ -128,6 +128,7 @@ class AndroidSpotifyRuntime(
         override fun clearBgmFailure() = bgmMusic.clearFailure()
         override fun startBgm(members: List<MusicMember>) = startBgmRecommendation(members, awaitScenery = true)
         override fun stopBgm() = stopBgmRecommendation()
+        override fun finishBgm() = finishBgmRecommendation()
         override fun pause(deviceId: String) = pausePlayback(deviceId)
         override val microphoneGranted get() =
             applicationContext.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -193,6 +194,8 @@ class AndroidSpotifyRuntime(
         requestsOnly: Boolean = false,
     ) {
         if (!connection.value.connected || !bgmConfigured || members.isEmpty()) return
+        Log.i(LOG_TAG, "startBgmRecommendation: awaitScenery=$awaitScenery requestsOnly=$requestsOnly",
+            Throwable("呼び出し元"))
         val input = playlists.state.value
         if (!requestsOnly && input.importing) return
         if (!requestsOnly && input.mode == RecommendationMode.PLAYLIST && input.pool.isEmpty()) return
@@ -295,6 +298,18 @@ class AndroidSpotifyRuntime(
         guests.close()
     }
 
+    /**
+     * 目的地に着いたとき。景観BGMは今の曲の終わりで一時停止して終える。
+     * 車内の様子はもう選曲に使わないので、マイクと音量の調整、リクエストの受付はすぐ閉じる。
+     */
+    fun finishBgmRecommendation() {
+        if (!bgmMusic.state.value.enabled) return
+        bgmLoop.finish(ARRIVAL_NOTE)
+        stopCabinListening()
+        cabinVolume.stop()
+        guests.close()
+    }
+
     private fun haltBgm() {
         bgmLoop.halt()
         stopCabinListening()
@@ -352,5 +367,6 @@ class AndroidSpotifyRuntime(
 
     companion object {
         private const val LOG_TAG = "TheaCarBgm"
+        private const val ARRIVAL_NOTE = "目的地に着いたので、この曲で景観BGMを終えます"
     }
 }

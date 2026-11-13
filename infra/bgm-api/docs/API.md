@@ -208,7 +208,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `include_catalog` | | boolean | 既定 `true`。`false` にすると全曲カタログを候補に足さない |
 | `cabin` | | `"lively"` \| `"normal"` \| `"quiet"` \| `"resting"` | 車内の状態。省略時 `normal`（[値の一覧](#車内の状態-cabin)） |
 | `history` | | `{track_id, owner_id?, artist?}[]` | **このドライブで流した曲**（古い順）。ここにある曲は候補から外れる。`owner_id` はその曲を選んだときの `chosen.owner_id`（所有者の偏りの計算に使う） |
-| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。候補には残るが減点される |
+| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。候補に残るが減点される。前回と同じ曲ばかりにならないよう、できるだけ渡す |
 | `previous_target` | | object | 前の曲を選んだときの `plan.target`。曲調が急に飛ばないよう、軸ごとに 0.25 までしか変えない。初回は省略 |
 | `top_k` | | number | 候補の数。既定 5 |
 | `seed` | | number | 乱数のシード。同じ入力とシードなら結果が同じ。省略すると毎回変わる |
@@ -221,7 +221,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `load` | `"normal"` \| `"high"` | 操作の負荷（交差点が密、右左折が連続）。`high` で energy ≤ 0.6 |
 | `curvy` | boolean | カーブが多い・急勾配。energy ≤ 0.65 |
 | `highlight` | boolean | 名道区間。知名度の加点を強め、energy の上限を少し緩める |
-| `hour` | 0〜23 | 時刻。夜（19時以降）は energy を下げ、朝（9時まで）は tempo を上げる |
+| `hour` | 0〜23 | 時刻。朝（4時から9時まで）は tempo を上げる。夜は眠気を誘わないよう energy を下げない |
 
 > **開発用モード**：`pool` を省略すると、カタログ以外の曲（手元で注釈した曲）をメンバーに順番に割り当てて、プレイリストの代わりにします。アプリからは必ず `pool` を送ってください（プレイリストが無いときは `[]`）。
 
@@ -232,40 +232,43 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 
 ```json
 {
-  "pool_size": 2057,
-  "sample_size": 24,
+  "pool_size": 2347,
+  "sample_size": 373,
+  "slot": "theme",
   "missing": [],
   "mode": "blend",
   "volume": 0.6,
   "cap_mode": "none",
   "fallback": null,
   "chosen": {
-    "track_id": "isrc:JPPO02200420",
-    "title": "まつり",
-    "artist": "藤井 風",
-    "duration_ms": 225000,
+    "track_id": "isrc:JPU901902983",
+    "title": "PHOENIX",
+    "artist": "BURNOUT SYNDROMES",
+    "duration_ms": 246000,
     "owner_id": null,
-    "message": "海が近いので、みんなのリストにあるアーティストの、開放感のある曲を流します"
+    "message": "視界が開けているので、空や風を歌った曲を流します"
   },
   "candidates": [
     {
-      "track_id": "isrc:JPPO02100710", "title": "きらり", "artist": "藤井 風", "owners": ["a"],
-      "score": 0.049, "prob": 0.09, "distance": 0.138, "over_cap": 0, "over_soft": 0,
+      "track_id": "isrc:JPU901902983", "title": "PHOENIX", "artist": "BURNOUT SYNDROMES", "owners": [],
+      "score": -0.208, "prob": 0.003, "distance": 0.319, "over_cap": 0, "over_soft": 0,
       "recent": 0, "same_artist": 0, "owner_bias": 0, "shared": 0,
-      "popularity": 0.87, "pref": "track", "conf_penalty": 0
+      "popularity": 0.75, "theme": "sky_wind", "theme_match": 0.72, "pref": null, "conf_penalty": 0
     }
   ],
   "plan": {
-    "target": { "energy": 0.59, "valence": 0.72, "tempo": 0.545, "acoustic": 0.5, "spacious": 0.835, "vocal": 0.5 },
-    "weights": { "energy": 1, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1.5, "vocal": 1 },
+    "target": { "energy": 0.68, "valence": 0.72, "tempo": 0.545, "acoustic": 0.455, "spacious": 0.7, "vocal": 0.5 },
+    "weights": { "energy": 1.5, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1, "vocal": 1 },
     "caps": {},
     "softCaps": {},
     "volume": 0.6,
     "famBoost": 1,
+    "themes": { "drive_travel": 0.5, "sea": 0.9, "summer": 0.45, "sky_wind": 0.8 },
+    "themeReasons": { "sea": "海が近い", "summer": "海が近い", "sky_wind": "視界が開けている" },
     "reasons": ["海が近い", "視界が開けている"]
   },
-  "pool_ranges": { "energy": 0.8, "valence": 0.77, "tempo": 1, "acoustic": 0.96, "spacious": 0.72, "vocal": 0.96 },
-  "effective_weights": { "energy": 1, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1.5, "vocal": 1 }
+  "pool_ranges": { "energy": 0.78, "valence": 0.77, "tempo": 1, "acoustic": 0.96, "spacious": 0.72, "vocal": 0.96 },
+  "effective_weights": { "energy": 1.5, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1, "vocal": 1 }
 }
 ```
 
@@ -281,7 +284,8 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `volume` | 推奨音量（0.2〜1）。盛り上がり・休息中・運転負荷・下の `fallback` で下がる |
 | `candidates` | 先頭が選んだ曲、そのあとがスコア順の次点（合わせて最大 `top_k` 曲）。Spotify に無かったときの次点に使う |
 | `candidates[].prob` | その曲がくじ引きで選ばれる確率。くじ引きの対象外なら 0 |
-| `sample_size` | くじ引きの対象になった曲数。最高スコアから 0.1 以内の曲を最大 30 曲まで（`src/engine.ts` の `SAMPLE`）。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
+| `slot` | どの枠で選んだか。`score`：通常（最高スコアから 0.12 以内のくじ引き）／`theme`：題材の枠（4曲ごとの2曲目。場面の題材を歌った曲から、目標から 0.6 以内なら曲調が遠くても選ぶ。`src/engine.ts` の `THEME_SLOT`）。景観と関係なく選ぶ枠はない。題材で選ばれた曲の `message` は「海が近いので、海を歌った曲を流します」のようになり、理由はその題材を決めた景観・時間帯になる |
+| `sample_size` | くじ引きの対象になった曲数。通常の枠では、最高スコアから 0.12 以内の曲を最大 60 曲まで（`src/engine.ts` の `SAMPLE`）。題材の枠では、対象になった曲すべての数。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
 | `candidates[].pref` | blend の加点：`"track"`（リストにある曲）、`"artist"`（同じアーティスト）、`null` |
 | `mode` | 実際に使われたモード |
 | `cap_mode` | 安全のための上限の扱い：`none`（上限なし）、`absolute`（上限を満たす曲から選んだ）、`catalog_fill`（playlist モードでカタログのインストから補った）、`nearest`（上限を満たす曲が無く、はみ出しが小さい曲で補った） |
@@ -291,6 +295,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `route_window` | `route` を送ったときだけ。次の曲が流れる区間（`window`）、景観の評価済みの割合（`coverage`）、カテゴリ別の占有率（`shares`）、海が見え始める地点（`reveal`）、実際に使った `scene`。送らなければ `null` |
 | `plan.target` | 選曲のターゲット（6軸）。次の `/recommend` の `previous_target` に入れる |
 | `plan.smoothed` | `previous_target` によって変化を抑えた軸 |
+| `plan.themes` / `plan.themeReasons` | 今の場面に合う歌詞の題材（0〜1）と、その題材を選んだ景観・時間帯。題材の枠の対象と、理由の一言に使う |
 | `plan` / `pool_ranges` / `effective_weights` | 選曲の根拠（ターゲット・重み・上限など）。デバッグと検証用 |
 
 #### candidates の項目（スコアの内訳）
@@ -303,6 +308,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `recent` / `same_artist` | 前回のドライブで流した（1/0）、直近3曲と同じアーティスト（1/0） |
 | `owner_bias` / `shared` | 所有者の偏り、複数人のリストにある度合い |
 | `popularity` | 知名度（0〜1） |
+| `theme` / `theme_match` | 一番よく合った歌詞の題材（`sea`・`city`・`night` など、無ければ `null`）と一致度（0〜1）。一致度 × 0.05 を加点する |
 | `conf_penalty` | 注釈の信頼度が低い分の減点 |
 
 ---
@@ -473,7 +479,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | --- | --- | --- |
 | `energy` | 静か | 激しい・高揚 |
 | `valence` | 切ない・暗い | 明るい |
-| `tempo` | 遅い（BPM 60 以下） | 速い（BPM 180 以上）。(BPM − 60) / 120 |
+| `tempo` | 遅い（BPM 60 以下） | 速い（BPM 180 以上）。(BPM − 60) / 120。全曲カタログの BPM は試聴の解析値（[scripts/bpm](../scripts/bpm/README.md)）、`/annotate` で注釈した曲は Gemini の推定 |
 | `acoustic` | 電子音・打ち込み | 生楽器・弾き語り |
 | `spacious` | 密な音像 | 余白・広がり |
 | `vocal` | インスト | ボーカルが前面 |

@@ -141,6 +141,10 @@ fun driveBgmLine(state: DriveBgmState, now: NowPlaying?, connected: Boolean, gui
                 false, false, "再試行", DriveBgmAction.RETRY)
         }
     }
+    // 着いて景観BGMを終えた。ただの「一時停止中」では、なぜ止まったのか分からない
+    if (useBgm && bgm.finishedOnArrival && !playing) {
+        return DriveBgmLine(trackTitle ?: "景観BGMを終えました", "目的地に着いたので、景観BGMを終えました", false, trackTitle != null)
+    }
     if (trackTitle != null) {
         // 利用者が自分で選んだ曲。案内中なら景観BGMに戻せる
         val subtitle = when {

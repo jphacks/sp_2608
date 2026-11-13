@@ -36,6 +36,8 @@ data class BgmMusicState(
     val requests: List<SongRequest> = emptyList(),
     /** 流れているリクエスト曲。景観BGMの曲が流れているときは null。 */
     val playingRequest: SongRequest? = null,
+    /** 目的地に着いて、今の曲の終わりで景観BGMを終えた。止まった理由を画面に残すため。次に始めると消える。 */
+    val finishedOnArrival: Boolean = false,
 )
 
 /**
@@ -60,6 +62,8 @@ class BgmMusicSession(
     private val minimumIntervalMillis: Long = 10_000,
     private val historyLimit: Int = 200,
     private val listener: BgmPlaybackListener? = null,
+    /** 曲を決めた・切り替えた理由の記録先。曲が途中で変わったときに原因を追えるようにする。 */
+    private val trace: (String) -> Unit = {},
 ) {
     init { require(leadMillis >= 0 && minimumIntervalMillis >= 0 && historyLimit > 0) }
 
@@ -82,6 +86,8 @@ class BgmMusicSession(
      * 切り替える前に流れていた曲と、その曲の再生状態を無視する期限。
      * 再生を指示した直後の数秒は、再生先が前の曲の状態を返すことがある。それを利用者の操作と読み違えないため。
      */
+    /** 直前に見た再生先。再生先の入れ替わりを記録に残すため。 */
+    private var lastDeviceId: String? = null
     private var replacedUri: String? = null
     private var replacedUntil = 0L
 
@@ -89,6 +95,8 @@ class BgmMusicSession(
     private class Prepared(val uri: String, val track: RecommendedTrack? = null, val message: String? = null, val request: SongRequest? = null)
     private enum class Next { PLAY_NOW, PREPARE }
     private var lastRequestAt: Long? = null
+    /** 目的地に着いたあと。次の曲は選ばず、今の曲の終わりで一時停止して推薦を終える。 */
+    private var finishing = false
     private var job: Job? = null
     private var generation = 0L
     private var closed = false
@@ -101,7 +109,9 @@ class BgmMusicSession(
         requestsOnly: Boolean = false,
     ) {
         if (closed || members.isEmpty()) return
+        trace("start: すぐ1曲選ぶ (mode=$mode requestsOnly=$requestsOnly)")
         stop()
+        finishing = false
         this.members = members
         this.pool = pool
         this.mode = mode
@@ -114,6 +124,7 @@ class BgmMusicSession(
         lastRequestAt = null
         replacedUri = null
         mutableState.update { it.copy(enabled = true, requestsOnly = requestsOnly, failure = null, note = null, playingUri = null, playingRequest = null,
+            finishedOnArrival = false,
             upNextUri = queue.firstOrNull()?.uri) }
     }
 
@@ -125,11 +136,28 @@ class BgmMusicSession(
     }
 
     fun stop() {
+        finishing = false
         generation++
         job?.cancel()
         job = null
         mutableState.update { it.copy(enabled = false, requesting = false) }
         listener?.onStopped(nowMillis())
+    }
+
+    /**
+     * 目的地に着いたときに呼ぶ。次の曲は選ばず、今流れている景観BGMの曲が終わったところで一時停止して推薦を終える。
+     * 着いたあとに、景色と関係のない曲（Spotify が続けて流すアルバムの続きなど）が流れ続けないようにするため。
+     * 利用者が途中で別の曲にしていたら、その曲には触れずに推薦だけを終える。
+     */
+    fun finishAfterCurrent(note: String) {
+        if (closed || !state.value.enabled || finishing) return
+        trace("finish: 今の曲の終わりで止める (current=${currentUri != null})")
+        generation++
+        job?.cancel()
+        job = null
+        prepared = null
+        finishing = true
+        mutableState.update { it.copy(requesting = false, upNextUri = null, message = note) }
     }
 
     fun reset() {
@@ -164,9 +192,11 @@ class BgmMusicSession(
         mutableState.update { it.copy(sceneryAvailable = scenery != null) }
         if (playbackBusy) return
         if (deviceId == null) { fail(MusicFailure.NO_DEVICE); return }
+        if (deviceId != lastDeviceId) { if (lastDeviceId != null) trace("device: 再生先が変わった"); lastDeviceId = deviceId }
         val track = playback.track
         val now = nowMillis()
         if (track != null && track.uri == replacedUri && now < replacedUntil) return
+        if (finishing) { finishStep(playback, deviceId); return }
         val remaining = remainingMillis(playback)
         // 受付を開いた時点で流れていた曲も、終わりまで待ってから予約を流す。
         if (state.value.requestsOnly && currentUri == null) currentUri = track?.uri
@@ -176,10 +206,14 @@ class BgmMusicSession(
             // 曲の終わりで、再生先が準備した曲ではない曲へ進んだ（前に聴いていたプレイリストの続きなど）。
             val movedOnByItself = track?.uri != currentUri && (lastRemaining ?: Int.MAX_VALUE) <= AUTO_ADVANCE_MILLIS
             val ended = !playback.playing && !pausedMidway(playback)
-            if (atEnd || movedOnByItself || ended) { playPrepared(next, deviceId); return }
+            if (atEnd || movedOnByItself || ended) {
+                trace("switch: 準備した曲へ (atEnd=$atEnd movedOnByItself=$movedOnByItself ended=$ended ${describe(playback)})")
+                playPrepared(next, deviceId); return
+            }
         }
         // 曲の途中で別の曲に変わった。利用者が自分で選んだので、その曲を今の曲として終わりまで任せる。
         if (track != null && currentUri != null && track.uri != currentUri) {
+            trace("adopt: 曲の途中で別の曲になったので任せる (${describe(playback)})")
             currentUri = track.uri
             prepared = null
             mutableState.update { it.copy(upNextUri = queue.firstOrNull()?.uri, playingRequest = null) }
@@ -187,6 +221,7 @@ class BgmMusicSession(
         lastRemaining = remaining.takeIf { track?.uri == currentUri }
         lastRequestAt?.let { if (now - it < minimumIntervalMillis) return }
         val next = next(playback) ?: return
+        trace("request: $next (${describe(playback)} current=${currentUri != null} prepared=${prepared != null})")
         val currentGeneration = generation
         lastRequestAt = now
         // 次の曲の長さは要求時点では分からない。窓の長さの目安として、今の曲の長さを渡す。
@@ -302,6 +337,44 @@ class BgmMusicSession(
         val remaining = remainingMillis(playback) ?: return null
         return if (remaining <= leadMillis) Next.PREPARE else null
     }
+
+    /** 着いたあとの1回分。今の曲が終わる（または再生先が勝手に次へ進んだ）ところで一時停止する。 */
+    private fun finishStep(playback: MusicPlayback, deviceId: String) {
+        val track = playback.track
+        val remaining = remainingMillis(playback)
+        val ours = currentUri != null && track?.uri == currentUri
+        when {
+            ours && playback.playing && remaining != null && remaining <= switchMillis -> pauseAndEnd(deviceId, "曲の終わり")
+            ours && playback.playing -> lastRemaining = remaining
+            // 曲の終わりで、再生先がアルバムの続きなどへ勝手に進んだ。
+            playback.playing && track != null && currentUri != null &&
+                (lastRemaining ?: Int.MAX_VALUE) <= AUTO_ADVANCE_MILLIS -> pauseAndEnd(deviceId, "再生先が次へ進んだ")
+            // 曲の途中の一時停止は、再開されるのを待つ。
+            ours && pausedMidway(playback) -> Unit
+            // 利用者が別の曲にした、または曲が終わって止まった。流れている曲には触れない。
+            else -> { trace("finish: 止めずに終える (${describe(playback)})"); stop() }
+        }
+    }
+
+    private fun pauseAndEnd(deviceId: String, reason: String) {
+        trace("finish: 一時停止して終える ($reason)")
+        val currentGeneration = generation
+        job = scope.launch {
+            try {
+                music.pause(deviceId)
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+            }
+            if (currentGeneration == generation && !closed) {
+                stop()
+                mutableState.update { it.copy(finishedOnArrival = true) }
+            }
+        }
+    }
+
+    private fun describe(playback: MusicPlayback) =
+        "playing=${playback.playing} pos=${playback.positionMillis} dur=${playback.track?.durationMillis} " +
+            "same=${playback.track?.uri == currentUri} track=${playback.track?.uri != null} device=${playback.deviceId != null}"
 
     private fun started(entry: Prepared) {
         currentUri = entry.uri

@@ -12,16 +12,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
@@ -30,7 +35,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +51,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 /**
  * タブバー上のミニプレーヤー。バー本体のタップで音楽画面、右のボタンで再生/一時停止。
@@ -62,6 +72,8 @@ fun MiniPlayer(
     onAction: (() -> Unit)? = null,
     showIndicator: Boolean = false,
     actionReplacesPlay: Boolean = false,
+    progress: MiniPlayerProgress? = null,
+    clock: () -> Long = { 0L },
 ) {
     val row: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
@@ -75,6 +87,7 @@ fun MiniPlayer(
                     Text(it, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodySmall,
                         maxLines = 1, modifier = Modifier.slowMarquee())
                 }
+                progress?.let { SongProgress(it, clock) }
             }
             if (actionReplacesPlay && actionLabel != null && onAction != null) {
                 // 流せる曲がないときは、再生ボタンの場所を操作のボタンにする
@@ -105,6 +118,56 @@ fun MiniPlayer(
     val background = Modifier.drawBehind { spotifyGlow() }
     if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
     else Surface(modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
+}
+
+/**
+ * 曲の再生位置。見せるだけで、つまんで動かすことはできない（運転中に細かい操作をさせないため）。
+ * [positionMillis] は [anchorMillis]（[MiniPlayer] の clock と同じ時計）の時点の位置。
+ * Spotify への問い合わせは数秒おきなので、その間は経過時間で進めて描く。
+ */
+data class MiniPlayerProgress(
+    val positionMillis: Long,
+    val durationMillis: Long,
+    val anchorMillis: Long,
+    val playing: Boolean,
+) {
+    fun positionAt(nowMillis: Long): Long {
+        val moved = if (playing) (nowMillis - anchorMillis).coerceAtLeast(0) else 0
+        return (positionMillis + moved).coerceIn(0, durationMillis)
+    }
+}
+
+/** 「m:ss」。1時間を超える曲でも分で数える。 */
+fun formatSongTime(millis: Long): String {
+    val seconds = (millis.coerceAtLeast(0) / 1_000).toInt()
+    return "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"
+}
+
+/** 道に見立てた細い線の上を、車が曲の進み具合に合わせて走る。 */
+@Composable
+private fun SongProgress(progress: MiniPlayerProgress, clock: () -> Long) {
+    var now by remember { mutableLongStateOf(clock()) }
+    LaunchedEffect(progress) {
+        now = clock()
+        while (progress.playing) {
+            delay(500)
+            now = clock()
+        }
+    }
+    val position = progress.positionAt(now)
+    val fraction = if (progress.durationMillis > 0) position.toFloat() / progress.durationMillis else 0f
+    val label = "${formatSongTime(position)} / ${formatSongTime(progress.durationMillis)}"
+    Row(Modifier.fillMaxWidth().padding(top = 2.dp).semantics { contentDescription = "再生位置 $label" },
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        BoxWithConstraints(Modifier.weight(1f).height(18.dp), contentAlignment = Alignment.CenterStart) {
+            val car = 18.dp
+            Box(Modifier.fillMaxWidth().height(3.dp).background(Color.White.copy(alpha = .25f), RoundedCornerShape(2.dp)))
+            Box(Modifier.width(maxWidth * fraction).height(3.dp).background(Sunglow, RoundedCornerShape(2.dp)))
+            Icon(Icons.Rounded.DirectionsCar, null, tint = Sunglow,
+                modifier = Modifier.size(car).offset(x = (maxWidth - car) * fraction))
+        }
+        Text(label, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.labelSmall, maxLines = 1)
+    }
 }
 
 // Spotify が再生中の背景に指定している #191414 の上に、帯の外から差し込む深い緑の光を円く重ねる

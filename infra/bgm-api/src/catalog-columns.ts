@@ -3,5 +3,5 @@
 export const CATALOG_COLUMNS = [
   'track_id', 'title', 'artist', 'duration_ms', 'energy', 'valence', 'tempo', 'acoustic', 'spacious', 'vocal',
   'conf', 'tags_json', 'source_json', 'model_version', 'updated_at', 'isrc', 'jp_familiarity', 'deezer_rank',
-  'popularity', 'catalog_group',
+  'popularity', 'catalog_group', 'energy_cap', 'themes_json',
 ] as const;

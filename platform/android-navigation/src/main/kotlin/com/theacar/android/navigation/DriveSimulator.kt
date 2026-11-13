@@ -55,6 +55,15 @@ class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
                         speed.toFloat(), bearing(here, ahead)))
                     delay((TICK_SECONDS * 1_000).toLong())
                 }
+                // 終点で止まった車のように、しばらく同じ位置を送る。到着は目的地付近の位置が
+                // 続けて届いたときに決まるので、走り抜けたまま位置を打ち切ると到着にならず、案内も景観BGMも続いてしまう。
+                val end = pointAt(index, total, total)
+                if (end != null && travelled >= total) repeat(ARRIVAL_HOLD_TICKS) {
+                    val now = runtime.session.state.value
+                    if (now.phase != NavigationPhase.GUIDING || now.sessionId != begin.sessionId) return@repeat
+                    runtime.locations.simulate(LocationFix(end, 5f, SystemClock.elapsedRealtime(), 0f, null))
+                    delay((TICK_SECONDS * 1_000).toLong())
+                }
             } finally {
                 // 差し込んだままだと、そこに居続けてしまう。打ち切られたときも必ず測位へ返す
                 runtime.locations.simulate(null)
@@ -96,5 +105,7 @@ class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
         const val TICK_SECONDS = 1.0
         const val RAMP_SECONDS = 15.0
         const val LOOK_AHEAD_METERS = 20.0
+        /** 終点で位置を送り続ける回数。到着の判定（3回続けて目的地付近）より多めにする。 */
+        const val ARRIVAL_HOLD_TICKS = 10
     }
 }

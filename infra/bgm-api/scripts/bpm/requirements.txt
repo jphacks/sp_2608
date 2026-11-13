@@ -1,0 +1,5 @@
+# scripts/bpm/bpm.py 用（Python 3.12 で確認）
+# Essentia と TempoCNN のモデルは非商用ライセンス（AGPL / CC BY-NC-SA 4.0）。README.md の「ライセンス」を参照
+essentia==2.1b6.dev1389
+essentia-tensorflow==2.1b6.dev1389
+numpy

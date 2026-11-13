@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SAMPLE, computeTarget, recommend, type PoolTrack, type RecommendInput, type TrackFeatures } from '../src/engine';
+import { SAMPLE, THEME_SLOT, computeTarget, recommend, type PoolTrack, type RecommendInput, type TrackFeatures } from '../src/engine';
 import { MODE_PARAMS } from '../src/modes';
 import tracks from './fixtures/tracks.json';
 import sea from '../scenario-sea.json';
@@ -48,11 +48,11 @@ function track(id: string, v: Partial<TrackFeatures>, owners = ['a']): PoolTrack
 const ONE = [{ id: 'a', name: 'A' }];
 
 describe('computeTarget', () => {
-  it('海：valence と spacious が上がり、その2軸の重みが 1.5 になる', () => {
+  it('海：energy と valence が上がり、その2軸の重みが 1.5 になる', () => {
     const p = computeTarget(sea.scene as any, 'normal');
+    expect(p.target.energy).toBeGreaterThan(0.7);
     expect(p.target.valence).toBeGreaterThan(0.7);
-    expect(p.target.spacious).toBeGreaterThan(0.9);
-    expect(p.weights).toEqual({ energy: 1, valence: 1.5, tempo: 0.5, acoustic: 1, spacious: 1.5, vocal: 1 });
+    expect(p.weights).toEqual({ energy: 1.5, valence: 1.5, tempo: 0.5, acoustic: 1, spacious: 1, vocal: 1 });
     expect(p.caps).toEqual({});
     expect(p.volume).toBe(0.6);
     expect(p.reasons).toEqual(['海が近い', '視界が開けている']);
@@ -98,22 +98,23 @@ describe('computeTarget', () => {
     expect(p.reasons).toEqual([]);
   });
 
-  it('時間帯：夜は energy −0.1、朝は tempo +0.05', () => {
-    expect(computeTarget({ features: {}, hour: 21 }).target.energy).toBeCloseTo(0.4, 6);
+  it('時間帯：朝は tempo +0.05。夜は眠気を誘わないよう energy を下げない', () => {
+    expect(computeTarget({ features: {}, hour: 21 }).target.energy).toBeCloseTo(0.5, 6);
+    expect(computeTarget({ features: {}, hour: 2 }).target).toMatchObject({ energy: 0.5, tempo: 0.5 });
     expect(computeTarget({ features: {}, hour: 7 }).target.tempo).toBeCloseTo(0.55, 6);
     expect(computeTarget({ features: {}, hour: 12 }).target).toMatchObject({ energy: 0.5, tempo: 0.5 });
   });
 });
 
 describe('recommend：3つのシナリオ（seed = 1 の結果を固定）', () => {
-  it('海：上限なし。選んだ曲のあとに、点数の高い順で明るく開放的な曲が並ぶ', () => {
+  it('海：上限なし。選んだ曲のあとに、点数の高い順で明るくアップテンポな曲が並ぶ', () => {
     const r = recommend(scenarioInput(sea));
     expect(r.cap_mode).toBe('none');
     // 先頭は選んだ曲、そのあとは点数の高い順の次点（再生できなかったときに使う）
     expect(r.candidates[0].title).toBe(r.chosen?.title);
-    const best = ['幾億光年', 'きらり', 'タイムパラドックス', 'マリーゴールド', 'Plastic Love', 'Pretender'];
+    const best = ['きらり', 'SPARKLE', 'ダンスホール', '高嶺の花子さん', 'Plastic Love', 'マリーゴールド'];
     expect(r.candidates.slice(1).map((c) => c.title)).toEqual(best.filter((t) => t !== r.chosen?.title).slice(0, 4));
-    expect(r.chosen?.message).toMatch(/^海が近いので、.*開放感のある曲を流します$/);
+    expect(r.chosen?.message).toMatch(/^海が近いので、.*明るくアップテンポな曲を流します$/);
   });
 
   it('夜の森で休息中：energy ≤ 0.4 を満たす曲だけが候補になる', () => {
@@ -218,9 +219,10 @@ describe('recommend：上限（安全制約）', () => {
 
 describe('recommend：ターゲットに近い曲が無いとき（直前の曲調に寄せる）', () => {
   // energy と acoustic が一緒に上がる曲ばかりのプール。
-  // 夜の森で休息中のターゲット（energy 低・acoustic 高）には、どの曲も遠い
+  // 深い森で休息中のターゲット（energy 低・acoustic 高）には、どの曲も遠い
   const pool = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35].map((x, i) => track(`t${i}`, { energy: x, acoustic: x }));
-  const base = { pool, scene: forestNight.scene as any, cabin: 'resting' as const, members: ONE, seed: 1 };
+  const deepForest = { features: { forest: 1, nature: 1 }, curvy: true };
+  const base = { pool, scene: deepForest, cabin: 'resting' as const, members: ONE, seed: 1 };
 
   it('距離が 0.35 を超えたら、直前の曲に近い曲を選び、音量を 0.1 下げる', () => {
     const r = recommend({ ...base, history: [{ track_id: 't0' }] });
@@ -320,7 +322,7 @@ describe('recommend：所有者がいない曲（全曲カタログ）', () => {
     });
     expect(r.candidates.every((c) => c.owner_bias === 0 && c.shared === 0)).toBe(true);
     expect(r.chosen?.owner_id).toBeNull();
-    expect(r.chosen?.message).toBe('海が近いので、開放感のある曲を流します');
+    expect(r.chosen?.message).toBe('海が近いので、明るくアップテンポな曲を流します');
   });
 
   it('owners が空配列でも同じ扱い（複数人のリストにある曲の項がマイナスにならない）', () => {
@@ -346,7 +348,7 @@ describe('recommend：プール内の順位への変換', () => {
 
 describe('recommend：曲調の急変を抑える（previous_target）', () => {
   it('前の曲のターゲットから軸ごとに 0.25 までしか動かさない', () => {
-    const scene = { features: { sea_proximity: 1, openness: 1 } }; // spacious が大きく上がる場面
+    const scene = { features: { openness: 1, water: 1 } }; // spacious が大きく上がる場面（開けた湖畔）
     const free = recommend({ pool: poolFor(ONE), scene, members: ONE, seed: 1 });
     expect(free.plan.target.spacious).toBeGreaterThan(0.8);
     const prev = { energy: 0.5, valence: 0.5, tempo: 0.5, acoustic: 0.5, spacious: 0.4, vocal: 0.5 };
@@ -362,3 +364,74 @@ describe('recommend：曲調の急変を抑える（previous_target）', () => {
   });
 });
 
+
+describe('recommend：通常の枠のくじ引き', () => {
+  // energy だけが 0〜1 に散らばる41曲。ほかの軸は同じ値なので重みが 0 になり、距離は energy の順位と 0.5 の差になる
+  const pool = Array.from({ length: 41 }, (_, i) => track(`e${i}`, { energy: i / 40 }));
+  const played = ['h1', 'h2', 'h3'].map((id) => ({ track_id: id, artist: id }));
+  const base = { mode: 'discover' as const, pool, scene: { features: {} }, members: ONE };
+  const dist = (id: string) => Math.abs(Number(id.slice(1)) / 40 - 0.5);
+
+  it('景観に合う曲だけから選ぶ：どの回も、最高点から scoreWindow 以内の曲だけが対象', () => {
+    for (const n of [0, 2, 3]) {
+      const picks = Array.from({ length: 300 }, (_, i) => recommend({ ...base, history: played.slice(0, n), seed: i + 1 }));
+      expect(picks.every((r) => r.slot === 'score')).toBe(true);
+      expect(picks.every((r) => dist(r.chosen!.track_id) <= SAMPLE.scoreWindow + 1e-9)).toBe(true);
+    }
+  });
+});
+
+describe('recommend：歌詞の題材', () => {
+  const seaScene = { features: { sea_proximity: 1 }, hour: 14 };
+  // energy と valence が一緒に上がる21曲。海の狙い（energy・valence が高い）からは、番号が小さい曲ほど遠い
+  const base = Array.from({ length: 21 }, (_, i) => track(`s${i}`, { energy: i / 20, valence: i / 20 }));
+  const withSeaSong = (i: number) => base.map((t, k) => (k === i ? { ...t, themes: { sea: 0.9 } } : t));
+  const input = { mode: 'discover' as const, scene: seaScene, members: ONE };
+
+  it('夜は曲調を変えず、夜を歌った曲を合う題材にする。朝は朝の題材', () => {
+    const night = computeTarget({ features: {}, hour: 21 });
+    expect(night.themes.night).toBe(1);
+    expect(night.target.energy).toBeCloseTo(0.5, 6);
+    expect(computeTarget({ features: {}, hour: 7 }).themes.morning).toBe(1);
+    expect(computeTarget(seaScene).themes).toMatchObject({ sea: 1, summer: 0.5, drive_travel: 0.5 });
+  });
+
+  it('通常の枠では、題材が合う曲を少し加点し、選ばれたら題材を理由に伝える', () => {
+    // s14 が狙い（energy・valence 0.7）に一番近い
+    const plain = recommend({ ...input, pool: base, seed: 1, top_k: 21 });
+    const themed = recommend({ ...input, pool: withSeaSong(14), seed: 1, top_k: 21 });
+    const score = (r: typeof plain) => r.candidates.find((c) => c.title === 's14')!.score;
+    expect(score(themed) - score(plain)).toBeCloseTo(0.05 * 0.9, 3);
+    expect(themed.candidates.find((c) => c.title === 's14')!.theme).toBe('sea');
+    const r = Array.from({ length: 50 }, (_, i) => recommend({ ...input, pool: withSeaSong(14), seed: i + 1 })).find(
+      (x) => x.chosen!.title === 's14',
+    )!;
+    expect(r.chosen!.message).toBe('海が近いので、海を歌った曲を流します');
+  });
+
+  it(`4曲ごとの2曲目は題材の枠：曲調が遠くても（${THEME_SLOT.maxDistance} 以内なら）場面の題材を歌った曲から選ぶ`, () => {
+    // s6 は狙いから遠く、通常の枠（最高点から 0.1 以内）には入らない
+    const pool = withSeaSong(6);
+    const first = Array.from({ length: 100 }, (_, i) => recommend({ ...input, pool, seed: i + 1 }));
+    expect(first.every((r) => r.slot === 'score' && r.chosen!.title !== 's6')).toBe(true);
+    const second = recommend({ ...input, pool, history: [{ track_id: 'h1', artist: 'h1' }], seed: 1 });
+    expect(second.slot).toBe('theme');
+    expect(second.chosen!.title).toBe('s6');
+    expect(second.candidates.find((c) => c.title === 's6')!.distance).toBeGreaterThan(SAMPLE.scoreWindow);
+  });
+
+  it(`題材が合う曲が狙いから ${THEME_SLOT.maxDistance} より遠ければ、題材の枠は使わず通常の枠で選ぶ`, () => {
+    const r = recommend({ ...input, pool: withSeaSong(0), history: [{ track_id: 'h1', artist: 'h1' }], seed: 1, top_k: 21 });
+    expect(r.candidates.find((c) => c.title === 's0')!.distance).toBeGreaterThan(THEME_SLOT.maxDistance);
+    expect(r.slot).toBe('score');
+  });
+
+  it('理由の一言は、その題材を決めた景観にする（海沿いでも、空や風の歌なら「視界が開けている」）', () => {
+    const scene = { features: { sea_proximity: 1, openness: 0.8 }, hour: 14 };
+    expect(computeTarget(scene).themeReasons).toMatchObject({ sea: '海が近い', sky_wind: '視界が開けている' });
+    const pool = base.map((t, k) => (k === 6 ? { ...t, themes: { sky_wind: 0.9 } } : t));
+    const r = recommend({ ...input, scene, pool, history: [{ track_id: 'h1', artist: 'h1' }], seed: 1 });
+    expect(r.chosen!.title).toBe('s6');
+    expect(r.chosen!.message).toBe('視界が開けているので、空や風を歌った曲を流します');
+  });
+});

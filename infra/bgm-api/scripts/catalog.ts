@@ -27,6 +27,9 @@ const SOURCES_PATH = 'catalog/sources.json';
 const STATE_PATH = 'catalog/work/catalog.json';
 const OUT_PATH = 'catalog/out/catalog.sql';
 const SEED_PATH = 'catalog/catalog.jsonl';
+const BPM_PATH = 'catalog/bpm.jsonl'; // scripts/bpm/bpm.py が試聴から解析した BPM
+const THEMES_PATH = 'catalog/themes.jsonl'; // Gemini が歌詞の内容から付けた題材（歌詞そのものは保存しない）
+const MOOD_PATH = 'catalog/audio-mood.jsonl'; // 試聴を Essentia の musicnn 系モデルで解析した値（覚醒度・攻撃性・落ち着きなど）
 
 type Group = 'jp' | 'inst' | 'western' | 'kpop';
 const GROUPS: Group[] = ['jp', 'inst', 'western', 'kpop'];
@@ -357,18 +360,32 @@ function exportSql() {
     ts.forEach((t, i) => rankPct.set(t.track_id, ts.length > 1 ? i / (ts.length - 1) : 0.5));
   }
   const now = Date.now();
+  const measured = loadMeasuredBpm();
+  const audioEnergy = audioEnergyOf(done);
+  const themes = loadThemes();
   const seed: Record<string, unknown>[] = [];
   const lines = done.map((t) => {
     const a = t.annotation!;
     const popularity = round((a.jp_familiarity + rankPct.get(t.track_id)!) / 2);
-    const source = { axes: 'llm', bpm: a.bpm, bpm_source: a.bpm ? 'llm' : null, known: a.known, deezer_id: t.deezer_id, sources: t.sources };
+    // 試聴から解析した BPM（scripts/bpm/bpm.py）があれば、LLM の推定より優先する
+    const m = measured.get(t.track_id);
+    const tempo = m ? round(Math.min(1, Math.max(0, (m.bpm - 60) / 120))) : a.tempo;
+    // energy は LLM の注釈と試聴の音から見た energy を半分ずつ混ぜる（LLM はジャンルの印象に引っぱられやすいため）。
+    // 安全のための上限には、どちらかが激しいと見たら激しい扱いにするため、高いほうを使う（energy_cap）
+    const ae = audioEnergy.get(t.track_id);
+    const energy = ae == null ? a.energy : round((a.energy + ae) / 2);
+    const energyCap = ae == null ? null : round(Math.max(a.energy, ae));
+    const energySource = ae == null ? {} : { energy_llm: a.energy, energy_audio: round(ae) };
+    const source = m
+      ? { axes: 'llm', ...energySource, bpm: m.bpm, bpm_source: m.method, bpm_conf: m.bpm_conf, bpm_llm: a.bpm, known: a.known, deezer_id: t.deezer_id, sources: t.sources }
+      : { axes: 'llm', ...energySource, bpm: a.bpm, bpm_source: a.bpm ? 'llm' : null, known: a.known, deezer_id: t.deezer_id, sources: t.sources };
     const values = [
-      t.track_id, a.title, a.artist, t.duration_ms, a.energy, a.valence, a.tempo, a.acoustic, a.spacious, a.vocal,
+      t.track_id, a.title, a.artist, t.duration_ms, energy, a.valence, tempo, a.acoustic, a.spacious, a.vocal,
       a.conf, JSON.stringify(a.tags), JSON.stringify(source), t.model_version, now,
-      t.isrc, a.jp_familiarity, t.deezer_rank, popularity, t.group,
+      t.isrc, a.jp_familiarity, t.deezer_rank, popularity, t.group, energyCap, themes.get(t.track_id) ?? null,
     ];
     seed.push(Object.fromEntries(CATALOG_COLUMNS.map((column, i) => [column, values[i] ?? null])));
-    return `INSERT INTO track_features (track_id, title, artist, duration_ms, energy, valence, tempo, acoustic, spacious, vocal, conf, tags_json, source_json, model_version, updated_at, isrc, jp_familiarity, deezer_rank, popularity, catalog_group) VALUES (${values.map(sqlValue).join(', ')}) ON CONFLICT(track_id) DO UPDATE SET title = excluded.title, artist = excluded.artist, duration_ms = excluded.duration_ms, energy = excluded.energy, valence = excluded.valence, tempo = excluded.tempo, acoustic = excluded.acoustic, spacious = excluded.spacious, vocal = excluded.vocal, conf = excluded.conf, tags_json = excluded.tags_json, source_json = excluded.source_json, model_version = excluded.model_version, updated_at = excluded.updated_at, isrc = excluded.isrc, jp_familiarity = excluded.jp_familiarity, deezer_rank = excluded.deezer_rank, popularity = excluded.popularity, catalog_group = excluded.catalog_group;`;
+    return `INSERT INTO track_features (track_id, title, artist, duration_ms, energy, valence, tempo, acoustic, spacious, vocal, conf, tags_json, source_json, model_version, updated_at, isrc, jp_familiarity, deezer_rank, popularity, catalog_group, energy_cap, themes_json) VALUES (${values.map(sqlValue).join(', ')}) ON CONFLICT(track_id) DO UPDATE SET title = excluded.title, artist = excluded.artist, duration_ms = excluded.duration_ms, energy = excluded.energy, valence = excluded.valence, tempo = excluded.tempo, acoustic = excluded.acoustic, spacious = excluded.spacious, vocal = excluded.vocal, conf = excluded.conf, tags_json = excluded.tags_json, source_json = excluded.source_json, model_version = excluded.model_version, updated_at = excluded.updated_at, isrc = excluded.isrc, jp_familiarity = excluded.jp_familiarity, deezer_rank = excluded.deezer_rank, popularity = excluded.popularity, catalog_group = excluded.catalog_group, energy_cap = excluded.energy_cap, themes_json = excluded.themes_json;`;
   });
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
   fs.writeFileSync(OUT_PATH, lines.join('\n') + '\n');
@@ -385,6 +402,71 @@ function exportSql() {
 function loadState(): State {
   if (!fs.existsSync(STATE_PATH)) return { tracks: [], gemini_usage: {} };
   return JSON.parse(fs.readFileSync(STATE_PATH, 'utf8')) as State;
+}
+
+type MeasuredBpm = { bpm: number; bpm_conf: number; method: string };
+
+// 歌詞の題材 → themes_json。確かさは、歌詞を知っている曲・インストは conf のまま、うろ覚えは半分、知らない曲は使わない
+function loadThemes(): Map<string, string> {
+  const out = new Map<string, string>();
+  if (!fs.existsSync(THEMES_PATH)) return out;
+  const factor: Record<string, number> = { known: 1, instrumental: 1, vague: 0.5, unknown: 0 };
+  for (const line of fs.readFileSync(THEMES_PATH, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line) as { track_id: string; lyrics: string; themes: string[]; conf: number };
+    const w = round((factor[r.lyrics] ?? 0) * r.conf);
+    if (w > 0 && r.themes.length > 0) out.set(r.track_id, JSON.stringify(Object.fromEntries(r.themes.map((th) => [th, w]))));
+  }
+  return out;
+}
+
+// 試聴の音から見た energy（0〜1）。覚醒度・攻撃性・落ち着き（逆向き）の、解析できた曲の中での順位の平均を、
+// 同じ曲たちの LLM の energy の分布に合わせて値に直す（上限 0.6 などの意味を LLM の注釈と揃えるため）
+function audioEnergyOf(done: CatalogTrack[]): Map<string, number> {
+  const out = new Map<string, number>();
+  if (!fs.existsSync(MOOD_PATH)) return out;
+  const mood = new Map<string, { arousal: number; aggressive: number; relaxed: number }>();
+  for (const line of fs.readFileSync(MOOD_PATH, 'utf8').split('\n')) {
+    if (line.trim()) mood.set(JSON.parse(line).track_id, JSON.parse(line));
+  }
+  const ts = done.filter((t) => mood.has(t.track_id));
+  if (ts.length < 2) return out;
+  const ranks = (vals: number[]) => {
+    const idx = vals.map((v, i) => [v, i] as const).sort((x, y) => x[0] - y[0]);
+    const r = new Array<number>(vals.length);
+    for (let i = 0; i < idx.length; ) {
+      let j = i;
+      while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
+      for (let k = i; k <= j; k++) r[idx[k][1]] = (i + j) / 2 / (vals.length - 1); // 同じ値は平均順位
+      i = j + 1;
+    }
+    return r;
+  };
+  const ms = ts.map((t) => mood.get(t.track_id)!);
+  const ra = ranks(ms.map((m) => m.arousal));
+  const rg = ranks(ms.map((m) => m.aggressive));
+  const rr = ranks(ms.map((m) => m.relaxed));
+  const comp = ranks(ts.map((_, i) => (ra[i] + rg[i] + (1 - rr[i])) / 3));
+  const llm = ts.map((t) => t.annotation!.energy).sort((x, y) => x - y);
+  ts.forEach((t, i) => {
+    const pos = comp[i] * (llm.length - 1);
+    const lo = Math.floor(pos);
+    const hi = Math.min(llm.length - 1, lo + 1);
+    out.set(t.track_id, llm[lo] + (llm[hi] - llm[lo]) * (pos - lo));
+  });
+  return out;
+}
+
+// scripts/bpm/bpm.py の解析結果。同じ曲が複数行あれば後の行（新しい解析）を使い、失敗した行は無視する
+function loadMeasuredBpm(): Map<string, MeasuredBpm> {
+  const out = new Map<string, MeasuredBpm>();
+  if (!fs.existsSync(BPM_PATH)) return out;
+  for (const line of fs.readFileSync(BPM_PATH, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line) as Partial<MeasuredBpm> & { track_id: string };
+    if (typeof r.bpm === 'number' && r.bpm > 0) out.set(r.track_id, { bpm: r.bpm, bpm_conf: r.bpm_conf ?? 0, method: r.method ?? 'measured' });
+  }
+  return out;
 }
 
 // 書き込み途中で止まっても壊れないよう、一時ファイルに書いてから置き換える

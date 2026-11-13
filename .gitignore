@@ -5,6 +5,8 @@
 .idea/
 **/build/
 local.properties
+# 手元のビルドに渡すトークンなど。秘密を含むのでコミットしない
+.env.local
 *.iml
 .DS_Store
 xcuserdata/

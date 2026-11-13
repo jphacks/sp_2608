@@ -23,10 +23,14 @@ internal class NavigationMusicCompanion(
 ) : NavigationCompanion {
     init {
         // 再探索中も GUIDING のままなので、ルートの差し替えでは推薦を止めない。
+        // 案内を抜けた直後の段階で、着いた（ARRIVED）のか途中で終えたのかを見分ける。
         scope.launch {
-            navigation.map { it.phase == NavigationPhase.GUIDING }.distinctUntilChanged().collect { guiding ->
-                if (guiding) link.onGuidanceStarted() else link.onGuidanceEnded()
-            }
+            navigation.map { it.phase }
+                .distinctUntilChanged { old, new -> (old == NavigationPhase.GUIDING) == (new == NavigationPhase.GUIDING) }
+                .collect { phase ->
+                    if (phase == NavigationPhase.GUIDING) link.onGuidanceStarted()
+                    else link.onGuidanceEnded(arrived = phase == NavigationPhase.ARRIVED)
+                }
         }
     }
 
