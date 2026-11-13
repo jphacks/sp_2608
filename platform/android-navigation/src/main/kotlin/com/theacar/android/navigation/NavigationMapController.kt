@@ -60,7 +60,11 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private var alternativesKey: String? = null
     private var locationMarker: Marker? = null
     private var selectedMarker: Marker? = null
+    private var selectedMarkerKey: String? = null
     private var selectedDestination: Destination? = null
+    /** 経路の目的地のピン。候補を出している間から着くまで立てておく */
+    private var routeDestinationMarker: Marker? = null
+    private var routeDestinationKey: String? = null
     private val waypointMarkers = mutableListOf<Marker>()
     private var waypointPoints = emptyList<Coordinate>()
     private var routeKey: String? = null
@@ -71,6 +75,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private var contentPadding = intArrayOf(0, 0, 0, 0)
     private var loadTimeout: Job? = null
     private var dark = false
+    /** 航空写真で見せるか。夜の表示より優先する */
+    private var satellite = false
     private val locationIcon = locationIcon(context, android.graphics.Color.rgb(34, 112, 215))
     private val staleLocationIcon = locationIcon(context, android.graphics.Color.rgb(120, 130, 140))
 
@@ -88,6 +94,44 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         canvas.drawCircle(size / 2f, size / 2f, size * .22f, paint)
         return IconFactory.getInstance(context).fromBitmap(bitmap)
     }
+
+    private val destinationPin = destinationPin(context)
+
+    /**
+     * Google マップのような赤いしずく形のピン。マーカーの絵は真ん中が地点に来るので、
+     * 絵の高さをピンの2倍にして下半分を空け、ピンの先を真ん中に置く。
+     */
+    private fun destinationPin(context: Context): org.maplibre.android.annotations.Icon {
+        val density = context.resources.displayMetrics.density
+        val width = (30 * density).coerceAtLeast(30f)
+        val height = (40 * density).coerceAtLeast(40f)
+        val stroke = 1.5f * density
+        val bitmap = android.graphics.Bitmap.createBitmap(width.toInt(), (height * 2).toInt(), android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val radius = width / 2 - stroke
+        val cx = width / 2
+        val cy = radius + stroke
+        val tipY = height - stroke
+        // 先から丸へ引いた接線の角度。丸の下側を開けて、先までを直線でつなぐ
+        val spread = Math.toDegrees(kotlin.math.acos(radius / (tipY - cy).toDouble())).toFloat()
+        val path = android.graphics.Path().apply {
+            moveTo(cx, tipY)
+            arcTo(android.graphics.RectF(cx - radius, cy - radius, cx + radius, cy + radius), 90 + spread, 360 - 2 * spread)
+            close()
+        }
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        paint.color = android.graphics.Color.rgb(234, 67, 53)
+        canvas.drawPath(path, paint)
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = stroke
+        paint.color = android.graphics.Color.rgb(179, 20, 18)
+        canvas.drawPath(path, paint)
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.rgb(165, 14, 14)
+        canvas.drawCircle(cx, cy, radius * .38f, paint)
+        return IconFactory.getInstance(context).fromBitmap(bitmap)
+    }
+
     private val observation: Job
 
     init {
@@ -149,11 +193,15 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         alternativesKey = null
         locationMarker?.let(target::removeMarker)
         selectedMarker?.let(target::removeMarker)
+        routeDestinationMarker?.let(target::removeMarker)
         waypointMarkers.forEach(target::removeMarker)
         waypointMarkers.clear()
         routeLine = null
         locationMarker = null
         selectedMarker = null
+        selectedMarkerKey = null
+        routeDestinationMarker = null
+        routeDestinationKey = null
         routeKey = null
         styleLoaded = false
         mutableDisplayState.value = MapDisplayState.LOADING
@@ -176,7 +224,8 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         target.setStyle(style) {
             if (closed) return@setStyle
             styleLoaded = true
-            applyTabiMapColors(it, dark)
+            applyTabiMapColors(it, dark, satellite)
+            applySatellite(it, satellite)
             applyTabiMapLabels(it)
             if (runtime.configuration.mapStyleUrl.isBlank()) {
                 loadTimeout?.cancel()
@@ -212,11 +261,41 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         if (destination != null) evidenceFocus = emptyList()
         val target = map ?: return
         if (!styleLoaded) return
-        selectedMarker?.let(target::removeMarker)
-        selectedMarker = destination?.let {
-            target.addMarker(MarkerOptions().position(LatLng(it.coordinate.latitude, it.coordinate.longitude)).title(it.title))
+        syncDestinationPins(target)
+    }
+
+    /**
+     * 目的地のピンを、選んだ地点と経路の目的地に立てる。
+     * 経路の目的地は候補を出している間から着くまで残し、選んだ地点と同じ場所なら1本にまとめる。
+     */
+    private fun syncDestinationPins(target: MapLibreMap) {
+        val state = runtime.session.state.value
+        val routed = state.route?.destination?.takeIf { state.phase in ROUTED_PHASES }
+        val routedKey = routed?.let(::pinKey)
+        if (routedKey != routeDestinationKey) {
+            routeDestinationMarker?.let(target::removeMarker)
+            routeDestinationMarker = routed?.let { target.addMarker(pinOptions(it)) }
+            routeDestinationKey = routedKey
+        }
+        val selected = selectedDestination?.takeIf { routed == null || !samePlace(it.coordinate, routed.coordinate) }
+        val selectedKey = selected?.let(::pinKey)
+        if (selectedKey != selectedMarkerKey) {
+            selectedMarker?.let(target::removeMarker)
+            selectedMarker = selected?.let { target.addMarker(pinOptions(it)) }
+            selectedMarkerKey = selectedKey
         }
     }
+
+    private fun pinOptions(destination: Destination) = MarkerOptions()
+        .position(LatLng(destination.coordinate.latitude, destination.coordinate.longitude))
+        .title(destination.title).icon(destinationPin)
+
+    private fun pinKey(destination: Destination) =
+        "${destination.coordinate.latitude},${destination.coordinate.longitude}:${destination.title}"
+
+    /** 約 30m 以内なら同じ場所とみなす（地図で選んだ点と、経路の終点が少しずれることがある） */
+    private fun samePlace(a: Coordinate, b: Coordinate) =
+        kotlin.math.abs(a.latitude - b.latitude) < .0003 && kotlin.math.abs(a.longitude - b.longitude) < .0004
 
     fun focusDestination(destination: Destination) {
         follow = false
@@ -273,9 +352,20 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     fun setDarkMode(enabled: Boolean) {
         if (dark == enabled) return
         dark = enabled
-        if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark) }
+        if (styleLoaded) map?.style?.let { applyTabiMapColors(it, dark, satellite) }
         routeLine?.color = routeColor()
         traveledLine?.color = traveledColor()
+    }
+
+    /** 地図と航空写真を切り替える。地図を読み直さず、今のスタイルにその場でかける */
+    fun setSatellite(enabled: Boolean) {
+        if (satellite == enabled) return
+        satellite = enabled
+        if (!styleLoaded) return
+        map?.style?.let {
+            applyTabiMapColors(it, dark, satellite)
+            applySatellite(it, satellite)
+        }
     }
 
     // 夜の地図では、これから走る線を明るく、通過済みを暗くして、地との差を保つ
@@ -441,6 +531,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
         }
         applyScenery()
         drawTraveled(target, state)
+        syncDestinationPins(target)
         val location = runtime.locations.location.value
         val fix = location.fix
         if (fix == null || location.status in setOf(LocationStatus.PERMISSION_REQUIRED, LocationStatus.DISABLED)) {
@@ -470,5 +561,7 @@ class NavigationMapController(context: Context, private val runtime: AndroidNavi
     private companion object {
         /** 次の位置が来るまでに追いつく長さ。これより長いと地図が遅れて見える。 */
         const val FOLLOW_ANIMATION_MS = 900
+        /** 経路の目的地にピンを立てておく段階。探している間（PREVIEWING）は、前の経路のピンを残さない */
+        val ROUTED_PHASES = setOf(NavigationPhase.PREVIEW, NavigationPhase.STARTING, NavigationPhase.GUIDING, NavigationPhase.ARRIVED)
     }
 }

@@ -49,6 +49,9 @@ class NavigationActivity : ComponentActivity() {
     private var mapController: NavigationMapController? = null
     private val viaPoints = mutableStateListOf<Coordinate>()
     private var selectedDestination by mutableStateOf<Destination?>(null)
+    /** 地図を航空写真で見せるか。次に開いたときも同じ種類にする */
+    private var mapSatellite by mutableStateOf(false)
+    private val mapPreferences by lazy { getSharedPreferences(MAP_PREFERENCES, MODE_PRIVATE) }
     private val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         runtime.locations.acquire(this)
     }
@@ -66,8 +69,10 @@ class NavigationActivity : ComponentActivity() {
             selectedDestination = Destination("map:${point[0]},${point[1]}",
                 savedInstanceState.getString("selectedDestinationTitle") ?: PICKED_PLACE_TITLE, Coordinate(point[0], point[1]))
         }
+        mapSatellite = mapPreferences.getBoolean(SATELLITE_KEY, false)
         val layout = FrameLayout(this)
         mapController = NavigationMapController(this, runtime, lifecycleScope).also { controller ->
+            controller.setSatellite(mapSatellite)
             controller.showWaypoints(viaPoints.toList())
             controller.showSelectedDestination(selectedDestination)
             layout.addView(controller.view, FrameLayout.LayoutParams(-1, -1))
@@ -180,6 +185,12 @@ class NavigationActivity : ComponentActivity() {
                         },
                         onMapInsetsChanged = { top, right, bottom -> mapController?.setPadding(0, top, right, bottom) },
                         companion = companion,
+                        mapSatellite = mapSatellite,
+                        onMapSatelliteChanged = { enabled ->
+                            mapSatellite = enabled
+                            mapController?.setSatellite(enabled)
+                            mapPreferences.edit().putBoolean(SATELLITE_KEY, enabled).apply()
+                        },
                     )
                 } }
             }
@@ -310,3 +321,6 @@ class NavigationActivity : ComponentActivity() {
         const val AUTO_DRIVE_KMH = 60.0
     }
 }
+
+private const val MAP_PREFERENCES = "map-display"
+private const val SATELLITE_KEY = "satellite"
