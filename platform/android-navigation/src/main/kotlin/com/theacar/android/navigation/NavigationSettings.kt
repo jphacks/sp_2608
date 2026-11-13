@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Muted
+import com.theacar.route.ScenicOptions
 
 @Composable
 internal fun NavigationSettings(
@@ -34,18 +35,28 @@ internal fun NavigationSettings(
     routingUrl: String,
     builtInRoutingUrl: String,
     onRoutingUrlChanged: (String) -> Boolean,
+    scenic: ScenicOptions? = null,
+    onScenicChanged: (ScenicOptions) -> Unit = {},
 ) {
     var draft by remember(token) { mutableStateOf(token) }
     var urlDraft by remember(routingUrl) { mutableStateOf(routingUrl) }
     var urlInvalid by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var showCredentials by remember { mutableStateOf(false) }
+    var showPreferences by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    if (showPreferences && scenic != null) ScenicPreferenceEditor(scenic, canPlan, canSearch = false,
+        onApply = { updated, _ -> onScenicChanged(updated); showPreferences = false }, onDismiss = { showPreferences = false })
     NavigationDialog(title = "ナビの設定", onDismiss = onClose, dismissEnabled = !saving) {
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             SettingsSection("案内") {
                 SettingSwitch("音声案内", voice, onVoiceChanged, !saving)
+            }
+            if (scenic != null) SettingsSection("景色の好み") {
+                OutlinedButton(onClick = { showPreferences = true }, enabled = canPlan && !saving, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (scenic.customWeights != null) "好みを調整 · カスタム" else "好みを調整")
+                }
             }
             SettingsSection("道路の条件") {
                 SettingSwitch("有料道路を避ける", avoidTolls, onAvoidTollsChanged, canPlan && !saving)

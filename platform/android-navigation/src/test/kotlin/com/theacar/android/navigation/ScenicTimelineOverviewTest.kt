@@ -27,11 +27,9 @@ class ScenicTimelineOverviewTest {
         assertEquals(listOf(ScenicRange(0.0, 24000.0), ScenicRange(24000.0, 48000.0)), sections.map { it.range })
     }
 
-    @Test fun shortSeaAccentsKeepExactPositionsWithoutFillingGaps() {
+    @Test fun shortSeaSectionsDoNotOutweighLongerScenery() {
         val blocks = listOf(block("forest", 0.0, 900.0), block("sea", 900.0, 910.0),
             block("sea", 910.0, 920.0), block("sea", 950.0, 960.0), block("sea", 990.0, 990.0))
-        assertEquals(listOf(ScenicRange(900.0, 920.0), ScenicRange(950.0, 960.0)), scenicSeaRanges(blocks))
-        assertTrue(scenicSeaRanges(emptyList()).isEmpty())
         assertEquals("forest", scenicTimelineOverview(blocks, 1).single().category)
     }
 

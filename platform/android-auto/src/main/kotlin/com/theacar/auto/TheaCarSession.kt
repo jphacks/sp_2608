@@ -1,5 +1,6 @@
 package com.theacar.auto
 
+import com.theacar.android.navigation.displayName
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -124,7 +125,7 @@ internal class TheaCarSession(
                         val remainingMeters = navigation.progress?.remainingMeters ?: route.distanceMeters
                         val remainingSeconds = navigation.progress?.remainingSeconds ?: route.durationSeconds
                         val trip = Trip.Builder().addDestination(
-                            androidx.car.app.navigation.model.Destination.Builder().setName(route.destination.title).build(),
+                            androidx.car.app.navigation.model.Destination.Builder().setName(route.destination.displayName).build(),
                             travelEstimate(remainingMeters, remainingSeconds))
                         // メーターの表示（クラスタ）にも次の曲がり角を出す。曲がり角までの時間は残りの時間を距離で按分した目安
                         navigation.maneuver?.let { maneuver ->

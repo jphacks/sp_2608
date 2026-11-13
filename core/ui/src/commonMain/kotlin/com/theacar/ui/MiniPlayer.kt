@@ -6,6 +6,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MarqueeSpacing
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -55,11 +61,14 @@ fun MiniPlayer(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
     showIndicator: Boolean = false,
+    actionReplacesPlay: Boolean = false,
 ) {
     val row: @Composable () -> Unit = {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (showIndicator) EqualizerBars(isPlaying, Sunglow)
+            // ロゴは文の一部にせず単独で置き、文との間にマークの高さの半分以上をあける
+            Image(SpotifyFullLogoWhite, contentDescription = "Spotify", modifier = Modifier.width(72.dp).padding(end = 6.dp))
+            if (showIndicator) EqualizerBars(isPlaying, Navajo)
             Column(Modifier.weight(1f)) {
                 Text(title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, modifier = Modifier.slowMarquee())
                 subtitle?.let {
@@ -67,15 +76,24 @@ fun MiniPlayer(
                         maxLines = 1, modifier = Modifier.slowMarquee())
                 }
             }
+            if (actionReplacesPlay && actionLabel != null && onAction != null) {
+                // 流せる曲がないときは、再生ボタンの場所を操作のボタンにする
+                Surface(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp), color = Navajo, shape = CircleShape) {
+                    Box(Modifier.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
+                        Text(actionLabel, color = Ink, fontWeight = FontWeight.Bold, maxLines = 1)
+                    }
+                }
+                return@Row
+            }
             if (actionLabel != null && onAction != null) {
                 TextButton(onClick = onAction, modifier = Modifier.heightIn(min = 44.dp)) {
-                    Text(actionLabel, color = Sunglow, fontWeight = FontWeight.Bold, maxLines = 1)
+                    Text(actionLabel, color = Navajo, fontWeight = FontWeight.Bold, maxLines = 1)
                 }
             }
             Surface(
                 onClick = onToggle,
                 modifier = Modifier.size(44.dp).semantics { contentDescription = if (isPlaying) "一時停止" else "再生" },
-                color = Sunglow,
+                color = Navajo,
                 shape = CircleShape,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -84,9 +102,25 @@ fun MiniPlayer(
             }
         }
     }
-    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Mountains, content = row)
-    else Surface(modifier = modifier, color = Mountains, content = row)
+    val background = Modifier.drawBehind { spotifyGlow() }
+    if (onOpen != null) Surface(onClick = onOpen, modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
+    else Surface(modifier = modifier, color = Color.Transparent) { Box(background) { row() } }
 }
+
+// Spotify が再生中の背景に指定している #191414 の上に、帯の外から差し込む深い緑の光を円く重ねる
+private val SpotifyBase = Color(0xFF191414)
+private val SpotifyGreen = Color(0xFF2F7A45)
+
+private fun DrawScope.spotifyGlow() {
+    drawRect(SpotifyBase)
+    // ロゴの左上の外に中心を置き、弧を描いて暗くなるようにする
+    drawGlow(Offset(size.width * .12f, -size.height * .6f), size.width * .75f, 1f)
+    drawGlow(Offset(size.width * .95f, -size.height * .9f), size.width * .45f, .55f)
+}
+
+private fun DrawScope.drawGlow(center: Offset, radius: Float, strength: Float) = drawRect(Brush.radialGradient(
+    0f to SpotifyGreen.copy(alpha = strength), .45f to SpotifyGreen.copy(alpha = strength * .45f),
+    .8f to SpotifyGreen.copy(alpha = strength * .08f), 1f to Color.Transparent, center = center, radius = radius))
 
 /** 収まらない1行だけを、先頭で間を置いてからゆっくり流す。収まる文字は動かさない。 */
 private fun Modifier.slowMarquee() = basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 2_000,

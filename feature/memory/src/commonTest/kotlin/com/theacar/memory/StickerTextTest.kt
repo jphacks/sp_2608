@@ -44,7 +44,7 @@ class StickerTextTest {
 
     @Test fun placeFallsBackToDestinationNameAndInputOverridesIt() {
         assertEquals("函館山", destinationShortName("函館山 · 北海道函館市函館山 · 山"))
-        assertEquals("地図で選択した場所", destinationShortName("地図で選択した場所"))
+        assertEquals("指定した地点", destinationShortName("指定した地点"))
         assertEquals("八雲町", placeNameInput("  八雲町 "))
         assertNull(placeNameInput("   "))
         assertEquals("a".repeat(40), placeNameInput("a".repeat(41)))

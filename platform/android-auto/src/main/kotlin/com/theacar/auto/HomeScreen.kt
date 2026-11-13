@@ -2,6 +2,7 @@
 
 package com.theacar.auto
 
+import com.theacar.android.navigation.displayName
 import androidx.car.app.CarContext
 import androidx.car.app.versioning.CarAppApiLevels
 import androidx.car.app.ScreenManager
@@ -77,12 +78,12 @@ internal class HomeScreen(carContext: CarContext, runtime: AndroidNavigationRunt
             rows += row("ルートサーバーが設定されていません", "スマートフォンのアプリで設定してください。")
         } else {
             when (state.phase) {
-                NavigationPhase.GUIDING -> rows += row("案内に戻る", state.route?.destination?.title) {
+                NavigationPhase.GUIDING -> rows += row("案内に戻る", state.route?.destination?.displayName) {
                     screens.push(GuidanceScreen(carContext, runtime, controls))
                 }
                 NavigationPhase.ARRIVED -> rows += row("案内を終了") { runtime.session.stop() }
                 NavigationPhase.PREVIEW, NavigationPhase.PREVIEWING -> {
-                    rows += row("ルートを確認", state.route?.destination?.title) {
+                    rows += row("ルートを確認", state.route?.destination?.displayName) {
                         openPreview(setOf(NavigationPhase.PREVIEW, NavigationPhase.PREVIEWING))
                     }
                     sceneryFlow(state)?.let { rows += it }
@@ -95,7 +96,7 @@ internal class HomeScreen(carContext: CarContext, runtime: AndroidNavigationRunt
                     rows += row("最近の目的地はまだありません", "停車中にスマートフォンで目的地を選ぶと、ここに表示されます。")
                 } else {
                     recent.take((rowLimit - rows.size).coerceAtLeast(0)).forEach { destination ->
-                        rows += row(destination.title) {
+                        rows += row(destination.displayName) {
                             openPreview(setOf(NavigationPhase.IDLE, NavigationPhase.PREVIEW, NavigationPhase.PREVIEWING)) {
                                 runtime.session.preview(destination)
                             }

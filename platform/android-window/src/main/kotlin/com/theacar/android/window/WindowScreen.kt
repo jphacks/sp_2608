@@ -33,8 +33,9 @@ import com.theacar.cabin.WindowLink
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Danger
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Navajo
+import com.theacar.ui.Spruce
+import com.theacar.ui.Cream
 import com.theacar.ui.Muted
 import com.theacar.ui.Paper
 import com.theacar.ui.Tab
@@ -97,13 +98,13 @@ fun WindowScreen(
 
 @Composable
 private fun LinkRow(deviceName: String, link: WindowLink) {
-    Surface(color = Mist, shape = RoundedCornerShape(CardCorner)) {
+    Surface(color = Navajo, shape = RoundedCornerShape(CardCorner)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("接続先", style = MaterialTheme.typography.labelMedium, color = Ink)
                 Text(deviceName, style = MaterialTheme.typography.titleMedium, color = Ink)
             }
-            Surface(color = if (link == WindowLink.CONNECTED) Mountains else Muted.copy(alpha = .4f), shape = CircleShape) {
+            Surface(color = if (link == WindowLink.CONNECTED) Spruce else Muted.copy(alpha = .4f), shape = CircleShape) {
                 Spacer(Modifier.size(10.dp))
             }
             Spacer(Modifier.size(8.dp))
@@ -131,7 +132,7 @@ private fun NotReady(permitted: Boolean, onRequestPermission: () -> Unit) {
             Button(
                 onClick = onRequestPermission,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Mountains, contentColor = SurfaceWhite),
+                colors = ButtonDefaults.buttonColors(containerColor = Spruce, contentColor = Cream),
             ) {
                 Text("Bluetooth を許可する")
             }
@@ -143,11 +144,11 @@ private fun NotReady(permitted: Boolean, onRequestPermission: () -> Unit) {
 private fun Controls(enabled: Boolean, onOpen: () -> Unit, onClose: () -> Unit, onStop: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Button(onClick = onOpen, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Mountains, contentColor = SurfaceWhite)) {
+            colors = ButtonDefaults.buttonColors(containerColor = Spruce, contentColor = Cream)) {
             Text("開ける")
         }
         Button(onClick = onClose, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Mountains, contentColor = SurfaceWhite)) {
+            colors = ButtonDefaults.buttonColors(containerColor = Spruce, contentColor = Cream)) {
             Text("閉める")
         }
         OutlinedButton(onClick = onStop, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) {
@@ -158,7 +159,7 @@ private fun Controls(enabled: Boolean, onOpen: () -> Unit, onClose: () -> Unit, 
 
 @Composable
 private fun AirRow(air: CabinAir?) {
-    Surface(color = Mist, shape = RoundedCornerShape(CardCorner)) {
+    Surface(color = Navajo, shape = RoundedCornerShape(CardCorner)) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("車内の空気", style = MaterialTheme.typography.labelMedium, color = Ink)
             if (air == null) {

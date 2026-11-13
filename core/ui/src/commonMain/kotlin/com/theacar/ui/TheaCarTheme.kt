@@ -17,23 +17,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
-// 旅れこのカラートークン。画面の見出し帯ごとに1色（DRIVE=Sky、RECORD=Sunset）。
-val Sky = Color(0xFF75B1A9)
+// 旅れこのカラートークン。青い扉のカフェの配色（Regent Blue・Asparagus・Faded Orange・Navajo White・Limed Spruce）。
+// 見出し帯はタブごとに1色で、文字は Spruce（DRIVE=Regent、RECORD=FadedOrange、STICKER=Asparagus、SETTINGS=Navajo）
+val Regent = Color(0xFF759DA9)
+val Asparagus = Color(0xFF8EA249)
+val FadedOrange = Color(0xFFF99355)
+val Navajo = Color(0xFFFCE1B6)
+// 文字と、生成りの文字を載せるボタンの色（生成りと 8.8:1）
+val Spruce = Color(0xFF2F4250)
+val Cream = Color(0xFFF4ECD7)
+// 音楽の再生ボタンの金色
 val Sunglow = Color(0xFFD9B44A)
-val Sunset = Color(0xFFEB6B40)
 // RECORD の「RECO」に使う、帯と同系色の濃い色
 val SunsetDeep = Color(0xFF6E1F08)
-val Mountains = Color(0xFF4F6457)
-val Mist = Color(0xFFACD0C0)
-val Paper = Color(0xFFF5F3EC)
+val Paper = Color(0xFFFDF6EA)
 val Surface = Color(0xFFFFFFFF)
-val Ink = Color(0xFF1E2A24)
-val Muted = Color(0xFF5C6B63)
+val Ink = Spruce
+val Muted = Color(0xFF5E6E78)
 val Danger = Color(0xFFB3261E)
-// 景色の選び方の色。海沿い=Sea、自然（海と森林と草地の混ぜ合わせ）=Meadow、森林は Sky
+// 景色の分類の色。海沿い=Sea、森林=Forest、自然（海と森林と草地の混ぜ合わせ）=Meadow、湖・川=Lake
 val Sea = Color(0xFF6FA6D6)
+val Forest = Color(0xFF75B1A9)
 val Meadow = Color(0xFFB9C97A)
-// 湖・川
 val Lake = Color(0xFF8FD0D8)
 // エラーの面。Surface と同じ値にすると、白いカードの文字までエラー色になる
 val DangerTint = Color(0xFFFBE9E7)
@@ -103,18 +108,18 @@ fun TheaCarTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalJostTypography provides jostTypography) {
         MaterialTheme(
             colorScheme = lightColorScheme(
-                primary = Mountains, onPrimary = Surface,
-                primaryContainer = Mist, onPrimaryContainer = Ink,
-                secondary = Sky, onSecondary = Ink,
-                secondaryContainer = Sky, onSecondaryContainer = Ink,
+                primary = Spruce, onPrimary = Cream,
+                primaryContainer = Navajo, onPrimaryContainer = Ink,
+                secondary = Regent, onSecondary = Ink,
+                secondaryContainer = Navajo, onSecondaryContainer = Ink,
                 tertiary = Sunglow, onTertiary = Ink,
                 error = Danger, onError = Surface,
                 errorContainer = DangerTint, onErrorContainer = Danger,
                 background = Paper, surface = Surface,
                 surfaceContainerLow = Surface, surfaceContainer = Surface,
-                surfaceContainerHigh = Surface, surfaceContainerHighest = Mist,
-                surfaceVariant = Mist, onSurfaceVariant = Muted,
-                outline = Muted, outlineVariant = Mist,
+                surfaceContainerHigh = Surface, surfaceContainerHighest = Navajo,
+                surfaceVariant = Navajo, onSurfaceVariant = Muted,
+                outline = Muted, outlineVariant = Navajo,
                 onBackground = Ink, onSurface = Ink,
             ),
             typography = base.copy(

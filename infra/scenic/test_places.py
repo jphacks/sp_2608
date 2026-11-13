@@ -17,6 +17,7 @@ class PlacesTest(unittest.TestCase):
             path = Path(directory) / 'places.sqlite'
             build(Path(__file__).parent / 'fixtures' / 'places.osm', path)
             self.assertEqual(search(path, 'Test Station')[0]['name'], 'テスト駅')
+            self.assertEqual(len(search(path, 'テスト駅')), 1)
             self.assertAlmostEqual(float(search(path, 'テスト公園')[0]['lat']), 43.075)
             self.assertEqual(search(path, '非公開施設'), [])
             with closing(sqlite3.connect(path)) as db:

@@ -121,7 +121,7 @@ class NavigationSession(
                 if (error is CancellationException && error !is TimeoutCancellationException) throw error
                 if (generation == operationGeneration && !closed) mutableState.update {
                     if (it.route != null) it.copy(phase = NavigationPhase.PREVIEW, previewImproving = false,
-                        failure = error.failure(NavigationFailure.NETWORK))
+                        failure = error.failure(NavigationFailure.MORE_ROUTES_UNAVAILABLE))
                     else it.copy(phase = NavigationPhase.IDLE, previewImproving = false, failure = error.failure(NavigationFailure.NO_ROUTE))
                 }
             }

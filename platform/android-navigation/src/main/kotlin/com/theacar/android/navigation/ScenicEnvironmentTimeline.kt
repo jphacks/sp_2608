@@ -18,12 +18,25 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import com.theacar.ui.Ink
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.rounded.WbSunny
+import androidx.compose.material.icons.rounded.Umbrella
+import androidx.compose.material.icons.rounded.Thunderstorm
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.AcUnit
+import androidx.compose.material.icons.Icons
+import com.theacar.ui.Muted
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import com.theacar.route.*
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.math.sqrt
 
 internal fun environmentClock(value: String, zone: ZoneId = ZoneId.systemDefault()): String =
     runCatching { OffsetDateTime.parse(value).atZoneSameInstant(zone).format(DateTimeFormatter.ofPattern("HH:mm")) }.getOrDefault("時刻不明")
@@ -53,12 +66,7 @@ private fun lightColor(value: String) = when (value) {
     "dawn" -> Color(0xFFE7A077); "dusk" -> Color(0xFFC07982); "night" -> Color(0xFF566580); else -> Color(0xFFC9AB5A)
 }
 
-private fun skyColor(value: String) = when (value) {
-    "clear" -> Color(0xFFE6BD62); "fair" -> Color(0xFFC9CE9E); "cloudy" -> Color(0xFF929FA8)
-    "precipitation" -> Color(0xFF678DAE); "low_visibility", "fog" -> Color(0xFFA6B4B2)
-    "snowfall" -> Color(0xFFA8BDDA); "thunderstorm" -> Color(0xFF8D7E9E); else -> Color(0xFFD3D9D6)
-}
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMeters: Double,
     onHighlight: ((List<ScenicRange>) -> Unit)? = null, compact: Boolean = false) {
@@ -73,69 +81,40 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
         val at = x / width.coerceAtLeast(1) * axisMeters
         selected = sections.firstOrNull { at >= it.range.startMeters && at <= it.range.endMeters }
     }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        if (!compact) Text("通過予定時刻に合わせた環境の流れ", style = MaterialTheme.typography.labelMedium)
-        BoxWithConstraints(Modifier.fillMaxWidth().height(18.dp)) {
-            listOf(0.0 to first.startTime, ((middle.range.startMeters + middle.range.endMeters) / 2) to middle.arrivalTime,
-                last.range.endMeters to last.endTime).forEach { (meters, time) ->
-                val x = (maxWidth * (meters / axisMeters).toFloat() - if (meters == 0.0) 0.dp else 20.dp)
-                    .coerceIn(0.dp, (maxWidth - 40.dp).coerceAtLeast(0.dp))
-                Text(environmentClock(time), modifier = Modifier.offset(x = x), style = MaterialTheme.typography.labelSmall)
-            }
-        }
-        Text("太陽の高さ・朝夕の光", style = MaterialTheme.typography.labelSmall)
-        Canvas(Modifier.fillMaxWidth().height(if (compact) 24.dp else 36.dp).semantics {
-            contentDescription = "太陽高度と朝夕の光。距離位置をタップして通過予定時刻を確認。"
-        }.pointerInput(sections, axisMeters) { detectTapGestures { tap(it.x, size.width) } }) {
-            sections.forEach { section ->
-                val x = (section.range.startMeters / axisMeters * size.width).toFloat()
-                val w = ((section.range.endMeters - section.range.startMeters) / axisMeters * size.width).toFloat()
-                drawRect(lightColor(section.lightPhase).copy(alpha = .18f), Offset(x, 0f), Size(w, size.height))
-            }
-            fun y(altitude: Double) = ((1 - (altitude.coerceIn(-18.0, 90.0) + 18) / 108) * size.height).toFloat()
-            drawLine(Color(0xFFADB8B3), Offset(0f, y(0.0)), Offset(size.width, y(0.0)), 1.dp.toPx())
-            sections.zipWithNext().forEach { (a, b) ->
-                fun x(s: ScenicEnvironmentSection) = ((s.range.startMeters + s.range.endMeters) / 2 / axisMeters * size.width).toFloat()
-                drawLine(lightColor(b.lightPhase), Offset(x(a), y(a.solarAltitude)), Offset(x(b), y(b.solarAltitude)), 2.dp.toPx())
-            }
-        }
-        if (!compact) Text("横線は太陽高度0°。山や建物による遮りは含みません。", style = MaterialTheme.typography.labelSmall)
-        Text("天気予報 · ${environmentSkyLabel(first.sky)} → ${environmentSkyLabel(last.sky)}", style = MaterialTheme.typography.labelSmall)
-        Canvas(Modifier.fillMaxWidth().height(12.dp).pointerInput(sections, axisMeters) {
-            detectTapGestures { tap(it.x, size.width) }
-        }) {
-            sections.forEach { s ->
-                drawRect(skyColor(s.sky), Offset((s.range.startMeters / axisMeters * size.width).toFloat(), 0f),
-                    Size(((s.range.endMeters - s.range.startMeters) / axisMeters * size.width).toFloat(), size.height))
-            }
-        }
-        Text(if (environment?.landscapeAvailable == true) "湖・池 / 川 / 渓谷付近（地図から推定）" else "湖・川・渓谷：追加データ未取得",
-            style = MaterialTheme.typography.labelSmall)
-        Canvas(Modifier.fillMaxWidth().height(18.dp).pointerInput(sections, axisMeters) {
-            detectTapGestures { tap(it.x, size.width) }
-        }) {
-            listOf("lake" to Color(0xFF4B8BB5), "river" to Color(0xFF4CB4B7), "valley" to Color(0xFF8E9670)).forEachIndexed { index, (key, color) ->
-                val y = size.height / 3 * index
-                drawLine(Color(0xFFE0E5E1), Offset(0f, y + size.height / 6), Offset(size.width, y + size.height / 6), 1.dp.toPx())
-                sections.filter { (it.features[key] ?: 0.0) >= .35 }.forEach { s ->
-                    drawRect(color, Offset((s.range.startMeters / axisMeters * size.width).toFloat(), y),
-                        Size(((s.range.endMeters - s.range.startMeters) / axisMeters * size.width).toFloat(), size.height / 3 - 1.dp.toPx()))
+    val onTap = Modifier.pointerInput(sections, axisMeters) { detectTapGestures { tap(it.x, size.width) } }
+    fun DrawScope.band(s: ScenicEnvironmentSection, color: Color, y: Float = 0f, h: Float = size.height) =
+        drawRect(color, Offset((s.range.startMeters / axisMeters * size.width).toFloat(), y),
+            Size(((s.range.endMeters - s.range.startMeters) / axisMeters * size.width).toFloat() + 1f, h))
+    // 左に短い見出し、右に帯の表。どの行も同じ横位置で、上の時刻と縦にそろう
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (!compact) Text("時刻ごとの環境", style = MaterialTheme.typography.labelMedium)
+        EnvironmentRow("") {
+            BoxWithConstraints(Modifier.fillMaxWidth().height(16.dp)) {
+                listOf(0.0 to first.startTime, ((middle.range.startMeters + middle.range.endMeters) / 2) to middle.arrivalTime,
+                    last.range.endMeters to last.endTime).forEach { (meters, time) ->
+                    val x = (maxWidth * (meters / axisMeters).toFloat() - if (meters == 0.0) 0.dp else 20.dp)
+                        .coerceIn(0.dp, (maxWidth - 34.dp).coerceAtLeast(0.dp))
+                    Text(environmentClock(time), modifier = Modifier.offset(x = x), style = MaterialTheme.typography.labelSmall, color = Muted)
                 }
             }
         }
-        Text("街度 · 建物が多い区間ほど濃く表示", style = MaterialTheme.typography.labelSmall)
-        Canvas(Modifier.fillMaxWidth().height(10.dp).pointerInput(sections, axisMeters) {
-            detectTapGestures { tap(it.x, size.width) }
-        }) {
-            sections.forEach { s ->
-                val color = s.urbanRatio?.let { Color(0xFF8B718F).copy(alpha = (.1 + .9 * sqrt(it)).toFloat()) } ?: Color(0xFFD3D9D6)
-                drawRect(color, Offset((s.range.startMeters / axisMeters * size.width).toFloat(), 0f),
-                    Size(((s.range.endMeters - s.range.startMeters) / axisMeters * size.width).toFloat(), size.height))
+        EnvironmentRow("日の光") {
+            // 横線は太陽高度0°（山や建物の遮りは含まない）
+            Canvas(Modifier.fillMaxWidth().height(if (compact) 20.dp else 28.dp).semantics {
+                contentDescription = "太陽高度と朝夕の光。距離位置をタップして通過予定時刻を確認。"
+            }.then(onTap)) {
+                sections.forEach { band(it, lightColor(it.lightPhase).copy(alpha = .18f)) }
+                fun y(altitude: Double) = ((1 - (altitude.coerceIn(-18.0, 90.0) + 18) / 108) * size.height).toFloat()
+                drawLine(Color(0xFFADB8B3), Offset(0f, y(0.0)), Offset(size.width, y(0.0)), 1.dp.toPx())
+                sections.zipWithNext().forEach { (a, b) ->
+                    fun x(s: ScenicEnvironmentSection) = ((s.range.startMeters + s.range.endMeters) / 2 / axisMeters * size.width).toFloat()
+                    drawLine(lightColor(b.lightPhase), Offset(x(a), y(a.solarAltitude)), Offset(x(b), y(b.solarAltitude)), 2.dp.toPx())
+                }
             }
         }
-        if (environment?.bestSpots?.isNotEmpty() == true) {
-            Text("眺めの見どころ候補 · 数字をタップ", style = MaterialTheme.typography.labelSmall)
-            BoxWithConstraints(Modifier.fillMaxWidth().height(30.dp)) {
+        WeatherTable(sections) { selected = it }
+        if (environment?.bestSpots?.isNotEmpty() == true) EnvironmentRow("見どころ") {
+            BoxWithConstraints(Modifier.fillMaxWidth().height(24.dp)) {
                 environment.bestSpots.forEachIndexed { index, item ->
                     val position = ((maxWidth * (item.distanceMeters / axisMeters).toFloat()) - 12.dp).coerceIn(0.dp, (maxWidth - 24.dp).coerceAtLeast(0.dp))
                     Surface(onClick = { spot = item }, shape = CircleShape, color = categoryColor(item.category).copy(alpha = .2f),
@@ -144,12 +123,12 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
                     }
                 }
             }
-            if (!compact) Text(environment.bestSpots.mapIndexed { index, item ->
-                "${index + 1} ${categoryLabel(item.category)} ${environmentClock(item.arrivalTime)}"
-            }.joinToString(" · "), style = MaterialTheme.typography.labelSmall)
         }
-        if (!compact) Text("距離位置は上の景観帯と共通。時刻は端末の時刻帯、約${environment?.samplingMeters ?: 0}m間隔の推定です。朝焼け・夕焼けの発生や停車場所は保証しません。",
-            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!compact && environment?.bestSpots?.isNotEmpty() == true) FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            environment?.bestSpots?.forEachIndexed { index, item ->
+                Text("${index + 1} ${categoryLabel(item.category)} ${environmentClock(item.arrivalTime)}", style = MaterialTheme.typography.labelSmall)
+            }
+        }
     }
     selected?.let { section ->
         val direction = listOf("北", "北東", "東", "南東", "南", "南西", "西", "北西")[((section.solarAzimuth + 22.5) / 45).toInt() % 8]
@@ -160,7 +139,6 @@ internal fun ScenicEnvironmentTimeline(environment: ScenicEnvironment?, axisMete
                 Text(environmentSkyLabel(section.sky) + (section.cloudCover?.let { " · 雲量${it.toInt()}%" } ?: ""))
                 Text("街度（周辺の建物被覆率） ${section.urbanRatio?.let { "%.1f%%".format(it * 100) } ?: "未取得"}")
                 Text("湖・池 ${section.features["lake"]?.let { if (it >= .35) "近い" else "対応する地物なし" } ?: "未取得"} / 川 ${section.features["river"]?.let { if (it >= .35) "近い" else "対応する地物なし" } ?: "未取得"}")
-                Text("渓谷・谷 ${section.features["valley"]?.let { if (it >= .35) "特徴あり" else "特徴の検出なし" } ?: "未取得"}（${if (section.terrainDerived) "地形と地図から推定" else "地図の登録から推定"}）")
                 section.elevationMeters?.let { Text("地表の標高 約${it.toInt()}m（道路・橋面の高さとは異なる場合があります）") }
                 section.weatherDetails.forEach { (key, value) ->
                     val label = environmentWeatherDetail(key, value)
@@ -191,4 +169,66 @@ internal fun bestSpotReason(reason: String): String = when (reason) {
     "sunset_direction" -> "夕方の太陽と水辺の方向が重なる可能性"
     "forecast_unavailable" -> "通過時刻の天気予報は取得できていません"
     else -> "地図の特徴からの推定"
+}
+
+private val RowLabelWidth = 52.dp
+
+@Composable
+private fun EnvironmentRow(label: String, content: @Composable () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = Muted, modifier = Modifier.width(RowLabelWidth))
+        Box(Modifier.weight(1f)) { content() }
+    }
+}
+
+/** 天気予報のように、通る時刻ごとに天気・気温・降水確率を並べた表。多いときは横に送る */
+@Composable
+private fun WeatherTable(sections: List<ScenicEnvironmentSection>, onSelect: (ScenicEnvironmentSection) -> Unit) {
+    val columns = remember(sections) {
+        val count = minOf(sections.size, 12)
+        if (count <= 1) sections.take(1) else (0 until count).map { sections[it * (sections.size - 1) / (count - 1)] }.distinct()
+    }
+    Row(Modifier.fillMaxWidth()) {
+        Column(Modifier.width(RowLabelWidth), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("時刻" to 16.dp, "天気" to 28.dp, "気温" to 18.dp, "降水" to 18.dp).forEach { (label, height) ->
+                Box(Modifier.height(height), contentAlignment = Alignment.CenterStart) {
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = Muted)
+                }
+            }
+        }
+        LazyRow(Modifier.weight(1f)) {
+            items(columns) { section ->
+                Column(Modifier.width(52.dp).pointerInput(section) { detectTapGestures { onSelect(section) } },
+                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(Modifier.height(16.dp), contentAlignment = Alignment.Center) {
+                        Text(environmentClock(section.arrivalTime), style = MaterialTheme.typography.labelSmall, color = Muted)
+                    }
+                    Icon(weatherIcon(section), contentDescription = environmentSkyLabel(section.sky), tint = weatherTint(section),
+                        modifier = Modifier.size(28.dp))
+                    Box(Modifier.height(18.dp), contentAlignment = Alignment.Center) {
+                        Text(section.weatherDetails["temperature_2m"]?.let { "${it.roundToInt()}℃" } ?: "–",
+                            style = MaterialTheme.typography.labelLarge, color = Ink)
+                    }
+                    Box(Modifier.height(18.dp), contentAlignment = Alignment.Center) {
+                        Text(section.weatherDetails["precipitation_probability"]?.let { "${it.roundToInt()}%" } ?: "–",
+                            style = MaterialTheme.typography.labelMedium, color = Muted)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun weatherIcon(s: ScenicEnvironmentSection): ImageVector = when (s.sky) {
+    "clear", "fair" -> if (s.lightPhase == "night") Icons.Rounded.Bedtime else Icons.Rounded.WbSunny
+    "precipitation" -> Icons.Rounded.Umbrella
+    "snowfall" -> Icons.Rounded.AcUnit
+    "thunderstorm" -> Icons.Rounded.Thunderstorm
+    else -> Icons.Rounded.Cloud
+}
+
+private fun weatherTint(s: ScenicEnvironmentSection): Color = when {
+    s.sky in setOf("clear", "fair") && s.lightPhase != "night" -> Color(0xFFE0A93B)
+    s.lightPhase == "night" -> Color(0xFF6D7A99)
+    else -> Color(0xFF8A969D)
 }

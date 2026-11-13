@@ -86,8 +86,8 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
             driveBgmLine(bgm, now, connection.connected, isGuiding)
         }.stateIn(scope, SharingStarted.WhileSubscribed(5_000),
             driveBgmLine(link.state.value, null, music.connection.value.connected, false))
-        val mapped = line.map { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator) }
-            .stateIn(scope, SharingStarted.WhileSubscribed(5_000), line.value.let { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator) })
+        val mapped = line.map { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator, it.actionReplacesPlay) }
+            .stateIn(scope, SharingStarted.WhileSubscribed(5_000), line.value.let { MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator, it.actionReplacesPlay) })
         object : MiniPlayerSource {
             override val state = mapped
             override fun toggle() { music.togglePlayback() }

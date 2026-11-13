@@ -1,0 +1,152 @@
+package com.theacar.android.navigation
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Hiking
+import androidx.compose.material.icons.rounded.Landscape
+import androidx.compose.material.icons.rounded.Loop
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.unit.dp
+import com.theacar.ui.Ink
+import com.theacar.ui.Spruce
+import com.theacar.ui.Regent
+
+private class DetourStage(val upTo: Int, val name: String, val icon: ImageVector)
+
+// 寄り道の長さごとの呼び名。動かすたびに変わって、旅の気分が伝わるように
+private val stages = listOf(
+    DetourStage(0, "最短で行く", Icons.Rounded.DirectionsRun),
+    DetourStage(15, "ちょっと寄り道", Icons.Rounded.DirectionsWalk),
+    DetourStage(60, "景色を楽しむ", Icons.Rounded.Hiking),
+    DetourStage(180, "ぶらり旅", Icons.Rounded.Landscape),
+    DetourStage(Int.MAX_VALUE, "大冒険", Icons.Rounded.Explore),
+)
+
+private val PlainRoad = Color(0xFFC4C7C5)
+
+/** 寄り道の長さを選ぶ無段階のスライダー。上に段階の呼び名 */
+@Composable
+internal fun DetourSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
+    val stage = stages.first { minutes <= it.upTo }
+    val last = scenicDetourMinutes.lastIndex.toFloat()
+    val position = scenicDetourPosition(minutes)
+    // 寄り道の段階はアイコンだけで見せる
+    Column(modifier) {
+        // 分数は下の経路のボタンに出すので、ここでは呼び名だけにする
+        StageHeader(stage)
+        RoadSlider(position, last, { onMinutes(scenicDetourMinutesAt(it)) }, enabled, "寄り道 ${stage.name}")
+    }
+}
+
+// 周遊の長さごとの呼び名。寄り道と同じく、動かすたびに旅の気分が変わる
+private val roundTripStages = listOf(
+    DetourStage(40, "ちょっとひと回り", Icons.Rounded.DirectionsWalk),
+    DetourStage(90, "近くをぐるり", Icons.Rounded.Hiking),
+    DetourStage(180, "景色を楽しむ", Icons.Rounded.Landscape),
+    DetourStage(270, "ぶらり旅", Icons.Rounded.Loop),
+    DetourStage(Int.MAX_VALUE, "大冒険", Icons.Rounded.Explore),
+)
+
+/** 周遊の長さを選ぶ、寄り道と同じ道路のスライダー。10分刻み */
+@Composable
+internal fun RoundTripSlider(minutes: Int, onMinutes: (Int) -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
+    val stage = roundTripStages.first { minutes <= it.upTo }
+    Column(modifier) {
+        // 分数は下の「◯分以内の周遊ルートを探す」に出す
+        StageHeader(stage)
+        RoadSlider((minutes - RoundTripMin).toFloat(), (RoundTripMax - RoundTripMin).toFloat(),
+            { onMinutes(RoundTripMin + (it / 10).toInt() * 10) }, enabled, "周遊 ${stage.name}")
+    }
+}
+
+/** 段階のアイコンと呼び名 */
+@Composable
+private fun StageHeader(stage: DetourStage) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(stage.icon, contentDescription = null, tint = Spruce)
+        Text(stage.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Ink)
+    }
+}
+
+internal const val RoundTripMin = 30
+internal const val RoundTripMax = 360
+
+/** つまみは右へ走る車、バーは道路の無段階スライダー。進むほど道の色が変わる */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RoadSlider(position: Float, last: Float, onPosition: (Float) -> Unit, enabled: Boolean, description: String) {
+    val color = roadColor(position / last)
+    Slider(value = position, onValueChange = onPosition, valueRange = 0f..last, enabled = enabled,
+        thumb = {
+            Image(rememberVectorPainter(sideCar(if (enabled) color else PlainRoad)),
+                // 車体の高さを道に合わせ、道が車体に隠れて屋根とタイヤだけ少しはみ出すようにする
+                contentDescription = description, modifier = Modifier.size(CarWidth).offset(y = (-3).dp))
+        },
+        track = { RoadTrack(if (enabled) color else PlainRoad, position / last) })
+}
+
+/** 寄り道が増えるほど、道の色が灰色 → 緑 → 橙と変わる */
+private fun roadColor(t: Float): Color =
+    if (t < .5f) lerp(Asphalt, Green, t * 2) else lerp(Green, Orange, (t - .5f) * 2)
+
+/** 道路に中央の白い破線。車の下で色が切り替わり、後ろ側だけ色を付ける */
+@Composable
+private fun RoadTrack(color: Color, passed: Float) {
+    Canvas(Modifier.fillMaxWidth().height(10.dp)) {
+        // スライダーは車の半分の幅だけ道を内側に縮めるので、その分だけ外へ伸ばして描く（車は枠からはみ出さない）
+        val reach = CarWidth.toPx() / 2
+        val road = Size(size.width + reach * 2, size.height)
+        val start = Offset(-reach, 0f)
+        val r = CornerRadius(size.height / 2)
+        drawRoundRect(Asphalt, start, road, r)
+        clipRect(left = -reach, right = size.width * passed + reach * .8f) { drawRoundRect(color, start, road, r) }
+        drawLine(Color.White.copy(alpha = .6f), Offset(-reach + size.height / 2, size.height / 2),
+            Offset(size.width + reach - size.height / 2, size.height / 2),
+            strokeWidth = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 6.dp.toPx())))
+    }
+}
+
+private val CarWidth = 40.dp
+
+private val Asphalt = Color(0xFF7D8480)
+// 動かしても目に障らないよう、くすませた緑と橙にする
+private val Green = Color(0xFF7FA58A)
+private val Orange = Color(0xFFCF9A74)
+
+// 右を向いた横向きの車（Phosphor Icons「car-profile」fill、MIT）。車体は道と同じ色、窓とタイヤは白
+private fun sideCar(body: Color): ImageVector = ImageVector.Builder("SideCar", 40.dp, 40.dp, 256f, 256f)
+    .addPath(addPathNodes("M240,112H211.31L168,68.69A15.86,15.86,0,0,0,156.69,64H44.28A16,16,0,0,0,31,71.12L1.34,115.56A8.07,8.07,0,0,0,0,120v48a16,16,0,0,0,16,16H33a32,32,0,0,0,62,0h66a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V128A16,16,0,0,0,240,112Z"),
+        fill = SolidColor(body), stroke = SolidColor(Color.White), strokeLineWidth = 10f)
+    .addPath(addPathNodes("M44.28,80H156.69l32,32H23Z"), fill = SolidColor(Color.White))
+    .addPath(addPathNodes("M64,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48ZM192,152a24,24,0,1,1,0,48a24,24,0,1,1,0,-48Z"), fill = SolidColor(Color.White))
+    .build()

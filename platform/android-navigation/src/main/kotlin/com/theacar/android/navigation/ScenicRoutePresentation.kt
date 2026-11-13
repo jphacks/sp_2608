@@ -37,7 +37,9 @@ internal fun routeChoiceTitle(route: RouteAlternative, all: List<RouteAlternativ
     return when {
         metrics.seaMeters >= metrics.forestMeters && metrics.seaMeters >= 300 -> "海の近くを走るルート"
         metrics.forestMeters >= 300 -> "森林を走るルート"
-        else -> "景色を組み合わせるルート"
+        // 目立つ景色が無い候補は、景色ではなく時間で呼ぶ
+        metrics.extraSeconds <= 60 -> "最短に近いルート"
+        else -> "寄り道するルート"
     }
 }
 
@@ -74,3 +76,8 @@ internal fun sceneryAxisMeters(blocks: List<ScenicTimelineBlock>, normalized: Bo
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: 0.0
     return if (normalized) total.coerceAtLeast(1.0) else maxOf(commonAxis, total, 1.0)
 }
+
+/** 推薦の理由の文から、かっこの補足と「基準より〜」の比較を外す */
+internal fun shortReason(text: String): String =
+    text.replace(Regex("（[^）]*）"), "").split("。").filter { it.isNotBlank() && !it.startsWith("基準より") }
+        .joinToString("。")

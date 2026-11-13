@@ -1,5 +1,9 @@
 package com.theacar.android.navigation
 
+import androidx.compose.ui.graphics.Color
+
+import androidx.compose.ui.graphics.drawscope.DrawScope
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -38,6 +42,25 @@ internal fun scenicRoadHits(roads: List<ScenicRoadHighlight>, rank: ScenicRoadRa
 internal fun scenicRoadHits(roads: List<ScenicRoadHighlight>, meters: Double, tolerance: Double): List<ScenicRoadHighlight> =
     roads.filter { road -> road.ranges.any { meters >= it.startMeters - tolerance && meters <= it.endMeters + tolerance } }
 
+/** 名道の区間を、始まりと終わりの両方に点のある線で描く。上位の区分を上に重ねる */
+internal fun DrawScope.drawRoadSegments(roads: List<ScenicRoadHighlight>, axisMeters: Double, y: Float, outline: Boolean = false) {
+    val dot = 4.dp.toPx()
+    roads.reversed().forEach { road ->
+        val color = rankColor(road.road.rank)
+        road.ranges.forEach { range ->
+            val start = (range.startMeters / axisMeters * size.width).toFloat().coerceIn(dot, size.width - dot)
+            val end = (range.endMeters / axisMeters * size.width).toFloat().coerceIn(dot, size.width - dot)
+            // 景色の帯に重ねるときは、白い縁で帯の色から浮かせる
+            if (outline) {
+                drawLine(Color.White, Offset(start, y), Offset(end, y), 6.dp.toPx())
+                listOf(start, end).forEach { drawCircle(Color.White, dot + 1.5.dp.toPx(), Offset(it, y)) }
+            }
+            drawLine(color, Offset(start, y), Offset(end, y), 3.dp.toPx())
+            listOf(start, end).forEach { drawCircle(color, dot, Offset(it, y)) }
+        }
+    }
+}
+
 @Composable
 internal fun ScenicRoadTimeline(blocks: List<ScenicTimelineBlock>, axisMeters: Double,
     onHighlight: (ScenicRoadHighlight) -> Unit) {
@@ -60,14 +83,7 @@ internal fun ScenicRoadTimeline(blocks: List<ScenicTimelineBlock>, axisMeters: D
     }) {
         val y = size.height / 2
         drawLine(androidx.compose.ui.graphics.Color(0xFFD8DFDC), Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
-        roads.reversed().forEach { road ->
-            road.ranges.forEach { range ->
-                val start = (range.startMeters / axisMeters * size.width).toFloat()
-                val end = (range.endMeters / axisMeters * size.width).toFloat()
-                drawLine(rankColor(road.road.rank), Offset(start, y), Offset(end, y), 3.dp.toPx())
-                drawCircle(rankColor(road.road.rank), 4.dp.toPx(), Offset(start.coerceIn(4.dp.toPx(), size.width - 4.dp.toPx()), y))
-            }
-        }
+        drawRoadSegments(roads, axisMeters, y)
     }
     if (choices.isNotEmpty()) AlertDialog(onDismissRequest = { choices = emptyList() },
         title = { Text("この区間のおすすめ道路") },
@@ -86,9 +102,9 @@ internal fun ScenicRoadTimeline(blocks: List<ScenicTimelineBlock>, axisMeters: D
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun ScenicRoadRankLegend() {
+internal fun ScenicRoadRankLegend(ranks: List<ScenicRoadRank> = ScenicRoadRank.entries) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        ScenicRoadRank.entries.forEach { rank ->
+        ranks.sortedBy { it.ordinal }.forEach { rank ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Canvas(Modifier.size(7.dp)) { drawCircle(rankColor(rank)) }
                 Text(rank.label, style = MaterialTheme.typography.labelSmall)

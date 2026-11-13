@@ -27,7 +27,7 @@ import androidx.compose.material.icons.rounded.Search
 import com.theacar.route.Destination
 import com.theacar.ui.CardCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
+import com.theacar.ui.Navajo
 
 @Composable
 internal fun DestinationSearchDialog(
@@ -99,7 +99,7 @@ internal fun DestinationSearchDialog(
             }
         }
         // 目的地を入れずに探すと周遊になることを、検索の画面でも知らせる
-        Surface(color = Mist, shape = RoundedCornerShape(CardCorner),
+        Surface(color = Navajo, shape = RoundedCornerShape(CardCorner),
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
             Text("目的地を入力せずに矢印ボタンを押すと周遊モードに切り替わり、決めた時間で現在地に戻れるドライブルートを作れます。",
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -116,12 +116,12 @@ internal fun DestinationSearchDialog(
 @Composable
 private fun DestinationResult(destination: Destination, onClick: () -> Unit) {
     val title = destination.title.substringBefore(" · ")
-    val detail = destination.title.substringAfter(" · ", "")
+    val detail = destination.title.split(" · ").drop(1).mapNotNull(::placeCategoryLabel).joinToString(" · ")
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(shape = CircleShape, color = Mist) {
+        Surface(shape = CircleShape, color = Navajo) {
             Icon(Icons.Rounded.Place, contentDescription = null,
                 modifier = Modifier.padding(10.dp).size(20.dp), tint = Ink)
         }
@@ -139,7 +139,7 @@ private fun SearchStatus(title: String, description: String, loading: Boolean = 
         Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(bottom = 8.dp))
+        if (loading) TabiProgress(Modifier.fillMaxWidth().padding(bottom = 8.dp))
         Text(title, style = MaterialTheme.typography.titleSmall,
             color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
         Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

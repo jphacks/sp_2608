@@ -55,4 +55,15 @@ class StickerLayoutTest {
         assertNear(0.5, projection.route.single().y)
         assertEquals(StickerProjection(emptyList(), null), projectRoute(emptyList()))
     }
+
+    @Test fun outlineFollowsTheRouteScaleWithoutChangingIt() {
+        // 地図の線は経路と同じ縮尺で写り、枠の外へはみ出してよい。経路の写り方は変わらない
+        val route = listOf(Coordinate(0.0, 0.0), Coordinate(0.0, 1.0))
+        val outline = listOf(listOf(Coordinate(0.0, -1.0), Coordinate(0.0, 2.0)))
+        val plain = projectRoute(route, aspect = 1.0)
+        val withMap = projectRoute(route, aspect = 1.0, outline = outline)
+        assertEquals(plain.route, withMap.route)
+        assertNear(0.12 - 0.76, withMap.outline.single()[0].x)
+        assertNear(0.88 + 0.76, withMap.outline.single()[1].x)
+    }
 }

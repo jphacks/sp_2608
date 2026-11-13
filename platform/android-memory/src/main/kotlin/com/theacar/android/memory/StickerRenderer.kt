@@ -11,14 +11,12 @@ import android.graphics.Typeface
 import com.theacar.memory.STICKER_HEIGHT_MM
 import com.theacar.memory.STICKER_PHOTO_FRACTION
 import com.theacar.memory.STICKER_WIDTH_MM
+import com.theacar.memory.StickerPoint
 import com.theacar.memory.TripMemory
 import com.theacar.memory.projectRoute
 import com.theacar.memory.stickerText
-import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 /** 600dpi での 1 コマの大きさ（1/4 L判 = 44.5×63.5 mm）。寸法はこの基準で書き、描画時に拡縮する。 */
 const val FRAME_WIDTH_PX = 1051
@@ -30,13 +28,14 @@ private const val INK = 0xFF1E2A24.toInt()
 private const val MIST = 0xFFACD0C0.toInt()
 private const val SURFACE = 0xFFFFFFFF.toInt()
 
-/** 1 コマを Canvas に描く。写真面の上に経路と写真の位置、下の白地に日付・地名・メンバー・距離・時間・QR。 */
+/** 1 コマを Canvas に描く。写真面の上に北海道の輪郭と経路、下の白地に日付・地名・メンバー・距離・時間・QR。 */
 class StickerRenderer(context: Context, private val memoryUrl: (String) -> String? = { null }) {
     private val assets = context.assets
     private val jostBold = typeface("jost.ttf", 700)
     private val jostSemiBold = typeface("jost.ttf", 600)
     private val jostRegular = typeface("jost.ttf", 400)
     private val notoMedium = typeface("noto_sans_jp.ttf", 500)
+    private val hokkaido by lazy { readHokkaidoOutline(assets) }
 
     private fun typeface(file: String, weight: Int): Typeface =
         Typeface.Builder(assets, "composeResources/com.theacar.ui.resources/font/$file")
@@ -68,8 +67,9 @@ class StickerRenderer(context: Context, private val memoryUrl: (String) -> Strin
             }
             canvas.save(); canvas.clipRect(area); canvas.drawBitmap(photo, matrix, Paint(Paint.FILTER_BITMAP_FLAG)); canvas.restore()
         }
-        val projection = projectRoute(memory.geometry, memory.photoLocation, (width / photoHeight).toDouble())
-        val lineWidth = 22f * s
+        val projection = projectRoute(memory.geometry, memory.photoLocation, (width / photoHeight).toDouble(), outline = hokkaido)
+        drawOutline(canvas, projection.outline, area, s)
+        val lineWidth = 19.8f * s
         if (projection.route.isNotEmpty()) {
             val path = Path()
             projection.route.forEachIndexed { i, p ->
@@ -83,21 +83,22 @@ class StickerRenderer(context: Context, private val memoryUrl: (String) -> Strin
             if (projection.route.size == 1) canvas.drawPoint((projection.route[0].x * width).toFloat(), (projection.route[0].y * photoHeight).toFloat(), stroke)
             else canvas.drawPath(path, stroke)
         }
-        val spot = projection.photoSpot ?: return
-        val cx = (spot.x * width).toFloat(); val cy = (spot.y * photoHeight).toFloat()
-        val outer = lineWidth * 1.1f
-        val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = SURFACE; style = Paint.Style.FILL }
-        canvas.drawPath(star(cx, cy, outer, outer * 0.45f), fill)
-        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = SURFACE; typeface = jostBold; textSize = 34f * s; textAlign = Paint.Align.RIGHT }
-        val lineHeight = 36f * s
-        val labelWidth = max(text.measureText("PHOTO"), text.measureText("SPOT"))
-        val safe = SAFE_MARGIN_PX * s
-        // 星の左下に置き、はみ出すなら右側か内側に寄せる
-        var right = cx - outer - 14f * s
-        if (right - labelWidth < safe) right = (cx + outer + 14f * s + labelWidth).coerceAtMost(width - safe)
-        val top = (cy + 6f * s).coerceIn(safe, photoHeight - safe - 2 * lineHeight)
-        drawTextTop(canvas, "PHOTO", right, top, text)
-        drawTextTop(canvas, "SPOT", right, top + lineHeight, text)
+    }
+
+    /** 経路の下に北海道の輪郭を細く引く。写真面の外は切る。 */
+    private fun drawOutline(canvas: Canvas, lines: List<List<StickerPoint>>, area: RectF, s: Float) {
+        val path = Path()
+        for (line in lines) {
+            if (line.maxOf { it.x } < 0 || line.minOf { it.x } > 1 || line.maxOf { it.y } < 0 || line.minOf { it.y } > 1) continue
+            line.forEachIndexed { i, p ->
+                val x = (p.x * area.width()).toFloat(); val y = (p.y * area.height()).toFloat()
+                if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+        }
+        val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = SURFACE; style = Paint.Style.STROKE; strokeWidth = 2f * s; strokeJoin = Paint.Join.ROUND
+        }
+        canvas.save(); canvas.clipRect(area); canvas.drawPath(path, stroke); canvas.restore()
     }
 
     private fun drawInfoArea(canvas: Canvas, memory: TripMemory, width: Float, top: Float, bottom: Float, s: Float) {
@@ -149,15 +150,5 @@ class StickerRenderer(context: Context, private val memoryUrl: (String) -> Strin
     /** 文字の上端を [top] に合わせて描く。 */
     private fun drawTextTop(canvas: Canvas, text: String, x: Float, top: Float, paint: Paint) {
         canvas.drawText(text, x, top - paint.fontMetrics.ascent, paint)
-    }
-
-    private fun star(cx: Float, cy: Float, outer: Float, inner: Float): Path = Path().apply {
-        for (i in 0 until 10) {
-            val r = if (i % 2 == 0) outer else inner
-            val angle = -PI / 2 + i * PI / 5
-            val x = cx + (r * cos(angle)).toFloat(); val y = cy + (r * sin(angle)).toFloat()
-            if (i == 0) moveTo(x, y) else lineTo(x, y)
-        }
-        close()
     }
 }

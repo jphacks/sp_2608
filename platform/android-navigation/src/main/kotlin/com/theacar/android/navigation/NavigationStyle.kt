@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.SelectableChipColors
@@ -49,11 +50,17 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Navajo
+import com.theacar.ui.Spruce
+import com.theacar.ui.Cream
 import com.theacar.ui.Muted
-import com.theacar.ui.Sky
+import com.theacar.ui.Regent
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.jost
 
@@ -67,17 +74,32 @@ internal fun MapIconButton(icon: ImageVector, description: String, onClick: () -
     }
 }
 
+/** 決めるボタンと、その横の取り消すバツ。経路を探す・案内を始める枠で同じ形にそろえる */
 @Composable
-internal fun tabiChipColors(selected: Color = Sky, selectedLabel: Color = Ink): SelectableChipColors = FilterChipDefaults.filterChipColors(
+internal fun ActionWithClose(label: String, onClick: () -> Unit, onClose: () -> Unit, closeDescription: String,
+    modifier: Modifier = Modifier, enabled: Boolean = true, colors: ButtonColors? = null) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Button(onClick = onClick, enabled = enabled, colors = colors ?: ButtonDefaults.buttonColors(), modifier = Modifier.weight(1f).height(44.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)) { Text(label) }
+        Surface(onClick = onClose, modifier = Modifier.size(44.dp), shape = CircleShape, color = CloseBackground) {
+            Icon(Icons.Rounded.Close, contentDescription = closeDescription, tint = Ink, modifier = Modifier.padding(11.dp))
+        }
+    }
+}
+
+private val CloseBackground = Color(0xFFEDEDED)
+
+@Composable
+internal fun tabiChipColors(selected: Color = Spruce, selectedLabel: Color = Cream): SelectableChipColors = FilterChipDefaults.filterChipColors(
     containerColor = SurfaceColor, labelColor = Ink,
     selectedContainerColor = selected, selectedLabelColor = selectedLabel,
 )
 
 // 選んでいないチップは白抜きに、選んだときの色の細い縁。選んだチップは塗りだけ
-internal fun tabiChipBorder(selected: Boolean, color: Color = Sky): BorderStroke? = if (selected) null else BorderStroke(1.dp, color)
+internal fun tabiChipBorder(selected: Boolean, color: Color = Spruce): BorderStroke? = if (selected) null else BorderStroke(1.dp, color)
 
 @Composable
-internal fun mistButtonColors(): ButtonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Mist, contentColor = Ink)
+internal fun mistButtonColors(): ButtonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Navajo, contentColor = Ink)
 
 // 開閉の操作は文言を入れ替えず、同じ名前のまま矢印の向きで開閉を示す
 @Composable
@@ -95,8 +117,8 @@ internal fun LabeledSwitch(label: String, checked: Boolean, onCheckedChange: (Bo
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, color = Ink)
         Switch(checked = checked, onCheckedChange = null, colors = SwitchDefaults.colors(
-            checkedTrackColor = Mountains, checkedThumbColor = SurfaceColor,
-            uncheckedTrackColor = Mist, uncheckedThumbColor = Muted, uncheckedBorderColor = Mist))
+            checkedTrackColor = Spruce, checkedThumbColor = SurfaceColor,
+            uncheckedTrackColor = Navajo, uncheckedThumbColor = Muted, uncheckedBorderColor = Navajo))
     }
 }
 
@@ -118,3 +140,10 @@ internal fun jostNumbers(text: String): AnnotatedString {
         append(text.substring(last))
     }
 }
+
+/** 探している間の棒。緑で進み具合を見せる */
+@Composable
+internal fun TabiProgress(modifier: Modifier = Modifier) =
+    LinearProgressIndicator(modifier, color = ProgressGreen, trackColor = ProgressGreen.copy(alpha = .22f))
+
+private val ProgressGreen = Color(0xFF6E8A3A)

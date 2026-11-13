@@ -29,6 +29,8 @@ data class EngineState(
 enum class NavigationFailure {
     SEARCH, NO_RESULTS, NETWORK, NO_ROUTE, LOCATION, PERMISSION, AUTHORIZATION,
     TERMS, NOT_READY, TIMEOUT, START, STOP, LIMIT_REACHED, BUSY, SCENIC_UNAVAILABLE, PREVIEW_EXPIRED, AWAY_FROM_ROUTE,
+    /** 候補は出せたが、裏でほかの候補を探しきれなかった。出ている候補で案内できる */
+    MORE_ROUTES_UNAVAILABLE,
 }
 
 class NavigationException(val failure: NavigationFailure) : Exception(failure.name)

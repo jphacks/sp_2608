@@ -1,5 +1,23 @@
 package com.theacar.android.navigation
 
+import androidx.compose.material.icons.rounded.Map
+
+import androidx.compose.material.icons.rounded.Landscape
+
+import androidx.compose.foundation.lazy.items
+
+import androidx.compose.foundation.lazy.LazyRow
+
+import androidx.compose.ui.graphics.drawscope.clipPath
+
+import androidx.compose.ui.geometry.RoundRect
+
+import androidx.compose.ui.graphics.Path
+
+
+
+import androidx.compose.material.icons.Icons
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -36,39 +54,18 @@ import com.theacar.route.ScenicRoadRank
 import com.theacar.ui.CardCorner
 import com.theacar.ui.ChipCorner
 import com.theacar.ui.Ink
-import com.theacar.ui.Mist
-import com.theacar.ui.Mountains
+import com.theacar.ui.Navajo
+import com.theacar.ui.Spruce
 import com.theacar.ui.Muted
-import com.theacar.ui.Sky
+import com.theacar.ui.Regent
 import com.theacar.ui.Sea
 import com.theacar.ui.Meadow
 import com.theacar.ui.Lake
 import com.theacar.ui.Surface as SurfaceColor
 import com.theacar.ui.Sunglow
-import com.theacar.ui.Sunset
+import com.theacar.ui.Forest
 import com.theacar.ui.SunsetDeep
 
-
-@Composable
-internal fun ScenicChipRow(
-    preference: ScenicPreference?,
-    onPreference: (ScenicPreference?) -> Unit,
-    settings: ScenicOptions,
-    onSettings: (ScenicOptions) -> Unit,
-    enabled: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        ScenicPreference.entries.forEach { item ->
-            val selected = preference == item && settings.customWeights == null
-            val (fill, label) = scenicChipStyle(item)
-            FilterChip(colors = tabiChipColors(fill, label), border = tabiChipBorder(selected, fill), shape = RoundedCornerShape(ChipCorner),
-                selected = selected, onClick = { onPreference(item); onSettings(settings.withPreset(item)) }, enabled = enabled, label = {
-                Text(if (item == ScenicPreference.BALANCED) "自然" else item.label)
-            })
-        }
-    }
-}
 
 @Composable
 internal fun ScenicSearchControls(
@@ -81,17 +78,13 @@ internal fun ScenicSearchControls(
     onSettings: (ScenicOptions) -> Unit = {},
     compact: Boolean = false,
     onQuickSearch: ((ScenicOptions) -> Unit)? = null,
-    showChips: Boolean = true,
+    showButtons: Boolean = true,
 ) {
     var showPreferenceEditor by rememberSaveable { mutableStateOf(false) }
     var showQuickSearch by rememberSaveable { mutableStateOf(false) }
-    if (showChips) {
-        if (!compact) Text("経路の選び方", style = MaterialTheme.typography.labelLarge)
-        ScenicChipRow(preference, onPreference, settings, onSettings, enabled)
-    }
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    if (showButtons) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(enabled = enabled, onClick = { showPreferenceEditor = true }, modifier = Modifier.weight(1f),
-            border = BorderStroke(1.dp, Mountains), colors = ButtonDefaults.outlinedButtonColors(contentColor = Mountains)) {
+            border = BorderStroke(1.dp, Spruce), colors = ButtonDefaults.outlinedButtonColors(contentColor = Spruce)) {
             Text(if (preference != null && settings.customWeights != null) "好みを調整 · カスタム" else "好みを調整")
         }
         if (onQuickSearch != null) FilledTonalButton(enabled = enabled, onClick = { showQuickSearch = true }, colors = mistButtonColors()) {
@@ -123,21 +116,10 @@ internal fun ScenicSearchControls(
     }
     if (preference != null) {
         if (!settings.roundTrip) {
-            Text("最短経路からの寄り道 ＋${scenicDetourLabel(extraMinutes)}まで", style = MaterialTheme.typography.bodyMedium)
-            Slider(value = scenicDetourIndex(extraMinutes).toFloat(),
-                onValueChange = { onExtraMinutes(scenicDetourMinutes[it.roundToInt().coerceIn(scenicDetourMinutes.indices)]) },
-                valueRange = 0f..scenicDetourMinutes.lastIndex.toFloat(),
-                steps = scenicDetourMinutes.size - 2, enabled = enabled)
-            if (!compact) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("寄り道なし", style = MaterialTheme.typography.labelSmall)
-                Text("最大6時間", style = MaterialTheme.typography.labelSmall)
-            }
+            DetourSlider(extraMinutes, onExtraMinutes, enabled)
             if (!compact) Text("同じ道路条件の通常ルートと比較します。休憩時間は別です。", style = MaterialTheme.typography.bodySmall)
         } else {
-            Text("周遊全体の上限 ${settings.totalSeconds / 60}分（休憩込み）", style = MaterialTheme.typography.bodyMedium)
-            Slider(value = (settings.totalSeconds / 60).toFloat(), onValueChange = {
-                onSettings(settings.copy(totalSeconds = ((it / 30).toInt() * 30).coerceIn(30, 360) * 60))
-            }, valueRange = 30f..360f, steps = 10, enabled = enabled)
+            RoundTripSlider(settings.totalSeconds / 60, { onSettings(settings.copy(totalSeconds = it.coerceIn(RoundTripMin, RoundTripMax) * 60)) }, enabled)
         }
     }
     if (preference != null && !compact) {
@@ -187,29 +169,25 @@ internal fun ScenicAlternatives(alternatives: List<RouteAlternative>, selectedId
         val explanation = alternative?.explanation
         if (explanation != null) {
             Column(Modifier.fillMaxWidth().bringIntoViewRequester(detailFocus)) {
-                Text("基準走行 ${(explanation.baselineSeconds + 59) / 60}分との比較", style = MaterialTheme.typography.labelSmall)
-                explanation.reasons.take(2).forEach { reason ->
-                    TextButton(onClick = { onHighlight(reason.ranges) }) { Text(reason.text + " · 地図で確認") }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    explanation.reasons.take(2).forEach { reason -> ReasonRow(shortReason(reason.text)) { onHighlight(reason.ranges) } }
                 }
+                Spacer(Modifier.height(12.dp))
                 ScenicTimeline(explanation.timeline, onHighlight, environment = explanation.environment)
                 var details by rememberSaveable(alternative?.plan?.id) { mutableStateOf(false) }
                 TextButton(onClick = { details = !details }) { Text(if (details) "根拠・注意を閉じる" else "根拠・注意を確認") }
                 if (details) {
-                    explanation.reasons.drop(2).forEach { reason ->
-                        TextButton(onClick = { onHighlight(reason.ranges) }) { Text(reason.text + " · 地図で確認") }
-                    }
+                    explanation.reasons.drop(2).forEach { reason -> ReasonRow(shortReason(reason.text)) { onHighlight(reason.ranges) } }
+                    if (explanation.searchLimited) Text("計算予算内で探索した候補です。全組み合わせの最適解ではありません。", style = MaterialTheme.typography.bodySmall)
                     Text("景観の根拠と運転負荷は別の推定です。負荷指標 ${"%.2f".format(explanation.load)}", style = MaterialTheme.typography.bodySmall)
                     explanation.warnings.distinct().forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
                     explanation.sources.forEach { Text("${it.id} · ${it.license}\n${it.url}", style = MaterialTheme.typography.bodySmall) }
                     explanation.comparisons.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
                     Text("${explanation.snapshotId} / revision ${explanation.revision}", style = MaterialTheme.typography.labelSmall)
                 }
-                if (explanation.searchLimited) Text("計算予算内で探索した候補です。全組み合わせの最適解ではありません。", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
-    if (!compact) Text("距離は最終経路上の推定値です。根拠がない可視性・施設・天気は理由に使いません。似た候補を水増ししません。",
-        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 private val RankGold = Color(0xFF7A5C00)
@@ -218,9 +196,9 @@ private val RankViolet = Color(0xFF6A4C93)
 
 internal fun categoryColor(category: String) = when (category) {
     "sea" -> Sea
-    "forest" -> Sky
+    "forest" -> Forest
     "inland_water", "lake", "river" -> Lake
-    "valley" -> Mountains
+    "valley" -> Forest
     "open_nature" -> Meadow
     "farmland" -> Sunglow
     "townscape", "urban" -> Muted
@@ -235,7 +213,7 @@ fun categoryLabel(category: String) = when (category) {
 }
 
 internal fun rankColor(rank: ScenicRoadRank) = when (rank) {
-    // 経路線の緑（Mountains）と見分けられる色相にする。文字にも使うので白地で4.5:1以上
+    // 経路線の青と見分けられる色相にする。文字にも使うので白地で4.5:1以上
     ScenicRoadRank.SIGNATURE -> SunsetDeep
     ScenicRoadRank.PANORAMA -> RankGold
     ScenicRoadRank.RECOMMENDED -> RankSea
@@ -246,38 +224,37 @@ internal fun rankColor(rank: ScenicRoadRank) = when (rank) {
 private fun ScenicTimelineBar(blocks: List<ScenicTimelineBlock>, total: Double,
     onHighlight: (List<ScenicRange>) -> Unit, compact: Boolean) {
     val sections = remember(blocks, compact) { scenicTimelineOverview(blocks, if (compact) 24 else 48) }
-    val seaRanges = remember(blocks) { scenicSeaRanges(blocks) }
-    Canvas(Modifier.fillMaxWidth().height(48.dp).semantics {
-        contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示し、下端の青線は海に近い区間を示します。タップで地図を表示。"
+    val roads = remember(blocks) { scenicRoadHighlights(blocks) }
+    Canvas(Modifier.fillMaxWidth().height(32.dp).semantics {
+        contentDescription = "主な景観の流れ。区間ごとに最も長い景観を表示します。タップで地図を表示。"
         customActions = sections.filter { it.sourceRanges.isNotEmpty() }.take(6).map { section ->
             CustomAccessibilityAction("${categoryLabel(section.category)}中心の区間を地図で確認") {
                 onHighlight(section.sourceRanges); true
             }
         }
-    }.pointerInput(sections, seaRanges, total) {
+    }.pointerInput(sections, roads, total) {
         detectTapGestures { tap ->
             val distance = tap.x / size.width.coerceAtLeast(1) * total
-            val sea = seaRanges.firstOrNull { distance >= it.startMeters && distance <= it.endMeters }
-            if (sea != null) {
-                onHighlight(listOf(sea))
+            roads.firstOrNull { road -> road.ranges.any { distance >= it.startMeters && distance <= it.endMeters } }?.let {
+                onHighlight(it.ranges)
                 return@detectTapGestures
             }
             sections.firstOrNull { distance >= it.range.startMeters && distance <= it.range.endMeters }
                 ?.takeIf { it.sourceRanges.isNotEmpty() }?.let { onHighlight(it.sourceRanges) }
         }
     }) {
-        val barHeight = (if (compact) 16.dp else 24.dp).toPx()
-        sections.forEach { section ->
-            val left = (section.range.startMeters / total * size.width).toFloat()
-            val width = ((section.range.endMeters - section.range.startMeters) / total * size.width).toFloat()
-            drawRoundRect(categoryColor(section.category), Offset(left, (size.height - barHeight) / 2),
-                Size((width - 1.dp.toPx()).coerceAtLeast(0f), barHeight), CornerRadius(3.dp.toPx()))
+        val barHeight = (if (compact) 14.dp else 20.dp).toPx()
+        val top = (size.height - barHeight) / 2
+        // 区間ごとの角丸と隙間をやめ、一続きの帯にする（細かく区切れて見えて落ち着かなかった）
+        clipPath(Path().apply { addRoundRect(RoundRect(0f, top, size.width, top + barHeight, CornerRadius(barHeight / 2))) }) {
+            sections.forEach { section ->
+                val left = (section.range.startMeters / total * size.width).toFloat()
+                val width = ((section.range.endMeters - section.range.startMeters) / total * size.width).toFloat()
+                drawRect(categoryColor(section.category), Offset(left, top), Size(width + 1f, barHeight))
+            }
         }
-        seaRanges.forEach { range ->
-            drawRect(categoryColor("sea"),
-                Offset((range.startMeters / total * size.width).toFloat(), (size.height + barHeight) / 2 - 3.dp.toPx()),
-                Size(((range.endMeters - range.startMeters) / total * size.width).toFloat(), 3.dp.toPx()))
-        }
+        // 名道の区間は帯の上に重ねる
+        drawRoadSegments(roads, total, size.height / 2, outline = true)
     }
 }
 
@@ -288,14 +265,17 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
     val total = blocks.maxOfOrNull { it.range.endMeters } ?: return
     if (total <= 0) return
     val roads = blocks.flatMap { it.recommendedRoads }.distinctBy { it.id }.sortedBy { it.rank.ordinal }
-    val distances = remember(blocks) { scenicCategoryDistances(blocks).filter { it.second >= 100 || it.first == "sea" && it.second > 0 } }
+    // 分類できなかった区間と1km未満の景色は、凡例に並べても読み取れないので外す
+    val distances = remember(blocks) {
+        scenicCategoryDistances(blocks).filter { it.first !in setOf("unclassified", "unknown") && it.second >= 1000 }
+    }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("主な景観の流れ（推定）", style = MaterialTheme.typography.labelSmall)
+            Text("道中の景色", style = MaterialTheme.typography.labelMedium)
             Text("全${scenicDistanceLabel(total)}", style = MaterialTheme.typography.labelSmall)
         }
         ScenicTimelineBar(blocks, total, onHighlight, compact)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp),
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth()) {
             distances.forEach { (category, meters) ->
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -304,30 +284,36 @@ internal fun ScenicTimeline(blocks: List<ScenicTimelineBlock>, onHighlight: (Lis
                 }
             }
         }
-        if (roads.isNotEmpty()) {
-            ScenicRoadTimeline(blocks, total, onHighlight = { onHighlight(it.ranges) })
-            ScenicRoadRankLegend()
-        }
+        if (roads.isNotEmpty()) ScenicRoadRankLegend(roads.map { it.rank }.distinct())
         ScenicEnvironmentTimeline(environment, total, onHighlight, compact)
         if (!compact) {
-            Text("棒は区間ごとの主な景観です。下端の青線は短い海沿いも示します。海の眺望を保証するものではありません。タップで地図を確認できます。",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            blocks.filter { it.range.endMeters - it.range.startMeters >= 300 }.take(6).forEach { block ->
-                TextButton(onClick = { onHighlight(listOf(block.range)) }) {
-                    Text("${categoryLabel(block.category)} · ${(block.range.startMeters / 100).toInt() / 10.0}〜${(block.range.endMeters / 100).toInt() / 10.0}km")
+            val scenic = blocks.filter { it.range.endMeters - it.range.startMeters >= 300 && it.category !in setOf("urban", "unclassified", "unknown") }
+            if (scenic.isNotEmpty()) LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(scenic.take(12)) { block ->
+                    Surface(onClick = { onHighlight(listOf(block.range)) }, shape = RoundedCornerShape(50),
+                        color = categoryColor(block.category).copy(alpha = .15f)) {
+                        Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Canvas(Modifier.size(8.dp)) { drawCircle(categoryColor(block.category)) }
+                            Text("${categoryLabel(block.category)} ${(block.range.startMeters / 100).toInt() / 10.0}〜${(block.range.endMeters / 100).toInt() / 10.0}km",
+                                style = MaterialTheme.typography.labelMedium, color = Ink)
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-// 景色の選択肢ごとの塗りの色と、その上の文字色
-private fun scenicChipStyle(item: ScenicPreference): Pair<Color, Color> = when (item) {
-    ScenicPreference.SEA -> Sea to Ink
-    ScenicPreference.FOREST -> Sky to Ink
-    ScenicPreference.BALANCED -> Meadow to Ink
-    ScenicPreference.WATER -> Lake to Ink
-    ScenicPreference.VALLEY -> Mountains to SurfaceColor
-    ScenicPreference.FARMLAND -> Sunglow to Ink
-    ScenicPreference.URBAN -> Muted to SurfaceColor
+/** 推薦の理由の1行。文と、その区間を地図で見るボタン */
+@Composable
+private fun ReasonRow(text: String, onMap: () -> Unit) {
+    Surface(onClick = onMap, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .45f)) {
+        Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(Icons.Rounded.Landscape, contentDescription = null, tint = Spruce, modifier = Modifier.size(20.dp))
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink, modifier = Modifier.weight(1f))
+            Icon(Icons.Rounded.Map, contentDescription = "地図で見る", tint = Muted, modifier = Modifier.size(20.dp))
+        }
+    }
 }

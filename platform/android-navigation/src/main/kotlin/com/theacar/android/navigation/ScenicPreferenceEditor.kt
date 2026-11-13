@@ -51,10 +51,11 @@ internal fun ScenicPreferenceEditor(settings: ScenicOptions, enabled: Boolean, c
             Text("バーは相対的な優先度です。合計100にする必要はありません。0はその特徴を目的にしない設定で、通行禁止ではありません。",
                 style = MaterialTheme.typography.bodySmall)
             if (valid) Text("評価の比率 · ${scenicWeightSummary(result())}", style = MaterialTheme.typography.labelMedium)
-            ScenicLandscape.entries.forEach { item ->
+            // 渓谷は判定が実際の景色と合わないので、画面では選ばせない
+            (ScenicLandscape.entries - ScenicLandscape.VALLEY).forEach { item ->
                 PreferenceSlider(item.label, weights[item.code] ?: 0.0, enabled) { weights = weights + (item.code to it) }
             }
-            Text("海・湖・川は近さの推定です。渓谷は地形・地図からの推定で眺望は未確認、市街地は建物密度です。",
+            Text("海・湖・川は近さの推定です。市街地は建物密度です。",
                 style = MaterialTheme.typography.bodySmall)
             HorizontalDivider()
             Text("体験の好み", style = MaterialTheme.typography.titleSmall)
@@ -102,7 +103,7 @@ internal fun ScenicQuickSearch(settings: ScenicOptions, enabled: Boolean,
                 style = MaterialTheme.typography.bodySmall)
             listOf(ScenicPreference.BALANCED to "いろんな自然を楽しむ", ScenicPreference.SEA to "海沿いを楽しむ",
                 ScenicPreference.FOREST to "森の道を走る", ScenicPreference.WATER to "湖や川を楽しむ",
-                ScenicPreference.VALLEY to "渓谷を探す", ScenicPreference.FARMLAND to "田園を走る",
+                ScenicPreference.FARMLAND to "田園を走る",
                 ScenicPreference.URBAN to "街なかを走る").forEach { (preset, title) ->
                 FilledTonalButton(enabled = enabled, onClick = { onSelect(settings.withPreset(preset)) },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(title) }

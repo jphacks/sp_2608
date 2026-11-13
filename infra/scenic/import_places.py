@@ -30,6 +30,9 @@ def build(source, output):
         name = tags.get('name:ja') or tags.get('name')
         if not name or tags.get('access') == 'private':
             return
+        # 線路の上の停車位置やホームは駅と同じ名前で何件もあり、検索結果を駅の重複で埋めてしまう
+        if tags.get('railway') in ('stop', 'platform') or tags.get('public_transport') in ('stop_position', 'platform'):
+            return
         if not any(k in tags for k in ('place', 'amenity', 'tourism', 'shop', 'leisure', 'railway', 'natural', 'historic', 'building')):
             return
         address = ''.join(tags.get(k, '') for k in ('addr:province', 'addr:city', 'addr:suburb', 'addr:quarter', 'addr:neighbourhood', 'addr:street', 'addr:housenumber'))
