@@ -5,14 +5,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   AXES,
-  EXPLORE,
-  FEATURE_KEYS,
-  computeTarget,
-  rankDistance,
-  rankPool,
   recommend,
   type Axis,
-  type CabinState,
   type PoolTrack,
   type Scene,
 } from '../src/engine';
@@ -103,38 +97,5 @@ describe.each<ModeId>(['discover', 'blend'])('実カタログで景観ごとに�
     expect(jaccard(r.sea.ids, r.urban.ids)).toBeLessThan(0.1);
     expect(jaccard(r.sea.ids, r.forest.ids)).toBeLessThan(0.1);
     expect(jaccard(r.forest.ids, r.urban.ids)).toBeLessThan(0.1);
-  });
-});
-
-describe('実カタログで、どの曲にも流れる場面がある', () => {
-  // 景観8種の有無（256通り）× 時間帯 × 車内 × 運転負荷。名道区間・車内が静かなときは探索の枠を使わないので除く。
-  // 曲ごとに「上限を満たし、狙いから EXPLORE.maxDistance 以内になる場面」が1つでもあれば、探索の枠で選ばれる確率が 0 でない
-  it('全曲が、少なくとも1つの場面で探索の枠の対象になる', () => {
-    const plans = new Map<string, ReturnType<typeof computeTarget>>();
-    for (let m = 0; m < 1 << FEATURE_KEYS.length; m++) {
-      const features = Object.fromEntries(FEATURE_KEYS.filter((_, i) => m & (1 << i)).map((k) => [k, 1]));
-      for (const hour of [7, 14])
-        for (const cabin of ['normal', 'lively', 'resting'] as CabinState[])
-          for (const load of ['normal', 'high'] as const) {
-            const p = computeTarget({ features, hour, load }, cabin);
-            plans.set(JSON.stringify([p.target, p.weights, p.caps]), p);
-          }
-    }
-    const unreached = new Set(pool.map((t) => t.track_id));
-    // 順位は重みにしかよらないので、重みごとに1回だけ作る
-    const ranked = new Map<string, ReturnType<typeof rankPool>>();
-    for (const p of plans.values()) {
-      const wk = JSON.stringify(p.weights);
-      if (!ranked.has(wk)) ranked.set(wk, rankPool(pool, p.weights));
-      const { rel, effW } = ranked.get(wk)!;
-      const caps = Object.entries(p.caps) as [Axis, number][];
-      for (const t of pool) {
-        if (!unreached.has(t.track_id)) continue;
-        if (caps.some(([a, c]) => t[a] > c)) continue;
-        if (rankDistance(p.target, rel.get(t.track_id)!, effW) <= EXPLORE.maxDistance) unreached.delete(t.track_id);
-      }
-    }
-    const names = pool.filter((t) => unreached.has(t.track_id)).map((t) => `${t.title} / ${t.artist}`);
-    expect(names).toEqual([]);
   });
 });

@@ -192,7 +192,7 @@ describe('blend：加点を受けていない曲の割合（係数の調整）',
     });
   }
 
-  // 通常の回は、加点なしの曲がおよそ5曲に1曲。探索の枠（4曲に1曲）は好みの加点が効きにくいので、全体では少し増える
+  // 通常の回は、加点なしの曲がおよそ5曲に1曲。題材の枠（4曲に1曲）は好みの加点が効きにくいので、全体では少し増える
   it('サンプルルートを30回走って、通常の回では加点なしの曲がおよそ5曲に1曲選ばれる', () => {
     const segs = segmentRoute(sampleRoute.points as RoutePoint[], { start_hour: sampleRoute.start_hour });
     const cabins = ['lively', 'normal', 'quiet', 'normal', 'resting', 'normal', 'lively'] as const;
@@ -217,7 +217,7 @@ describe('blend：加点を受けていない曲の割合（係数の調整）',
           const c = r.candidates.find((x) => x.title === r.chosen!.title)!;
           all++;
           if (c.pref === null) allNone++;
-          if (!r.explore) {
+          if (r.slot === 'score') {
             total++;
             if (c.pref === null) none++;
           }

@@ -130,15 +130,15 @@ const LAMBDA = { rep: 0.3, artist: 0.15, conf: 0.2, cap: 1.0, soft: 0.3 };
 const FAM_BOOST = 2.5; // 静か・名道区間で「みんな知ってる曲」の加点を強める倍率
 // くじ引きの対象。同じ景色で毎回同じ数曲にならないよう、最高点から scoreWindow 以内の曲を最大 maxTracks 曲まで広げる。
 // 点数が高いほど選ばれやすいことは変えない（tau が温度）。返す candidates（再生できなかったときの次点）とは別。
-export const SAMPLE = { maxTracks: 30, scoreWindow: 0.1, tau: 0.06 };
+// 30曲・0.1 では、どの場面でもこの範囲に入らない曲が多かった（2026-11 のカタログで、通常の枠に入るのは670曲）。
+// 60曲・0.12 で923曲に増え、選ばれる曲の狙いからの平均距離は 0.218 → 0.226 にとどまる。
+// 0.15 まで広げると、blend で好みの加点がない曲の割合が5曲に1曲の狙いを超えた（test/modes.spec.ts）
+export const SAMPLE = { maxTracks: 60, scoreWindow: 0.12, tau: 0.06 };
 const MIN_RANGE = 0.2; // プール内の幅がこれ未満の軸は重みを下げる
-// 探索の枠。上のくじ引きは点数の上位（最大30曲）からしか選ばないので、狙いが一度も向かない曲調の曲は
-// 何度ドライブしても流れない。そこで、このドライブの every 曲ごとに1曲は、狙いから maxDistance 以内で
-// 前回までのドライブで流していない曲すべてを対象にして選ぶ（点数が高いほど選ばれやすい。tau が温度）。
-// maxDistance は、全曲がどこかの場面でこの範囲に入るように決めた値（2026-11 のカタログでは 0.35 で 2,346曲、
-// 0.37 で全曲。最後の1曲は Ado「うっせぇわ」で、市街地で入る）。全曲が入ることは test/scenes.spec.ts で確かめている。
-// 名道区間・車内が静かなとき（知っている曲を優先したい場面）は使わない
-export const EXPLORE = { every: 4, maxDistance: 0.37, tau: 0.1 };
+// 枠の周期。history の件数をこれで割った余りが THEME_SLOT.turn の回が題材の枠、それ以外は通常の枠。
+// 景観に合う曲を流すことに振り切るので、景観と関係なく曲を選ぶ枠（全曲に順番を回す探索の枠、有名曲の枠）は置かない。
+// そのため、どの場面の狙いからも遠い曲調の曲（とても激しい曲など）は流れない
+const SLOT_CYCLE = 4;
 
 // 上限を満たす曲の中で一番近い曲でも、ターゲットとの距離がこれを超えたら、
 // 無理に曲調を寄せず、直前の曲調に近い曲を選んで音量だけを下げる
@@ -157,6 +157,7 @@ export type Plan = {
   volume: number;
   famBoost: number; // 知名度・共有の加点に掛ける倍率
   themes: Partial<Record<Theme, number>>; // 今の場面に合う歌詞の題材（0〜1）
+  themeReasons: Partial<Record<Theme, string>>; // その題材を選んだ理由（「視界が開けている」など。理由の一言に使う）
   reasons: string[];
 };
 
@@ -171,6 +172,7 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
 
   const contribs: { key: FeatureKey; strength: number }[] = [];
   const themes: Partial<Record<Theme, number>> = { ...THEME_ALWAYS };
+  const themeReasons: Partial<Record<Theme, string>> = {};
   for (const key of FEATURE_KEYS) {
     const raw = scene.features?.[key];
     if (raw == null) continue;
@@ -179,7 +181,12 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
     const s = clamp01(v) * clamp01(q);
     if (s === 0) continue;
     for (const a of AXES) t[a] += s * (EFFECTS[key][a] ?? 0);
-    for (const [th, k] of Object.entries(THEME_LINKS[key]) as [Theme, number][]) themes[th] = Math.max(themes[th] ?? 0, s * k);
+    for (const [th, k] of Object.entries(THEME_LINKS[key]) as [Theme, number][]) {
+      if (s * k > (themes[th] ?? 0)) {
+        themes[th] = s * k;
+        themeReasons[th] = FEATURE_LABEL[key];
+      }
+    }
     contribs.push({ key, strength: s });
   }
   contribs.sort((x, y) => y.strength - x.strength);
@@ -198,9 +205,13 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
   if (scene.hour != null && scene.hour >= 4 && scene.hour < 9) {
     t.tempo += 0.05;
     themes.morning = 1;
+    themeReasons.morning = '朝の時間帯な';
   }
   // 夜は曲調を変えず、夜を歌った曲を加点するだけにする
-  if (scene.hour != null && (scene.hour >= 19 || scene.hour < 4)) themes.night = 1;
+  if (scene.hour != null && (scene.hour >= 19 || scene.hour < 4)) {
+    themes.night = 1;
+    themeReasons.night = '夜になった';
+  }
 
   if (scene.highlight) {
     t.energy += 0.1;
@@ -260,6 +271,7 @@ export function computeTarget(scene: Scene, cabin: CabinState = 'normal'): Plan 
     volume: round(Math.min(1, Math.max(MIN_VOLUME, volume))),
     famBoost,
     themes,
+    themeReasons,
     reasons,
   };
 }
@@ -404,13 +416,13 @@ export function recommend(input: RecommendInput) {
     .sort((a, b) => b.score - a.score);
 
   const maxScore = scored[0].score;
-  // くじ引きの枠。4曲ごとに、2曲目は題材の枠（THEME_SLOT）、4曲目は探索の枠（EXPLORE）、ほかは通常の枠。
+  // くじ引きの枠。4曲ごとに、2曲目は題材の枠（THEME_SLOT）、ほかは通常の枠。
   // どの枠も、上限を満たし直近3曲と同じアーティストでない曲だけ。対象が1曲も無ければ通常の枠に戻す
-  const turn = history.length % EXPLORE.every;
+  const turn = history.length % SLOT_CYCLE;
   const special = !fallback && capMode !== 'nearest' && !catalogFill;
   const okBase = (s: (typeof scored)[number]) => s.breakdown.same_artist === 0 && s.breakdown.over_cap === 0;
   const hasSceneTheme = Object.entries(plan.themes).some(([th, w]) => th !== 'drive_travel' && w >= THEME_SLOT.minMatch);
-  let slot: 'score' | 'theme' | 'explore' = 'score';
+  let slot: 'score' | 'theme' = 'score';
   let sample = scored.filter((s) => s.score >= maxScore - SAMPLE.scoreWindow).slice(0, SAMPLE.maxTracks);
   let tau = SAMPLE.tau;
   let relief = 0;
@@ -426,14 +438,7 @@ export function recommend(input: RecommendInput) {
         s.exact_distance <= THEME_SLOT.maxDistance,
     );
     if (pool.length > 0) [slot, sample, tau, relief] = ['theme', pool, THEME_SLOT.tau, THEME_SLOT.distanceRelief];
-  } else if (special && plan.famBoost === 1 && turn === EXPLORE.every - 1) {
-    // 探索の枠：前回までに流していない曲から
-    const pool = scored.filter(
-      (s) => okBase(s) && s.exact_distance <= EXPLORE.maxDistance && !recent.has(s.track.track_id),
-    );
-    if (pool.length > 0) [slot, sample, tau] = ['explore', pool, EXPLORE.tau];
   }
-  const explore = slot === 'explore';
   // どの枠でも、点数（狙いへの近さ・知名度・好みや題材の加点など）が高いほど選ばれやすい。ただし対象の曲はどれも 0 にならない
   const slotScore = (s: (typeof scored)[number]) => s.score + relief * s.exact_distance;
   const maxInSample = Math.max(...sample.map(slotScore));
@@ -461,8 +466,13 @@ export function recommend(input: RecommendInput) {
   // 夜・朝の題材は景色ではなく時間帯の理由なので、理由の前置きも時間帯にする
   const theme = chosen.breakdown.theme;
   const themeHit =
-    !catalogFill && !fallback && theme != null && theme !== 'drive_travel' && chosen.breakdown.theme_match >= 0.5;
-  const why = themeHit && theme === 'night' ? '夜になった' : themeHit && theme === 'morning' ? '朝の時間帯な' : plan.reasons[0];
+    !catalogFill &&
+    !fallback &&
+    theme != null &&
+    theme !== 'drive_travel' &&
+    chosen.breakdown.theme_match >= 0.5;
+  // 題材が理由のときは、その題材を選んだ景観・時間帯を理由にする（「視界が開けているので、空や風を歌った曲」）
+  const why = (themeHit ? plan.themeReasons[theme!] : undefined) ?? plan.reasons[0];
   const from = ownerName
     ? `${ownerName}さんのリストから`
     : chosen.breakdown.pref === 'artist'
@@ -476,8 +486,6 @@ export function recommend(input: RecommendInput) {
         ? `音量を少し下げて、${from}今の流れに近い曲を流します`
         : themeHit
           ? `${from}${THEME_LABEL[theme!]}を歌った曲を流します`
-          : explore
-            ? `${from}まだ流していない曲から、${moodWord(plan.target)}曲を流します`
             : `${from}${moodWord(plan.target)}曲を流します`);
 
   return {
@@ -497,8 +505,7 @@ export function recommend(input: RecommendInput) {
       message,
     },
     sample_size: sample.length,
-    slot, // どの枠で選んだか（score：通常 / theme：題材の枠 / explore：探索の枠）
-    explore, // 探索の枠で選んだか（slot === 'explore'）
+    slot, // どの枠で選んだか（score：通常 / theme：題材の枠）
 
     candidates: top.map((s) => ({
       track_id: s.track.track_id,

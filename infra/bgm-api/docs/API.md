@@ -208,7 +208,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `include_catalog` | | boolean | 既定 `true`。`false` にすると全曲カタログを候補に足さない |
 | `cabin` | | `"lively"` \| `"normal"` \| `"quiet"` \| `"resting"` | 車内の状態。省略時 `normal`（[値の一覧](#車内の状態-cabin)） |
 | `history` | | `{track_id, owner_id?, artist?}[]` | **このドライブで流した曲**（古い順）。ここにある曲は候補から外れる。`owner_id` はその曲を選んだときの `chosen.owner_id`（所有者の偏りの計算に使う） |
-| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。通常の回は候補に残るが減点され、探索の枠（下の `explore`）では選ばれない。全曲に順番が回るよう、できるだけ渡す |
+| `recent_track_ids` | | string[] | 前回までのドライブで流した曲。候補に残るが減点される。前回と同じ曲ばかりにならないよう、できるだけ渡す |
 | `previous_target` | | object | 前の曲を選んだときの `plan.target`。曲調が急に飛ばないよう、軸ごとに 0.25 までしか変えない。初回は省略 |
 | `top_k` | | number | 候補の数。既定 5 |
 | `seed` | | number | 乱数のシード。同じ入力とシードなら結果が同じ。省略すると毎回変わる |
@@ -233,28 +233,27 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 ```json
 {
   "pool_size": 2347,
-  "sample_size": 24,
-  "slot": "score",
-  "explore": false,
+  "sample_size": 373,
+  "slot": "theme",
   "missing": [],
   "mode": "blend",
   "volume": 0.6,
   "cap_mode": "none",
   "fallback": null,
   "chosen": {
-    "track_id": "isrc:JPPO02200420",
-    "title": "まつり",
-    "artist": "藤井 風",
-    "duration_ms": 225000,
+    "track_id": "isrc:JPU901902983",
+    "title": "PHOENIX",
+    "artist": "BURNOUT SYNDROMES",
+    "duration_ms": 246000,
     "owner_id": null,
-    "message": "海が近いので、みんなのリストにあるアーティストの、明るくアップテンポな曲を流します"
+    "message": "視界が開けているので、空や風を歌った曲を流します"
   },
   "candidates": [
     {
-      "track_id": "isrc:JPPO02100710", "title": "きらり", "artist": "藤井 風", "owners": ["a"],
-      "score": 0.049, "prob": 0.09, "distance": 0.138, "over_cap": 0, "over_soft": 0,
+      "track_id": "isrc:JPU901902983", "title": "PHOENIX", "artist": "BURNOUT SYNDROMES", "owners": [],
+      "score": -0.208, "prob": 0.003, "distance": 0.319, "over_cap": 0, "over_soft": 0,
       "recent": 0, "same_artist": 0, "owner_bias": 0, "shared": 0,
-      "popularity": 0.87, "pref": "track", "conf_penalty": 0
+      "popularity": 0.75, "theme": "sky_wind", "theme_match": 0.72, "pref": null, "conf_penalty": 0
     }
   ],
   "plan": {
@@ -264,9 +263,11 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
     "softCaps": {},
     "volume": 0.6,
     "famBoost": 1,
+    "themes": { "drive_travel": 0.5, "sea": 0.9, "summer": 0.45, "sky_wind": 0.8 },
+    "themeReasons": { "sea": "海が近い", "summer": "海が近い", "sky_wind": "視界が開けている" },
     "reasons": ["海が近い", "視界が開けている"]
   },
-  "pool_ranges": { "energy": 0.8, "valence": 0.77, "tempo": 1, "acoustic": 0.96, "spacious": 0.72, "vocal": 0.96 },
+  "pool_ranges": { "energy": 0.78, "valence": 0.77, "tempo": 1, "acoustic": 0.96, "spacious": 0.72, "vocal": 0.96 },
   "effective_weights": { "energy": 1.5, "valence": 1.5, "tempo": 0.5, "acoustic": 1, "spacious": 1, "vocal": 1 }
 }
 ```
@@ -283,9 +284,8 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `volume` | 推奨音量（0.2〜1）。盛り上がり・休息中・運転負荷・下の `fallback` で下がる |
 | `candidates` | 先頭が選んだ曲、そのあとがスコア順の次点（合わせて最大 `top_k` 曲）。Spotify に無かったときの次点に使う |
 | `candidates[].prob` | その曲がくじ引きで選ばれる確率。くじ引きの対象外なら 0 |
-| `slot` | どの枠で選んだか。`score`：通常（最高スコアから 0.1 以内のくじ引き）／`theme`：題材の枠（4曲ごとの2曲目。場面の題材を歌った曲から、目標から 0.6 以内なら曲調が遠くても選ぶ。`src/engine.ts` の `THEME_SLOT`）／`explore`：探索の枠。題材で選ばれた曲の `message` は「海が近いので、海を歌った曲を流します」のようになる |
-| `explore` | 探索の枠で選んだか（`slot === "explore"`）。`history` の件数から数えて4曲ごとの4曲目は、目標からの距離が 0.37 以内で `recent_track_ids` にない曲すべてを対象に選ぶ（`src/engine.ts` の `EXPLORE`）。点数の上位に入らない曲にも順番を回すため。名道区間・`cabin: quiet` では使わない。このときの `message` は「まだ流していない曲から、…曲を流します」になる |
-| `sample_size` | くじ引きの対象になった曲数。探索の枠では、対象になった曲すべての数。最高スコアから 0.1 以内の曲を最大 30 曲まで（`src/engine.ts` の `SAMPLE`）。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
+| `slot` | どの枠で選んだか。`score`：通常（最高スコアから 0.12 以内のくじ引き）／`theme`：題材の枠（4曲ごとの2曲目。場面の題材を歌った曲から、目標から 0.6 以内なら曲調が遠くても選ぶ。`src/engine.ts` の `THEME_SLOT`）。景観と関係なく選ぶ枠はない。題材で選ばれた曲の `message` は「海が近いので、海を歌った曲を流します」のようになり、理由はその題材を決めた景観・時間帯になる |
+| `sample_size` | くじ引きの対象になった曲数。通常の枠では、最高スコアから 0.12 以内の曲を最大 60 曲まで（`src/engine.ts` の `SAMPLE`）。題材の枠では、対象になった曲すべての数。同じ景色でも毎回同じ数曲にならないよう、`top_k` とは別に広く取る |
 | `candidates[].pref` | blend の加点：`"track"`（リストにある曲）、`"artist"`（同じアーティスト）、`null` |
 | `mode` | 実際に使われたモード |
 | `cap_mode` | 安全のための上限の扱い：`none`（上限なし）、`absolute`（上限を満たす曲から選んだ）、`catalog_fill`（playlist モードでカタログのインストから補った）、`nearest`（上限を満たす曲が無く、はみ出しが小さい曲で補った） |
@@ -295,6 +295,7 @@ API一般の`playlist`既定動作（カタログ補完あり）は互換性の�
 | `route_window` | `route` を送ったときだけ。次の曲が流れる区間（`window`）、景観の評価済みの割合（`coverage`）、カテゴリ別の占有率（`shares`）、海が見え始める地点（`reveal`）、実際に使った `scene`。送らなければ `null` |
 | `plan.target` | 選曲のターゲット（6軸）。次の `/recommend` の `previous_target` に入れる |
 | `plan.smoothed` | `previous_target` によって変化を抑えた軸 |
+| `plan.themes` / `plan.themeReasons` | 今の場面に合う歌詞の題材（0〜1）と、その題材を選んだ景観・時間帯。題材の枠の対象と、理由の一言に使う |
 | `plan` / `pool_ranges` / `effective_weights` | 選曲の根拠（ターゲット・重み・上限など）。デバッグと検証用 |
 
 #### candidates の項目（スコアの内訳）
