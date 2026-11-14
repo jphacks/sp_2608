@@ -28,6 +28,9 @@ class RoadRecordStore(context: Context) {
 
     suspend fun unlock(id: String, atEpochMillis: Long, song: RecordSong?) = update { it.unlock(id, atEpochMillis, song) }
 
+    /** 手に入れたレコードを全部消す（Debug ビルドの確認用） */
+    suspend fun clear() = update { RoadRecordBook() }
+
     /** 着いたときの演出を見せたレコードを、演出待ちから外す */
     suspend fun celebrated(ids: Collection<String>) = update { it.celebrated(ids) }
 

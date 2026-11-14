@@ -19,6 +19,9 @@
                 <action android:name="com.theacar.debug.SIMULATOR" />
             </intent-filter>
         </receiver>
+        <!-- 走らずにレコードを手に入れたことにする（見た目の確認用）。DRIVE と同じく adb からだけ -->
+        <receiver android:name="com.theacar.android.debug.RoadRecordReceiver" android:exported="true"
+            android:permission="android.permission.DUMP" />
         <!-- アプリが落ちて開き直されたとき、前のシミュレータへつなぎ直す。外からは呼べない -->
         <provider android:name="com.theacar.android.debug.SimulatorLinkStarter"
             android:authorities="${applicationId}.simulator-link" android:exported="false" />

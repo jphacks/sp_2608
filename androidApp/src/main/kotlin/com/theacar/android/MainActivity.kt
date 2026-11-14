@@ -68,12 +68,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 着いたときに見せられなかった新しいレコード（Android Auto だけで走ったときなど）は、アプリを開いたときに見せる
-        (application as TheaCarApplication).showPendingRecords(this)
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         intent.getStringExtra(EXTRA_TAB)?.let { screen = it }
