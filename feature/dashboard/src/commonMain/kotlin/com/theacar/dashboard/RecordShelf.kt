@@ -1,9 +1,13 @@
+
 package com.theacar.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,10 +74,16 @@ internal fun RecordShelf(records: List<RecordShelfItem>, art: @Composable (Strin
             if (records.none { it.unlocked }) {
                 Text("名のある道を走り切ると、その道のレコードが手に入ります。", color = Muted, style = MaterialTheme.typography.bodySmall)
             }
-            records.chunked(3).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    row.forEach { record -> RecordCell(record, art(record.id), Modifier.weight(1f)) { onOpen(record) } }
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+            // スマホの縦向きは3列。横向きやタブレットでは、1枚が大きくなりすぎないよう列を増やす（1枚あたり約 120dp）
+            BoxWithConstraints {
+                val columns = maxOf(3, (maxWidth / 120.dp).toInt())
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    records.chunked(columns).forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            row.forEach { record -> RecordCell(record, art(record.id), Modifier.weight(1f)) { onOpen(record) } }
+                            repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                        }
+                    }
                 }
             }
         }
@@ -115,9 +125,10 @@ internal fun RecordDetailSheet(record: RecordShelfItem, painter: Painter?, onGoT
     val uriHandler = LocalUriHandler.current
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = SurfaceWhite) {
-        Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
+        // 横向きでは高さが足りないので、レコードを小さめにして中身をスクロールできるようにする
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            RecordDisc(record.unlocked, painter, record.name, Modifier.widthIn(max = 260.dp).fillMaxWidth())
+            RecordDisc(record.unlocked, painter, record.name, Modifier.widthIn(max = 200.dp).fillMaxWidth())
             Text(record.name, style = MaterialTheme.typography.headlineSmall, color = Ink, fontWeight = FontWeight.Bold)
             Text("${record.title} · ${record.area}", style = MaterialTheme.jost.label, color = Muted)
             if (record.unlocked) {

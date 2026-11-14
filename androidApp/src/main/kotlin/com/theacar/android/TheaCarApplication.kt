@@ -84,9 +84,16 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
     /** レコードの道の形（アプリに入れた GeoJSON）。判定と「この道へ行く」の始点に使う */
     val roadShapes: List<RoadShape> by lazy { RoadRecordStore.loadShapes(this) }
 
+    private var recordSpeaker: RecordSpeaker? = null
+
+    /** レコードを手に入れたことを読み上げる。音声案内をオフにしているときは黙る */
+    fun announceRecord(text: String) {
+        if (navigationRuntime.voiceEnabled.value) recordSpeaker?.speak(text)
+    }
+
     /** 新しいレコードの演出を見せる。走行中は見せず、着いたときかアプリを開いたときに見せる */
     fun showPendingRecords(context: Context) {
-        if (roadRecords.book.value.pendingCelebration.isEmpty()) return
+        if (roadRecords.book.value.pendingCelebration.isEmpty() || RecordCelebrationActivity.showing) return
         if (navigationRuntime.session.state.value.phase in setOf(NavigationPhase.GUIDING, NavigationPhase.STARTING)) return
         runCatching {
             context.startActivity(RecordCelebrationActivity.intent(context).apply {
@@ -176,16 +183,28 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         speaker?.let { speech -> scope.launch { windowRuntime.notices.collect(speech::speak) } }
         // 名のある道を走り切ったらレコードを手に入れる。曲は景観BGMなど、そのとき流れていた曲を刻む
         roadRecords = RoadRecordStore(this)
-        val recordSpeaker = runCatching { RecordSpeaker(this) }.getOrNull()
+        recordSpeaker = runCatching { RecordSpeaker(this) }.getOrNull()
         RoadRecordWatcher(navigationRuntime.session.state, navigationRuntime.locations, roadRecords,
             shapes = { roadShapes },
             currentSong = {
                 spotifyRuntime.displayPlayback.value?.playback?.takeIf { it.playing }?.track
                     ?.let { RecordSong(it.uri, it.title, it.artist, it.url) }
             },
-            announce = { text -> if (navigationRuntime.voiceEnabled.value) recordSpeaker?.speak(text) },
+            announce = ::announceRecord,
             scope = scope,
             onError = { Log.w("RoadRecordWatcher", "レコードを保存できませんでした", it) })
+        // 着いたときに見せられなかったレコード（Android Auto だけで走ったときなど）は、アプリのどの画面を開いても見せる
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityResumed(activity: android.app.Activity) {
+                if (activity !is RecordCelebrationActivity) showPendingRecords(activity)
+            }
+            override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) = Unit
+            override fun onActivityStarted(activity: android.app.Activity) = Unit
+            override fun onActivityPaused(activity: android.app.Activity) = Unit
+            override fun onActivityStopped(activity: android.app.Activity) = Unit
+            override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle) = Unit
+            override fun onActivityDestroyed(activity: android.app.Activity) = Unit
+        })
         // 着いたら、少し間を置いて（到着の案内を先に見せてから）新しいレコードの演出を出す
         scope.launch {
             navigationRuntime.session.state.map { it.phase == NavigationPhase.ARRIVED }.distinctUntilChanged().collect { arrived ->
