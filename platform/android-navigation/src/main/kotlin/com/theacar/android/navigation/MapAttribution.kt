@@ -19,6 +19,10 @@ import com.theacar.ui.Ink
 internal fun mapAttributionLine(satellite: Boolean) =
     if (satellite) "© OpenMapTiles © OpenStreetMap · © $SATELLITE_ATTRIBUTION ほか" else "© OpenMapTiles © OpenStreetMap"
 
+/** 車の画面の地図の下に出す出典。航空写真のときは地理院タイルを足す */
+fun carMapAttribution(satellite: Boolean) =
+    "© OpenStreetMap contributors · MapLibre / Valhalla" + if (satellite) " · © $SATELLITE_ATTRIBUTION" else ""
+
 private class Credit(val title: String, val text: String, val link: Pair<String, String>? = null)
 
 /**

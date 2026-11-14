@@ -8,7 +8,9 @@ import androidx.car.app.CarContext
 import androidx.car.app.SurfaceContainer
 import com.theacar.android.navigation.AndroidNavigationRuntime
 import com.theacar.android.navigation.NavigationMapController
+import com.theacar.android.navigation.carMapAttribution
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 internal class CarMapRenderer(
     private val context: CarContext,
@@ -22,6 +24,16 @@ internal class CarMapRenderer(
     private var visibleArea: Rect? = null
     private var sceneryRequest: CarScenery? = null
     private var attribution: android.widget.TextView? = null
+
+    init {
+        // 地図の種類（地図／航空写真）はスマホで選んだものに合わせる。車の画面のボタン帯は4つで埋まっているので切り替えは置かない
+        scope.launch {
+            runtime.mapSatellite.collect { satellite ->
+                controller?.setSatellite(satellite)
+                attribution?.text = carMapAttribution(satellite)
+            }
+        }
+    }
 
     fun attach(surface: SurfaceContainer) {
         if (container === surface && display != null) return
@@ -37,10 +49,11 @@ internal class CarMapRenderer(
         presentation = window
         val map = NavigationMapController(window.context, runtime, scope)
         map.setDarkMode(context.isDarkMode)
+        map.setSatellite(runtime.mapSatellite.value)
         controller = map
         val layout = android.widget.LinearLayout(window.context).apply { orientation = android.widget.LinearLayout.VERTICAL }
         layout.addView(map.view, android.widget.LinearLayout.LayoutParams(-1, 0, 1f))
-        val credit = android.widget.TextView(window.context).apply { text = "© OpenStreetMap contributors · MapLibre / Valhalla" }
+        val credit = android.widget.TextView(window.context).apply { text = carMapAttribution(runtime.mapSatellite.value) }
         layout.addView(credit)
         attribution = credit
         paintAttribution(context.isDarkMode)
