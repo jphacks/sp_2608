@@ -148,7 +148,7 @@ Play にはデベロッパーのメールアドレスが公開されます。今
 | 製品版まで | 案内の音声チャンネルを案内だけに使う（DD-1） | `CabinNoticeSpeaker.kt`、[#43](https://github.com/jphacks/sp_2608/issues/43) | 判断待ち（下の説明） |
 | 製品版まで | ナビ以外の機能の知らせを見直す（PC-1、IN-1） | [#43](https://github.com/jphacks/sp_2608/issues/43) | 判断待ち |
 | 要確認 | 写真の撮影場所を読む許可（`ACCESS_MEDIA_LOCATION`）の前にも説明の画面が要るか | `MemoryActivity.kt` | 未着手 |
-| 音楽機能を残すなら | 開発者向けの文言を直す（「再生音量へは未反映」「物理道路ID」、送る情報の説明に呼び名と景観がない） | `BgmRecommendationPanel.kt:63,77` | 未着手 |
+| 音楽機能を残すなら | 開発者向けの文言を直す（「物理道路ID」、送る情報の説明に呼び名と景観がない） | `BgmRecommendationPanel.kt:77` | 未着手 |
 | 音楽機能を残すなら | Spotify の連携解除で、思い出のページの音楽の記録をどうするか決める | Spotify ポリシー I.1.2 | 判断待ち |
 | 公開の前 | 出典の表示を確かめる（ESA WorldCover、国土地理院、OSS のライセンス） | アプリの根拠の表示 | 一部確認（下の説明） |
 

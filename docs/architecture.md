@@ -70,7 +70,7 @@ OSMからValhallaタイル、道路特徴、地名検索用データを作りま
 
 `SharedSensorFeed`は取得を一回にまとめ、不変フレームを配信します。最後の購読終了で機器を解放し、生フレームを再配信しません。推論結果には時刻・モデル版・信頼度を持たせ、期限切れの判断を使い続けません。推論モデルはプレイヤーや車両APIを直接操作しません。
 
-車内のマイクは`platform/android-music`の`AndroidMicrophone`が`SensorSource<AudioFrame>`として提供します。`androidApp`の`TheaCarApplication`がこれを`SharedSensorFeed`で包んで1つだけ持ち、使う機能へ渡します。収音は購読者がいる間だけ動きます。音楽側は`feature/music`の`CabinSpeechMonitor`がこれを購読して発話の有無と声・雑音のレベルだけを取り出し、発話割合をBGM選曲や旅の記録へ、声の大きさをBGMの音量の調整へ使います。PCMは保存・送信しません。会話・画像は経路採点に使っていません。
+車内のマイクは`platform/android-music`の`AndroidMicrophone`が`SensorSource<AudioFrame>`として提供します。`androidApp`の`TheaCarApplication`がこれを`SharedSensorFeed`で包んで1つだけ持ち、使う機能へ渡します。収音は購読者がいる間だけ動きます。音楽側は`feature/music`の`CabinSpeechMonitor`がこれを購読して発話の有無と声・雑音のレベルだけを取り出し、発話割合をBGM選曲や旅の記録へ、声の大きさをBGMの音量の調整へ使います。音量の調整には、bgm-apiが返す推奨音量も重ねます。PCMは保存・送信しません。会話・画像は経路採点に使っていません。
 
 音量の判断は`feature/music`の`CabinVolumeController`、端末への反映は`AndroidMusicVolume`が担当します。`CabinVolumeSession`が再生先・マイク・再生状態を確認し、減音の開始と解除を管理します。
 
