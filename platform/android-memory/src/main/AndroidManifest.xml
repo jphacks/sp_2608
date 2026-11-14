@@ -9,6 +9,8 @@
     </queries>
     <application>
         <activity android:name=".MemoryActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <!-- 名のある道を走り切って手に入れたレコードを、着いたときに見せる -->
+        <activity android:name=".RecordCelebrationActivity" android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.memory.fileprovider"

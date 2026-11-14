@@ -11,6 +11,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.theacar.android.memory.MemoryActivity
+import com.theacar.android.memory.recordArt
+import com.theacar.dashboard.RecordShelfItem
+import com.theacar.memory.records.RoadRecordBook
+import com.theacar.memory.records.RoadRecords
+import androidx.compose.ui.res.painterResource
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import com.theacar.cabin.CabinNotice
 import com.theacar.android.music.SpotifyMusicActivity
 import com.theacar.android.navigation.NavigationActivity
@@ -33,6 +41,7 @@ class MainActivity : ComponentActivity() {
                 application.cabinNotices.notices.collect { notice = it }
             }
             val trips by application.tripRecords.collectAsState()
+            val book by application.roadRecords.book.collectAsState()
             TheaCarApp(graph,
                 screen = screen,
                 onScreenChange = { screen = it },
@@ -46,9 +55,23 @@ class MainActivity : ComponentActivity() {
                 trips = trips,
                 onOpenTrip = { startActivity(MemoryActivity.intent(this@MainActivity, it.id)) },
                 loadTripPhoto = { application.memoryRuntime.loadThumbnail(it.id) },
+                records = recordShelf(book),
+                recordArt = { id -> recordArt(id)?.let { painterResource(it) } },
+                onGoToRoad = { record ->
+                    // 道の始点を目的地にして地図の画面を開く（どちらから走っても取れるが、始点から入るのがわかりやすい）
+                    application.roadShapes.firstOrNull { it.id == record.id }?.parts?.firstOrNull()?.firstOrNull()?.let { start ->
+                        startActivity(NavigationActivity.destinationIntent(this@MainActivity, record.name, start.latitude, start.longitude))
+                    }
+                },
                 notice = notice,
                 onDismissNotice = { notice = null })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 着いたときに見せられなかった新しいレコード（Android Auto だけで走ったときなど）は、アプリを開いたときに見せる
+        (application as TheaCarApplication).showPendingRecords(this)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -66,4 +89,15 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_TAB = "com.theacar.TAB"
         const val STATE_SCREEN = "screen"
     }
+}
+
+private val RecordDate = SimpleDateFormat("yyyy.MM.dd", Locale.JAPAN)
+
+/** RECORD タブの棚。15枚すべてを並べ、手に入れたものだけ日付と曲を付ける */
+private fun recordShelf(book: RoadRecordBook): List<RecordShelfItem> = RoadRecords.map { info ->
+    val entry = book.entries[info.id]
+    RecordShelfItem(info.id, info.name, info.title, info.area, unlocked = entry != null,
+        unlockedDate = entry?.let { RecordDate.format(Date(it.firstUnlockedAtEpochMillis)) },
+        timesDriven = entry?.timesDriven ?: 0,
+        songTitle = entry?.song?.title, songArtist = entry?.song?.artist, songUrl = entry?.song?.url)
 }

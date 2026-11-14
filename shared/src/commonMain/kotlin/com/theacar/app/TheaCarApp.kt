@@ -12,6 +12,8 @@ import com.theacar.dashboard.DashboardScreen
 import com.theacar.dashboard.DemoActions
 import com.theacar.dashboard.DriveDashboard
 import com.theacar.dashboard.TripRecord
+import com.theacar.dashboard.RecordShelfItem
+import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
 fun TheaCarApp(
@@ -24,6 +26,9 @@ fun TheaCarApp(
     trips: List<TripRecord> = emptyList(),
     onOpenTrip: (TripRecord) -> Unit = {},
     loadTripPhoto: suspend (TripRecord) -> ImageBitmap? = { null },
+    records: List<RecordShelfItem> = emptyList(),
+    recordArt: @Composable (String) -> Painter? = { null },
+    onGoToRoad: ((RecordShelfItem) -> Unit)? = null,
     notice: CabinNotice? = null,
     onDismissNotice: () -> Unit = {},
 ) {
@@ -40,6 +45,9 @@ fun TheaCarApp(
         trips = trips,
         onOpenTrip = onOpenTrip,
         loadTripPhoto = loadTripPhoto,
+        records = records,
+        recordArt = recordArt,
+        onGoToRoad = onGoToRoad,
         demoActions = graph.demoControls?.let {
             DemoActions(it.setConversationLevel, it.emitUnusualSound, it.cycleScene)
         },

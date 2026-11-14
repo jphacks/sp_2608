@@ -8,6 +8,14 @@ import android.util.Log
 import com.theacar.android.memory.AndroidMemoryOwner
 import com.theacar.android.memory.AndroidMemoryRuntime
 import com.theacar.android.memory.TripRecorder
+import com.theacar.android.memory.RecordSpeaker
+import com.theacar.android.memory.RoadRecordStore
+import com.theacar.android.memory.RoadRecordWatcher
+import com.theacar.memory.records.RecordSong
+import kotlinx.coroutines.delay
+import com.theacar.memory.records.RoadShape
+import com.theacar.android.memory.RecordCelebrationActivity
+import com.theacar.android.memory.RoadRecordOwner
 import com.theacar.android.memory.MemoryActivity
 import com.theacar.android.navigation.NavigationTripRecording
 import com.theacar.android.music.DriveBgmLine
@@ -56,7 +64,7 @@ import com.theacar.music.NowPlaying
 import android.os.SystemClock
 
 class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOwner, AndroidMusicOwner, AndroidWindowOwner,
-    NavigationCompanionOwner, CabinNoticeOwner, AndroidMemoryOwner {
+    NavigationCompanionOwner, CabinNoticeOwner, AndroidMemoryOwner, RoadRecordOwner {
     override lateinit var spotifyRuntime: AndroidSpotifyRuntime
         private set
     override lateinit var memoryRuntime: AndroidMemoryRuntime
@@ -69,6 +77,23 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         private set
     lateinit var graph: AppGraph
         private set
+
+    /** 名のある道を走り切って手に入れたレコード。RECORD タブと着いたときの演出が読む */
+    override lateinit var roadRecords: RoadRecordStore
+
+    /** レコードの道の形（アプリに入れた GeoJSON）。判定と「この道へ行く」の始点に使う */
+    val roadShapes: List<RoadShape> by lazy { RoadRecordStore.loadShapes(this) }
+
+    /** 新しいレコードの演出を見せる。走行中は見せず、着いたときかアプリを開いたときに見せる */
+    fun showPendingRecords(context: Context) {
+        if (roadRecords.book.value.pendingCelebration.isEmpty()) return
+        if (navigationRuntime.session.state.value.phase in setOf(NavigationPhase.GUIDING, NavigationPhase.STARTING)) return
+        runCatching {
+            context.startActivity(RecordCelebrationActivity.intent(context).apply {
+                if (context !is android.app.Activity) addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        }.onFailure { Log.w("RoadRecords", "レコードの演出を開けませんでした", it) }
+    }
     override var navigationCompanion: NavigationCompanion? = null
         private set
     /** 端末のマイク。収音は1回にまとめ、購読する機能（今は景観BGMの車内判定）がいる間だけ動く。 */
@@ -149,6 +174,24 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         // Android Auto の一覧からも消えてしまうため、必ず飲み込む。
         speaker = runCatching { CabinNoticeSpeaker(this) }.getOrNull()
         speaker?.let { speech -> scope.launch { windowRuntime.notices.collect(speech::speak) } }
+        // 名のある道を走り切ったらレコードを手に入れる。曲は景観BGMなど、そのとき流れていた曲を刻む
+        roadRecords = RoadRecordStore(this)
+        val recordSpeaker = runCatching { RecordSpeaker(this) }.getOrNull()
+        RoadRecordWatcher(navigationRuntime.session.state, navigationRuntime.locations, roadRecords,
+            shapes = { roadShapes },
+            currentSong = {
+                spotifyRuntime.displayPlayback.value?.playback?.takeIf { it.playing }?.track
+                    ?.let { RecordSong(it.uri, it.title, it.artist, it.url) }
+            },
+            announce = { text -> if (navigationRuntime.voiceEnabled.value) recordSpeaker?.speak(text) },
+            scope = scope,
+            onError = { Log.w("RoadRecordWatcher", "レコードを保存できませんでした", it) })
+        // 着いたら、少し間を置いて（到着の案内を先に見せてから）新しいレコードの演出を出す
+        scope.launch {
+            navigationRuntime.session.state.map { it.phase == NavigationPhase.ARRIVED }.distinctUntilChanged().collect { arrived ->
+                if (arrived) { delay(1_500); showPendingRecords(this@TheaCarApplication) }
+            }
+        }
     }
 }
 

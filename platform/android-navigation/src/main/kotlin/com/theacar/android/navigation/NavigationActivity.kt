@@ -69,12 +69,15 @@ class NavigationActivity : ComponentActivity() {
             selectedDestination = Destination("map:${point[0]},${point[1]}",
                 savedInstanceState.getString("selectedDestinationTitle") ?: PICKED_PLACE_TITLE, Coordinate(point[0], point[1]))
         }
+        // ほかの画面（RECORD タブの「この道へ行く」など）から目的地を渡されたとき
+        if (savedInstanceState == null) requestedDestination(intent)?.let { selectedDestination = it }
         mapSatellite = mapPreferences.getBoolean(SATELLITE_KEY, false)
         val layout = FrameLayout(this)
         mapController = NavigationMapController(this, runtime, lifecycleScope).also { controller ->
             controller.setSatellite(mapSatellite)
             controller.showWaypoints(viaPoints.toList())
             controller.showSelectedDestination(selectedDestination)
+            if (savedInstanceState == null) selectedDestination?.let(controller::focusDestination)
             layout.addView(controller.view, FrameLayout.LayoutParams(-1, -1))
             controller.onDestinationSelected = { destination ->
                 if (runtime.session.state.value.phase in setOf(NavigationPhase.IDLE, NavigationPhase.PREVIEW)) {
@@ -304,6 +307,26 @@ class NavigationActivity : ComponentActivity() {
         startActivity(intent)
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val destination = requestedDestination(intent) ?: return
+        if (runtime.session.state.value.phase !in setOf(NavigationPhase.IDLE, NavigationPhase.PREVIEW)) return
+        runtime.session.invalidatePreview()
+        selectedDestination = destination
+        mapController?.showSelectedDestination(destination)
+        mapController?.focusDestination(destination)
+    }
+
+    private fun requestedDestination(intent: Intent?): Destination? {
+        intent ?: return null
+        if (!intent.hasExtra(EXTRA_DESTINATION_LATITUDE) || !intent.hasExtra(EXTRA_DESTINATION_LONGITUDE)) return null
+        val latitude = intent.getDoubleExtra(EXTRA_DESTINATION_LATITUDE, Double.NaN)
+        val longitude = intent.getDoubleExtra(EXTRA_DESTINATION_LONGITUDE, Double.NaN)
+        if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0) return null
+        return Destination("map:$latitude,$longitude", intent.getStringExtra(EXTRA_DESTINATION_TITLE) ?: PICKED_PLACE_TITLE,
+            Coordinate(latitude, longitude))
+    }
+
     private val debuggable get() = applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
 
     /** 隠しボタン（残り時間・距離の長押し）：案内中の経路を目的地まで自動で走る。もう一度で止める。Debug 版だけ。 */
@@ -317,8 +340,20 @@ class NavigationActivity : ComponentActivity() {
         android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
     }
 
-    private companion object {
-        const val AUTO_DRIVE_KMH = 60.0
+    companion object {
+        /** 隠しボタンの自動走行の速さ（Debug 版だけ） */
+        private const val AUTO_DRIVE_KMH = 60.0
+        private const val EXTRA_DESTINATION_LATITUDE = "com.theacar.navigation.DESTINATION_LATITUDE"
+        private const val EXTRA_DESTINATION_LONGITUDE = "com.theacar.navigation.DESTINATION_LONGITUDE"
+        private const val EXTRA_DESTINATION_TITLE = "com.theacar.navigation.DESTINATION_TITLE"
+
+        /** 地図の画面を開き、[title] の地点を目的地として選んだ状態にする（経路はまだ探さない） */
+        fun destinationIntent(context: android.content.Context, title: String, latitude: Double, longitude: Double): Intent =
+            Intent(context, NavigationActivity::class.java)
+                .putExtra(EXTRA_DESTINATION_LATITUDE, latitude)
+                .putExtra(EXTRA_DESTINATION_LONGITUDE, longitude)
+                .putExtra(EXTRA_DESTINATION_TITLE, title)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
 }
 

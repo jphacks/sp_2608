@@ -44,6 +44,27 @@ class RegistryMarkdownTest(unittest.TestCase):
             self.assertIn(note, report)
 
 
+class RegistryGeoJsonTest(unittest.TestCase):
+    def export(self, **options):
+        from export_road_registry import geojson
+        record = lambda ident: dict(id=ident, name=ident, rank='scenic', status='active', publication_issues=[])
+        # 東へまっすぐの線に、2m だけ北へずれた点と、50m 北へ外れた点を混ぜる
+        line = [[143.0, 42.0], [143.001, 42.00002], [143.002, 42.0], [143.003, 42.00045], [143.004, 42.0]]
+        parts = {'a': [dict(coordinates=line)], 'b': [dict(coordinates=line)]}
+        with patch('export_road_registry.read_registry', return_value=({}, {}, [record('a'), record('b')], parts)):
+            return geojson('unused.sqlite', **options)
+
+    def test_ids_limit_the_roads(self):
+        self.assertEqual(['a'], [f['properties']['id'] for f in self.export(ids={'a'})['features']])
+        with self.assertRaises(SystemExit):
+            self.export(ids={'missing'})
+
+    def test_simplify_drops_tiny_wiggles_but_keeps_real_bends(self):
+        line = self.export(ids={'a'}, simplify_meters=10, precision=5)['features'][0]['geometry']['coordinates'][0]
+        # 2m のずれ（143.001）は消え、50m 北へ外れた点とその手前の折れ目は残る
+        self.assertEqual([[143.0, 42.0], [143.002, 42.0], [143.003, 42.00045], [143.004, 42.0]], line)
+
+
 class RecommendedRoadsTest(unittest.TestCase):
     def setUp(self):
         self.fixture = test_scenic.ScenicTest()
