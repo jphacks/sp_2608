@@ -77,6 +77,61 @@ class NavigationSessionTest {
         session.close()
     }
 
+    @Test fun cancellingSearchReturnsToBeforeSearchingWithoutAskingToRetry() = runTest {
+        var cancelled = false
+        val engine = FakeEngine(plan)
+        engine.progressive = { _ -> try { delay(10_000) } finally { cancelled = true }; plan }
+        val session = NavigationSession(Search { emptyList() }, engine, backgroundScope)
+        session.preview(destination); runCurrent()
+        assertEquals(NavigationPhase.PREVIEWING, session.state.value.phase)
+        session.cancelPreview(); runCurrent()
+        assertTrue(cancelled, "the request in flight is cancelled")
+        assertEquals(NavigationPhase.IDLE, session.state.value.phase)
+        assertNull(session.state.value.route)
+        assertNull(session.state.value.failure)
+        assertFalse(session.state.value.previewNeedsRefresh)
+        // やめたあとで、同じ目的地をもう一度探せる
+        engine.progressive = null
+        session.preview(destination); runCurrent()
+        assertEquals(NavigationPhase.PREVIEW, session.state.value.phase)
+        session.close()
+    }
+
+    @Test fun cancelIsIgnoredOnceCandidatesAreShown() = runTest {
+        val session = NavigationSession(Search { emptyList() }, FakeEngine(plan), backgroundScope)
+        session.preview(destination); runCurrent()
+        session.cancelPreview()
+        assertEquals(NavigationPhase.PREVIEW, session.state.value.phase)
+        assertEquals(plan, session.state.value.route)
+        session.close()
+    }
+
+    @Test fun stoppingImprovementKeepsShownCandidatesAndIgnoresLateUpdates() = runTest {
+        var cancelled = false
+        val better = plan.copy(id = "route-2")
+        val engine = FakeEngine(plan)
+        engine.progressive = { update ->
+            engine.alternatives = listOf(RouteAlternative(plan))
+            update(plan, engine.alternatives)
+            try { delay(10_000) } finally { cancelled = true }
+            withContext(NonCancellable) { update(better, listOf(RouteAlternative(better))) }
+            better
+        }
+        val session = NavigationSession(Search { emptyList() }, engine, backgroundScope)
+        session.preview(destination); runCurrent()
+        assertTrue(session.state.value.previewImproving)
+        session.stopImproving(); runCurrent()
+        assertTrue(cancelled)
+        assertEquals(NavigationPhase.PREVIEW, session.state.value.phase)
+        assertFalse(session.state.value.previewImproving)
+        assertEquals(plan, session.state.value.route)
+        assertEquals(listOf(plan), session.state.value.alternatives.map { it.plan })
+        session.start(); runCurrent()
+        assertEquals(NavigationPhase.GUIDING, session.state.value.phase)
+        assertEquals(plan, session.state.value.route)
+        session.close()
+    }
+
     private val destination = Destination("tokyo", "東京駅", Coordinate(35.681, 139.767))
     private val plan = RoutePlan("route-1", destination, 10_000, 1_200, emptyList())
 
