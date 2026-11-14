@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.theacar.android.navigation.AndroidNavigationOwner
-import com.theacar.android.navigation.DriveSimulator
 
 /**
  * 机の上で模擬走行を出し入れするための口。Debug ビルドにしか無い。
@@ -14,14 +13,14 @@ import com.theacar.android.navigation.DriveSimulator
  * バックグラウンド制限でマニフェストの受信口に届かない。
  *
  * ```
- * adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
- * adb shell am broadcast -n com.theacar.android/.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
+ * adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ei kmh 60
+ * adb shell am broadcast -n com.tabireco.app/com.theacar.android.debug.DemoDriveReceiver -a com.theacar.debug.DRIVE --ez stop true
  * ```
  */
 class DemoDriveReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val runtime = (context.applicationContext as? AndroidNavigationOwner)?.navigationRuntime ?: return
-        val simulator = simulator(runtime)
+        val simulator = runtime.simulator
         if (intent.getBooleanExtra("stop", false)) {
             simulator.stop()
             Toast.makeText(context, "模擬走行を止めました", Toast.LENGTH_SHORT).show()
@@ -34,15 +33,4 @@ class DemoDriveReceiver : BroadcastReceiver() {
             Toast.LENGTH_SHORT).show()
     }
 
-    private companion object {
-        /** 同じ走行を1つだけ持つ。放送が来るたびに作り直すと、前の走行が残ってしまう。 */
-        private var shared: Pair<Any, DriveSimulator>? = null
-
-        fun simulator(runtime: com.theacar.android.navigation.AndroidNavigationRuntime): DriveSimulator {
-            shared?.takeIf { it.first === runtime }?.let { return it.second }
-            val created = DriveSimulator(runtime)
-            shared = runtime to created
-            return created
-        }
-    }
 }

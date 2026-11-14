@@ -1,5 +1,7 @@
 package com.theacar.bgm
 
+import com.theacar.music.BgmCandidateScore
+import com.theacar.music.BgmEvaluation
 import com.theacar.music.BgmRecommendation
 import com.theacar.music.BgmRecommendationRequest
 import com.theacar.music.BgmRecommendationService
@@ -258,8 +260,49 @@ class BgmApiService(
             missing = root["missing"]?.jsonArray.orEmpty().mapNotNull { (it as? JsonPrimitive)?.contentOrNull },
             coverage = window?.number("coverage")?.coerceIn(0.0, 1.0),
             revealEtaSeconds = (window?.get("reveal") as? JsonObject)?.number("eta_s")?.toInt()?.coerceAtLeast(0),
+            evaluation = evaluation(root),
         )
     }
+
+    /** 景色の内訳・理由・欲しい曲調・候補の点数。Web のライブ表示に出すだけなので、読めない項目は飛ばす。 */
+    internal fun evaluation(root: JsonObject): BgmEvaluation {
+        val routeWindow = root["route_window"] as? JsonObject
+        val window = routeWindow?.get("window") as? JsonObject
+        val plan = root["plan"] as? JsonObject
+        return BgmEvaluation(
+            windowStartMeters = window?.number("start_m")?.takeIf { it >= 0 },
+            windowEndMeters = window?.number("end_m")?.takeIf { it >= 0 },
+            shares = ratios(routeWindow?.get("shares")),
+            reasons = (plan?.get("reasons") as? JsonArray).orEmpty()
+                .mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.contentOrNull }.take(10),
+            target = (plan?.get("target") as? JsonObject)?.let(::target),
+            themes = ratios(plan?.get("themes")),
+            themeSlot = root.text("slot") == "theme",
+            candidates = root["candidates"]?.jsonArray.orEmpty().mapNotNull { element ->
+                val c = element as? JsonObject ?: return@mapNotNull null
+                val id = c.text("track_id")?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                BgmCandidateScore(
+                    trackId = id,
+                    title = c.text("title") ?: id,
+                    artist = c.text("artist") ?: "",
+                    score = c.number("score") ?: return@mapNotNull null,
+                    probability = c.number("prob")?.coerceIn(0.0, 1.0) ?: 0.0,
+                    distance = c.number("distance")?.coerceAtLeast(0.0) ?: 0.0,
+                    theme = c.text("theme"),
+                    themeMatch = c.number("theme_match")?.coerceIn(0.0, 1.0) ?: 0.0,
+                    preference = c.text("pref")?.takeIf { it == "track" || it == "artist" },
+                    sameArtist = (c.number("same_artist") ?: 0.0) > 0,
+                    popularity = c.number("popularity")?.coerceIn(0.0, 1.0) ?: 0.0,
+                    confidencePenalty = c.number("conf_penalty")?.coerceIn(0.0, 1.0) ?: 0.0,
+                    axes = (c["axes"] as? JsonObject)?.let(::target),
+                )
+            },
+        )
+    }
+
+    private fun ratios(value: JsonElement?): Map<String, Double> = (value as? JsonObject).orEmpty()
+        .mapNotNull { (key, v) -> (v as? JsonPrimitive)?.doubleOrNull?.takeIf { it.isFinite() }?.let { key to it.coerceIn(0.0, 1.0) } }
+        .toMap()
 
     internal fun links(root: JsonObject) = TrackLinks(
         root["links"]?.jsonArray.orEmpty().mapNotNull { element ->

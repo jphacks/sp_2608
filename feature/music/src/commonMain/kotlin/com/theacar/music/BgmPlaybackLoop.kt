@@ -24,6 +24,8 @@ class BgmPlaybackLoop(
     private val onAuthorizationLost: () -> Unit,
     /** 取得した再生状態。記録用。 */
     private val onPlayback: (MusicPlayback) -> Unit = {},
+    /** 経路の形から分かる運転条件（カーブ続きなど）。 */
+    private val conditions: () -> DrivingConditions = { DrivingConditions() },
 ) {
     private var job: Job? = null
 
@@ -56,7 +58,7 @@ class BgmPlaybackLoop(
                 }
                 if (deviceId != null) playback.report(current)
                 onPlayback(current)
-                bgm.update(scenery(), cabin(), deviceId, current, session.state.value.busy)
+                bgm.update(scenery(), cabin(), deviceId, current, session.state.value.busy, conditions())
                 val count = bgm.state.value.playedCount
                 if (count != played) {
                     played = count

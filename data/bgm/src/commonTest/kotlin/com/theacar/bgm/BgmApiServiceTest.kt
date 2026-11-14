@@ -145,6 +145,39 @@ class BgmApiServiceTest {
         assertEquals(listOf("isrc:ZZZ"), result.missing)
     }
 
+    @Test fun parsesTheEvaluationForTheLiveView() {
+        val root = Json.parseToJsonElement("""
+            {"slot":"theme",
+             "chosen":{"track_id":"isrc:AAA","title":"海の曲","artist":"A","message":"海が近いので"},
+             "candidates":[
+               {"track_id":"isrc:AAA","title":"海の曲","artist":"A","score":-0.12,"prob":0.4,"distance":0.2,"theme":"sea","theme_match":0.8,
+                "pref":null,"same_artist":0,"popularity":0.6,"conf_penalty":0,
+                "axes":{"energy":0.7,"valence":0.8,"tempo":0.6,"acoustic":0.3,"spacious":0.5,"vocal":0.6}},
+               {"track_id":"isrc:BBB","title":"街の曲","artist":"B","score":-0.3,"prob":0,"distance":0.4,"theme":null,"same_artist":1},
+               {"track_id":"isrc:CCC","title":"点数なし","artist":"C"}],
+             "plan":{"target":{"energy":0.59,"valence":0.72,"tempo":0.545,"acoustic":0.5,"spacious":0.835,"vocal":0.5},
+                     "reasons":["海が近い"],"themes":{"sea":0.9,"summer":0.45}},
+             "route_window":{"window":{"start_m":1200,"end_m":4800},"shares":{"sea":0.7,"urban":0.3}}}
+        """).jsonObject
+        val e = assertNotNull(service().recommendation(root).evaluation)
+        assertEquals(1_200.0, e.windowStartMeters)
+        assertEquals(4_800.0, e.windowEndMeters)
+        assertEquals(mapOf("sea" to .7, "urban" to .3), e.shares)
+        assertEquals(listOf("海が近い"), e.reasons)
+        assertEquals(.835, assertNotNull(e.target).spacious)
+        assertEquals(.9, e.themes["sea"])
+        assertTrue(e.themeSlot)
+        // 点数の無い候補は表示できないので外す
+        assertEquals(listOf("isrc:AAA", "isrc:BBB"), e.candidates.map { it.trackId })
+        val top = e.candidates.first()
+        assertEquals(.4, top.probability)
+        assertEquals("sea", top.theme)
+        assertEquals(.8, top.themeMatch)
+        assertEquals(.7, assertNotNull(top.axes).energy)
+        assertTrue(e.candidates[1].sameArtist)
+        assertNull(e.candidates[1].axes)
+    }
+
     @Test fun missingChosenAndNoteAreKept() {
         val root = Json.parseToJsonElement("""{"chosen":null,"note":"no tracks left in pool","volume":0.6}""").jsonObject
         val result = service().recommendation(root)

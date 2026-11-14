@@ -1,6 +1,7 @@
 package com.theacar.android
 
 import android.app.Application
+import android.content.pm.PackageManager
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -40,7 +41,9 @@ import com.theacar.cabin.CabinNoticeOwner
 import com.theacar.cabin.CabinNoticeSource
 import com.theacar.dashboard.TripRecord
 import com.theacar.drive.DriveSessionOwner
+import com.theacar.drive.NavigationDrivingConditions
 import com.theacar.drive.NavigationMusicJourney
+import com.theacar.drive.NavigationLiveRoute
 import com.theacar.drive.NavigationSceneryTimeline
 import com.theacar.android.navigation.AndroidNavigationOwner
 import com.theacar.android.navigation.AndroidNavigationRuntime
@@ -154,10 +157,16 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
         }
         val musicJourney = NavigationMusicJourney { navigationRuntime.session.state.value }
         val scenery = NavigationSceneryTimeline { navigationRuntime.session.state.value }
+        val drivingConditions = NavigationDrivingConditions { navigationRuntime.session.state.value }
         // 景観BGMは経路 API と同じサーバー・同じトークンで呼ぶ（端末で保存したトークンがあればそれを使う）。
         microphone = SharedSensorFeed(AndroidMicrophone(this), scope, capacity = 50)
+        val liveRoute = NavigationLiveRoute { navigationRuntime.session.state.value }
+        // ライブ表示は旅の記録と同じ Web 版の送り先・トークンを使う
+        @Suppress("DEPRECATION")
+        val metadata = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData
         spotifyRuntime = AndroidSpotifyRuntime(this, navigationRuntime.locations, microphone, musicJourney::current, scenery::current,
-            navigationRuntime.configuration.routingUrl) { navigationRuntime.routingToken.value }
+            drivingConditions::current, navigationRuntime.configuration.routingUrl, { navigationRuntime.routingToken.value }, liveRoute::current,
+            metadata?.getString("com.theacar.MEMORY_WEB_URL").orEmpty(), metadata?.getString("com.theacar.MEMORY_WEB_TOKEN").orEmpty().trim())
         windowRuntime = AndroidWindowRuntime(this)
         navigationCompanion = NavigationMusicCompanion(spotifyRuntime.driveBgm, navigationRuntime.session.state, MainScope())
         // 読み上げは画面に依存しない。Android Auto でも、アプリを見ていないときでも鳴る。
