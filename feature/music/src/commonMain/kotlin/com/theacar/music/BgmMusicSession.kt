@@ -20,6 +20,7 @@ data class BgmMusicState(
     val requesting: Boolean = false,
     val playing: RecommendedTrack? = null,
     val message: String? = null,
+    /** 流れている景観BGMの曲を選んだときの推奨音量（0.2〜1、普段は 0.6）。選んだ時点ではなく、その曲が流れ始めたときに変わる。 */
     val recommendedVolume: Float? = null,
     val revealEtaSeconds: Int? = null,
     val coverage: Double? = null,
@@ -105,7 +106,13 @@ class BgmMusicSession(
     private var replacedUntil = 0L
 
     /** 次に流す曲。景観BGMの曲なら [track]、予約の曲なら [request] を持つ。 */
-    private class Prepared(val uri: String, val track: RecommendedTrack? = null, val message: String? = null, val request: SongRequest? = null)
+    private class Prepared(
+        val uri: String,
+        val track: RecommendedTrack? = null,
+        val message: String? = null,
+        val request: SongRequest? = null,
+        val volume: Float? = null,
+    )
     private enum class Next { PLAY_NOW, PREPARE }
     private var lastRequestAt: Long? = null
     /** 目的地に着いたあと。次の曲は選ばず、今の曲の終わりで一時停止して推薦を終える。 */
@@ -250,7 +257,7 @@ class BgmMusicSession(
                 if (currentGeneration != generation || closed) return@launch
                 previousTarget = response.target ?: previousTarget
                 mutableState.update {
-                    it.copy(recommendedVolume = response.volume, revealEtaSeconds = response.revealEtaSeconds,
+                    it.copy(revealEtaSeconds = response.revealEtaSeconds,
                         coverage = response.coverage, note = response.note, missing = response.missing)
                 }
                 val chosen = response.chosen ?: return@launch
@@ -262,7 +269,7 @@ class BgmMusicSession(
                 if (currentGeneration != generation || closed) return@launch
                 response.evaluation?.let { mutableEvaluation.value = LiveEvaluation(nowMillis(), true, it, picked) }
                 // 演出の一言は chosen に対して書かれているので、次点へ回ったときは出さない。
-                val entry = Prepared(uri, picked, picked.message.takeIf { picked.trackId == chosen.trackId })
+                val entry = Prepared(uri, picked, picked.message.takeIf { picked.trackId == chosen.trackId }, volume = response.volume)
                 history += PlayedTrack(picked.trackId, picked.ownerId, picked.artist)
                 if (history.size > historyLimit) history.removeAt(0)
                 if (next == Next.PLAY_NOW) {
@@ -431,7 +438,7 @@ class BgmMusicSession(
         listener?.onPlayed(track, nowMillis())
         mutableState.update {
             it.copy(playing = track, message = entry.message, playedCount = it.playedCount + 1,
-                playingUri = entry.uri, playingRequest = null, upNextUri = upcoming()?.uri)
+                recommendedVolume = entry.volume ?: it.recommendedVolume, playingUri = entry.uri, playingRequest = null, upNextUri = upcoming()?.uri)
         }
     }
 

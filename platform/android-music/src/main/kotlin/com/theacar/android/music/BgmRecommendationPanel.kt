@@ -60,7 +60,7 @@ internal fun BgmRecommendationPanel(
             state.coverage?.let { Text("景観の評価済み割合 ${(it * 100).toInt()}%", style = MaterialTheme.typography.bodySmall) }
             state.revealEtaSeconds?.let { Text("約${it}秒後に海が見え始める見込みです。", style = MaterialTheme.typography.bodySmall) }
             state.recommendedVolume?.let {
-                Text("推奨音量 ${(it * 100).toInt()}%（再生音量へは未反映）", style = MaterialTheme.typography.bodySmall)
+                Text("推奨音量 ${(it * 100).toInt()}%", style = MaterialTheme.typography.bodySmall)
             }
             if (state.requesting) LinearProgressIndicator(Modifier.fillMaxWidth())
             state.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }

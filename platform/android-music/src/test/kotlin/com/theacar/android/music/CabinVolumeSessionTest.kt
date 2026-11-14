@@ -100,6 +100,44 @@ class CabinVolumeSessionTest {
         assertEquals(9, f.stream.current)
     }
 
+    @Test fun recommendedVolumeAppliesWithoutTheMicrophone() = runTest {
+        val f = Fixture(backgroundScope)
+        f.cabin.value = CabinStatus(listening = CabinListening.PERMISSION_REQUIRED)
+        f.bgm.value = f.bgm.value.copy(recommendedVolume = .45f)
+        runCurrent()
+        assertEquals(8, f.stream.current)
+        assertEquals(2, f.session.steps.value)
+        f.bgm.value = f.bgm.value.copy(recommendedVolume = .6f)
+        runCurrent()
+        assertEquals(10, f.stream.current)
+    }
+
+    @Test fun conversationLowersOnTopOfTheRecommendedVolume() = runTest {
+        val f = Fixture(backgroundScope)
+        f.session.beginDrive()
+        f.bgm.value = f.bgm.value.copy(recommendedVolume = .45f)
+        runCurrent()
+        assertEquals(8, f.stream.current)
+        repeat(3) { f.speak(15.0) }
+        f.speak(25.0)
+        assertEquals(7, f.stream.current)
+        // マイクが使えなくなったら会話の分だけ戻す。
+        f.cabin.value = CabinStatus(listening = CabinListening.UNAVAILABLE)
+        runCurrent()
+        assertEquals(8, f.stream.current)
+        f.bgm.value = f.bgm.value.copy(enabled = false)
+        runCurrent()
+        assertEquals(10, f.stream.current)
+    }
+
+    @Test fun remoteDeviceIgnoresTheRecommendedVolume() = runTest {
+        val f = Fixture(backgroundScope)
+        f.music.value = f.music.value.copy(selectedDeviceId = "remote")
+        f.bgm.value = f.bgm.value.copy(recommendedVolume = .3f)
+        runCurrent()
+        assertEquals(10, f.stream.current)
+    }
+
     @Test fun missingMicrophoneRestoresVolume() = runTest {
         val f = Fixture(backgroundScope)
         f.lower()

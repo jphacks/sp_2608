@@ -25,6 +25,39 @@ class AndroidMusicVolumeTest {
     }
 
     @Test
+    fun scalesTheBaseBeforeLoweringBySteps() {
+        val stream = FakeStream(10)
+        val volume = AndroidMusicVolume(stream).apply { begin() }
+        volume.apply(0, .75f)
+        assertEquals(8, stream.current)
+        volume.apply(1, .75f)
+        assertEquals(7, stream.current)
+        // 普段より上げることはしない。
+        volume.apply(0, 1.5f)
+        assertEquals(10, stream.current)
+        assertEquals(0, volume.steps)
+        volume.end()
+        assertEquals(10, stream.current)
+    }
+
+    @Test
+    fun manualChangeKeepsTheScaleAtThatMoment() {
+        val stream = FakeStream(10)
+        val volume = AndroidMusicVolume(stream).apply { begin() }
+        volume.apply(0, .75f)
+        assertEquals(8, stream.current)
+        stream.current = 9
+        assertEquals(VolumeAdjustment.MANUAL_CHANGE, volume.apply(0, .75f))
+        assertEquals(VolumeAdjustment.APPLIED, volume.apply(0, .75f))
+        assertEquals(9, stream.current)
+        // 手で決めた音量より上げない。そこから下がるときは比率の変化だけを掛ける。
+        volume.apply(0, 1f)
+        assertEquals(9, stream.current)
+        volume.apply(0, .375f)
+        assertEquals(5, stream.current)
+    }
+
+    @Test
     fun doesNotTouchVolumeWithoutSteps() {
         val stream = FakeStream(10)
         val volume = AndroidMusicVolume(stream).apply { begin() }
