@@ -89,6 +89,10 @@ internal fun NavigationControls(
     onPreview: (Destination, RouteOptions) -> Unit,
     onSelectAlternative: (String) -> Unit,
     onInvalidatePreview: () -> Unit,
+    /** 経路を探している途中でやめる（候補が出る前） */
+    onCancelPreview: () -> Unit = {},
+    /** 候補が出たあとの、ほかの経路の探索だけをやめる */
+    onStopImproving: () -> Unit = {},
     onHighlightEvidence: (List<ScenicRange>) -> Unit,
     onHighlightRoad: (ScenicRoadHighlight) -> Unit,
     onStart: () -> Unit,
@@ -411,8 +415,13 @@ internal fun NavigationControls(
                             }
                             if (busy) {
                                 TabiProgress(Modifier.fillMaxWidth())
-                                if (options.scenic != null && state.phase == NavigationPhase.PREVIEWING) {
-                                    Text("景観区間をつなぎ、候補を改善しています（最大約2分）", style = MaterialTheme.typography.bodySmall)
+                                if (state.phase == NavigationPhase.PREVIEWING) {
+                                    // 景観の探索は最大2分ほどかかるので、途中でやめられるようにする。やめても目的地の選択は残る
+                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Text(if (options.scenic != null) "景観区間をつなぎ、候補を改善しています（最大約2分）" else "経路を探しています",
+                                            style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                        TextButton(onClick = onCancelPreview) { Text("キャンセル") }
+                                    }
                                 }
                             }
                             state.route?.takeIf { selectedDestination == null }?.let { route ->
@@ -429,8 +438,12 @@ internal fun NavigationControls(
                                 if (state.phase == NavigationPhase.PREVIEW) {
                                     if (state.previewImproving) {
                                         TabiProgress(Modifier.fillMaxWidth())
-                                        Text("候補を表示しました。ほかの経路も探索中です。選択・案内開始できます。",
-                                            style = MaterialTheme.typography.labelSmall)
+                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                            Text("候補を表示しました。ほかの経路も探索中です。選択・案内開始できます。",
+                                                style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+                                            // 出ている候補で十分なときに、待たずに探索を止められるようにする
+                                            TextButton(onClick = onStopImproving) { Text("探索をやめる") }
+                                        }
                                     }
                                     ScenicAlternatives(state.alternatives, route.id,
                                         onSelect = {

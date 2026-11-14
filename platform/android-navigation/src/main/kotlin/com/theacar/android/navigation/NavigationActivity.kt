@@ -145,6 +145,18 @@ class NavigationActivity : ComponentActivity() {
                             runtime.session.preview(destination, options.copy(viaPoints = viaPoints.toList()))
                         },
                         onSelectAlternative = runtime.session::selectAlternative,
+                        onCancelPreview = {
+                            // 探すのをやめても、目的地は選んだままにして、条件を変えてすぐ探し直せるようにする（周遊は目的地なし）
+                            val current = runtime.session.state.value
+                            if (selectedDestination == null && current.previewOptions?.scenic?.roundTrip != true) {
+                                current.previewDestination?.let {
+                                    selectedDestination = it
+                                    mapController?.showSelectedDestination(it)
+                                }
+                            }
+                            runtime.session.cancelPreview()
+                        },
+                        onStopImproving = runtime.session::stopImproving,
                         onInvalidatePreview = {
                             val current = runtime.session.state.value
                             if (selectedDestination == null && current.previewOptions?.scenic?.roundTrip != true &&

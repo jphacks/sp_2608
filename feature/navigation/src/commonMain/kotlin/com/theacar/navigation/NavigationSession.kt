@@ -138,6 +138,29 @@ class NavigationSession(
         }
     }
 
+    /**
+     * 経路を探している途中でやめる。探す前の状態（目的地を選んだだけの状態）に戻す。
+     * 条件を変えたわけではないので、「再検索してください」は出さない。
+     */
+    fun cancelPreview() {
+        if (closed || state.value.phase != NavigationPhase.PREVIEWING) return
+        operationGeneration++
+        operation?.cancel()
+        mutableState.update { it.copy(phase = NavigationPhase.IDLE, route = null, alternatives = emptyList(),
+            progress = null, maneuver = null, failure = null, previewNeedsRefresh = false, previewImproving = false) }
+    }
+
+    /**
+     * 候補が出たあとの、ほかの経路の探索だけをやめる。出ている候補はそのまま選べて、案内も始められる。
+     * エンジンは候補が届くたびに選択中の経路と候補を更新しているので、途中で止めても食い違わない。
+     */
+    fun stopImproving() {
+        if (closed || state.value.phase != NavigationPhase.PREVIEW || !state.value.previewImproving) return
+        operationGeneration++
+        operation?.cancel()
+        mutableState.update { it.copy(previewImproving = false) }
+    }
+
     fun invalidatePreview() {
         if (closed || state.value.phase !in setOf(NavigationPhase.PREVIEW, NavigationPhase.PREVIEWING)) return
         operationGeneration++
