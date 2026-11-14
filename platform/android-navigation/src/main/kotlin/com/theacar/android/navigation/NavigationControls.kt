@@ -1,5 +1,8 @@
 package com.theacar.android.navigation
 
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+
 import android.os.SystemClock
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -102,7 +105,12 @@ internal fun NavigationControls(
     companion: NavigationCompanion? = null,
     mapSatellite: Boolean = false,
     onMapSatelliteChanged: (Boolean) -> Unit = {},
+    /** 案内中に残り時間・距離を長押ししたとき（自動走行の出し入れ）。null なら長押しは効かない。 */
+    onAutoDrive: (() -> Unit)? = null,
 ) {
+    // 自動走行の隠しボタン。見た目は変えず、案内中の残り時間・距離の長押しにだけ反応する
+    val autoDrive = if (onAutoDrive != null && state.phase == NavigationPhase.GUIDING)
+        Modifier.pointerInput(onAutoDrive) { detectTapGestures(onLongPress = { onAutoDrive() }) } else Modifier
     var avoidTolls by rememberSaveable { mutableStateOf(false) }
     var avoidHighways by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
@@ -413,8 +421,8 @@ internal fun NavigationControls(
                                     style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 if (!panelExpanded && compactTimeline.isEmpty()) {
                                     Text(jostNumbers("${((state.progress?.remainingSeconds ?: route.durationSeconds) + 59) / 60}分 · ${((state.progress?.remainingMeters ?: route.distanceMeters) / 100) / 10.0}km"),
-                                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                                } else if (panelExpanded) Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.Bottom) {
+                                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, modifier = autoDrive)
+                                } else if (panelExpanded) Row(autoDrive, horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.Bottom) {
                                     RouteMetric("${((state.progress?.remainingSeconds ?: route.durationSeconds) + 59) / 60}", "分目安")
                                     RouteMetric("${((state.progress?.remainingMeters ?: route.distanceMeters) / 100) / 10.0}", "km")
                                 }

@@ -65,6 +65,12 @@ internal fun SpotifyMusicScreen(
     onCancelPlaylist: () -> Unit,
     onRemovePlaylist: (String, String) -> Unit,
     onPlaylistMode: (RecommendationMode) -> Unit,
+    liveConfigured: Boolean = false,
+    live: LiveReporterState = LiveReporterState(),
+    liveUrl: String? = null,
+    onLiveView: (Boolean) -> Unit = {},
+    onShareUrl: (String) -> Unit = {},
+    onRenewLiveCode: () -> Unit = {},
 ) {
     var query by rememberSaveable { mutableStateOf(state.query) }
     var showDevices by remember { mutableStateOf(false) }
@@ -131,6 +137,9 @@ internal fun SpotifyMusicScreen(
                     BgmRecommendationPanel(bgm, cabin, bgmMemberNames, bgmConfigured,
                         canPlay && !playlists.importing && (playlists.mode != RecommendationMode.PLAYLIST || playlists.pool.isNotEmpty()),
                         onStartBgm, onStopBgm, playlists.members)
+                }
+                if (bgmConfigured) item {
+                    LiveViewPanel(liveConfigured, live, liveUrl, onLiveView, onOpenUrl, onShareUrl, onRenewLiveCode)
                 }
                 if (bgmConfigured || bgm.requests.isNotEmpty() || guests.code != null) item {
                     GuestRequestPanel(bgm, guests, guestUrl, onOpenGuests, onCloseGuests, onMoveRequest, onRemoveRequest, canReceive = bgmConfigured && canPlay)

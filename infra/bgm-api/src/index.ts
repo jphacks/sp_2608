@@ -206,7 +206,14 @@ app.post('/recommend', async (c) => {
   }
 
   const result = recommend({ ...body, scene, pool, history });
-  return c.json({ pool_size: pool.length, missing, route_window: routeWindow, route_status: routeStatus, ...result });
+  // 候補の曲の6軸を添える（アプリが Web のライブ表示で、欲しい曲調と重ねて描くため）
+  const candidates = result.candidates.map((cand) => {
+    const f = feats.get(cand.track_id);
+    if (!f) return cand;
+    const axes = { energy: f.energy, valence: f.valence, tempo: f.tempo, acoustic: f.acoustic, spacious: f.spacious, vocal: f.vocal };
+    return Object.values(axes).every((v) => typeof v === 'number' && Number.isFinite(v)) ? { ...cand, axes } : cand;
+  });
+  return c.json({ pool_size: pool.length, missing, route_window: routeWindow, route_status: routeStatus, ...result, candidates });
 });
 
 // 選ばれた曲の Spotify の曲IDを返す。照合済みなら D1 から返し、未照合の曲だけ ISRC で検索する

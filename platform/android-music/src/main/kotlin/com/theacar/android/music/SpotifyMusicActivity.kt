@@ -12,6 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.theacar.music.MusicMember
 import com.theacar.music.MusicTrack
@@ -115,6 +118,9 @@ class SpotifyMusicActivity : ComponentActivity() {
             val location by runtime.locations.location.collectAsState()
             val weather by runtime.weather.state.collectAsState()
             val environmentCheck by runtime.environmentCheck.collectAsState()
+            val live by runtime.live.state.collectAsState()
+            // 受付番号を作り直したら URL も変わる
+            var liveUrl by remember { mutableStateOf(runtime.liveUrl()) }
             TheaCarTheme {
                 SpotifyMusicScreen(connection, state, drive, bgm, guests, runtime::guestUrl, cabin, runtime.driveBgm.memberNames(), runtime.bgmConfigured, location, weather, environmentCheck,
                     onInspectEnvironment = ::inspectEnvironment,
@@ -144,7 +150,13 @@ class SpotifyMusicActivity : ComponentActivity() {
                     onImportPlaylist = runtime.playlists::import,
                     onCancelPlaylist = runtime.playlists::cancelImport,
                     onRemovePlaylist = runtime.playlists::remove,
-                    onPlaylistMode = runtime.playlists::setMode)
+                    onPlaylistMode = runtime.playlists::setMode,
+                    liveConfigured = runtime.liveConfigured,
+                    live = live,
+                    liveUrl = liveUrl,
+                    onLiveView = runtime::setLiveView,
+                    onShareUrl = ::shareUrl,
+                    onRenewLiveCode = { runtime.renewLiveCode(); liveUrl = runtime.liveUrl() })
             }
         }
     }
@@ -171,6 +183,11 @@ class SpotifyMusicActivity : ComponentActivity() {
     private fun openSpotify() {
         val intent = packageManager.getLaunchIntentForPackage("com.spotify.music")
         if (intent != null) startActivity(intent) else openUrl("https://open.spotify.com/")
+    }
+
+    private fun shareUrl(value: String) {
+        val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, value)
+        startActivity(Intent.createChooser(send, "選曲の様子のページを共有"))
     }
 
     private fun openUrl(value: String) {

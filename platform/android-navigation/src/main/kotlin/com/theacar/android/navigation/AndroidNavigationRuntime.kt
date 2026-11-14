@@ -65,6 +65,8 @@ class AndroidNavigationRuntime(application: Application) {
     val routingTokenFromBuild = credentials.usingBuiltIn
     suspend fun setRoutingToken(token: String): Boolean = credentials.save(token)
     val locations = AndroidLocationSource(application, scope)
+    /** 案内中の経路を自動で走る。画面の隠しボタン・adb・Android Auto のテストドライブで同じものを使う（2つ動くと位置を取り合う）。 */
+    val simulator by lazy { DriveSimulator(this) }
     /** 開発用。経路を探すときの出発時刻を、今ではなくこの時刻にする（Debug ビルドの受信口から入れる） */
     @Volatile var departureOverride: java.time.OffsetDateTime? = null
     val engine = LocalNavigationEngine(ScenicRecommendationClient(configuration.routingUrl, client,
