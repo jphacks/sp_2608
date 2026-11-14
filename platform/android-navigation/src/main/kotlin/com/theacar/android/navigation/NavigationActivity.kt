@@ -245,7 +245,7 @@ class NavigationActivity : ComponentActivity() {
         }
         val tabBar = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { TheaCarTheme { TabiBottomBar(Tab.MAP, ::openTab) } }
+            setContent { TheaCarTheme { TabiBottomBar(Tab.MAP, ::openTab, onReselect = { countDriveTap() }) } }
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -343,6 +343,20 @@ class NavigationActivity : ComponentActivity() {
     private val debuggable get() = applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
 
     /** 隠しボタン（残り時間・距離の長押し）：案内中の経路を目的地まで自動で走る。もう一度で止める。Debug 版だけ。 */
+    private var driveTaps = 0
+    private var lastDriveTap = 0L
+
+    /** DRIVE を5回続けて押すと、現在地を函館駅に置く（もう一度5回で測位に戻す）。 */
+    private fun countDriveTap() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        driveTaps = if (now - lastDriveTap <= 1_500) driveTaps + 1 else 1
+        lastDriveTap = now
+        if (driveTaps < 5) return
+        driveTaps = 0
+        val message = if (runtime.demoLocation.toggle()) "現在地を函館駅にしました" else "現在地を測位に戻しました"
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
+
     private fun toggleAutoDrive() {
         val simulator = runtime.simulator
         val message = when {

@@ -39,9 +39,9 @@ enum class Tab(val label: String, internal val caption: String, internal val ico
     SETTINGS("設定", "SETTINGS", Icons.Rounded.Settings, Navajo),
 }
 
-/** 全画面共通の下部タブバー。キーボード表示中は隠す。 */
+/** 全画面共通の下部タブバー。キーボード表示中は隠す。onReselect は選んでいるタブをもう一度押したとき。 */
 @Composable
-fun TabiBottomBar(selected: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = Modifier) {
+fun TabiBottomBar(selected: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = Modifier, onReselect: (Tab) -> Unit = {}) {
     if (WindowInsets.ime.getBottom(LocalDensity.current) > 0) return
     Column(modifier.fillMaxWidth().background(Surface)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Navajo))
@@ -53,7 +53,7 @@ fun TabiBottomBar(selected: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = M
                 val isSelected = tab == selected
                 Box(
                     Modifier.weight(1f).height(64.dp)
-                        .selectable(selected = isSelected, role = Role.Tab, onClick = { if (!isSelected) onSelect(tab) })
+                        .selectable(selected = isSelected, role = Role.Tab, onClick = { if (isSelected) onReselect(tab) else onSelect(tab) })
                         .semantics { contentDescription = tab.label },
                     contentAlignment = Alignment.Center,
                 ) {
