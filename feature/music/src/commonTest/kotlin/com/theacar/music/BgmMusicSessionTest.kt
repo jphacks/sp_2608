@@ -130,12 +130,14 @@ class BgmMusicSessionTest {
         assertEquals(.6f, fixture.session.state.value.recommendedVolume)
 
         fixture.time += 20_000
-        fixture.recommendations.response = BgmRecommendation(second, volume = .45f)
+        fixture.recommendations.response = BgmRecommendation(second, volume = .45f,
+            evaluation = BgmEvaluation(shares = mapOf("unknown" to .6, "urban" to .1, "sea" to .3)))
         fixture.tick(playbackOf(firstUri, 200_000, 180_000))
         runCurrent()
         assertEquals(2, fixture.recommendations.requests.size)
         // 推奨音量は次の曲のもの。今の曲が流れているあいだは変えない。
         assertEquals(.6f, fixture.session.state.value.recommendedVolume)
+        assertNull(fixture.session.state.value.playingScene)
         val latest = fixture.recommendations.requests.last()
         assertEquals(listOf(PlayedTrack("isrc:AAA", "a", "Artist")), latest.history)
         // 窓の長さの目安として、今の曲の長さを渡す。
@@ -158,6 +160,8 @@ class BgmMusicSessionTest {
         assertEquals(2, fixture.session.state.value.playedCount)
         assertEquals(2, fixture.recommendations.requests.size)
         assertEquals(.45f, fixture.session.state.value.recommendedVolume)
+        // 景色も、その曲が流れ始めたときに変わる。まだ評価できていない区間は数えない
+        assertEquals("sea", fixture.session.state.value.playingScene)
     }
 
     @Test fun waitsUntilTheCurrentSongIsNearlyOver() = runTest {

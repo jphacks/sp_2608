@@ -29,6 +29,7 @@ import com.theacar.location.LocationStatus
 import com.theacar.navigation.NavigationPhase
 import com.theacar.route.Destination
 import com.theacar.ui.MiniPlayer
+import com.theacar.ui.MiniPlayerMood
 import com.theacar.ui.MiniPlayerProgress
 import com.theacar.ui.PermissionDisclosure
 import androidx.compose.foundation.background
@@ -237,6 +238,7 @@ class NavigationActivity : ComponentActivity() {
                             onAction = { miniPlayer.action(this@NavigationActivity) }, showIndicator = player.showIndicator,
                             actionReplacesPlay = player.actionReplacesPlay,
                             progress = player.progress?.let { MiniPlayerProgress(it.positionMillis, it.durationMillis, it.anchorMillis, it.playing) },
+                            mood = if (player.requested) MiniPlayerMood.REQUEST else MiniPlayerMood.ofScene(player.scene),
                             clock = miniPlayer::clock)
                     }
                 }

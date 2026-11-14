@@ -22,6 +22,10 @@ data class BgmEvaluation(
     val candidates: List<BgmCandidateScore> = emptyList(),
 )
 
+/** 窓の中で一番多い景色。まだ評価できていない区間（unknown・unclassified）は数えない。 */
+fun BgmEvaluation.dominantScene(): String? =
+    shares.filterKeys { it != "unknown" && it != "unclassified" }.filterValues { it > 0 }.maxByOrNull { it.value }?.key
+
 /** 候補1曲の点数の内訳。 */
 data class BgmCandidateScore(
     val trackId: String,

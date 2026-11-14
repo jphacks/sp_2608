@@ -83,6 +83,10 @@ data class DriveBgmLine(
     val action: DriveBgmAction? = null,
     /** 流せる曲がないので、再生ボタンの代わりに操作のボタンを出す */
     val actionReplacesPlay: Boolean = false,
+    /** 景観BGMがこの曲を選んだときに一番多かった景色（sea・forest など）。ミニプレーヤーのレコードの色になる。 */
+    val scene: String? = null,
+    /** 同乗者や利用者がリクエストした曲が流れている。 */
+    val requested: Boolean = false,
 )
 
 /**
@@ -124,7 +128,11 @@ fun driveBgmLine(state: DriveBgmState, now: NowPlaying?, connected: Boolean, gui
             else -> message ?: state.cabin.shortLabel() ?: "景色と車内の様子で選曲中"
         }
         val title = trackTitle ?: recommended?.let { "${it.title} · ${it.artist}" } ?: "景色に合う曲を選んでいます…"
-        return DriveBgmLine(title, subtitle, playing, true)
+        val queued = track != null && bgm.playingUri != null && track.uri != bgm.playingUri && track.uri != bgm.upNextUri
+        val requested = failure == null && (request != null || queued || (bgm.requestsOnly && track != null))
+        // 景色は、景観BGMが選んだ曲が流れているときだけ
+        val scene = bgm.playingScene.takeIf { failure == null && !requested && (track == null || track.uri == bgm.playingUri) }
+        return DriveBgmLine(title, subtitle, playing, true, scene = scene, requested = requested)
     }
     // 景観BGMを使えなくなった理由は、直し方と一緒に出す
     val problem = state.phoneProblem.takeIf { failure != null }

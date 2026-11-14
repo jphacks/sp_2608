@@ -32,6 +32,10 @@ data class MiniPlayerState(
     val actionReplacesPlay: Boolean = false,
     /** 流れている曲の再生位置。長さか位置が分からないときは null で、バーを出さない。 */
     val progress: MiniPlayerSongPosition? = null,
+    /** 曲を選んだきっかけの景色（bgm-api の景観カテゴリ）。レコードのラベルの色と絵柄になる。 */
+    val scene: String? = null,
+    /** リクエストされた曲が流れている。 */
+    val requested: Boolean = false,
 )
 
 /** 曲の再生位置。[positionMillis] は [anchorMillis]（[MiniPlayerSource.clock] と同じ時計）の時点の位置。 */

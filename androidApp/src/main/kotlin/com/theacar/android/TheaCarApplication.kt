@@ -127,7 +127,8 @@ class TheaCarApplication : Application(), DriveSessionOwner, AndroidNavigationOw
             driveBgmLine(link.state.value, null, music.connection.value.connected, false) to null)
         fun state(pair: Pair<DriveBgmLine, NowPlaying?>) = pair.let { (it, now) ->
             MiniPlayerState(it.title, it.playing, it.subtitle, it.actionLabel, it.indicator,
-                actionReplacesPlay = it.actionReplacesPlay, progress = now?.progress())
+                actionReplacesPlay = it.actionReplacesPlay, progress = now?.progress(),
+                scene = it.scene, requested = it.requested)
         }
         val mapped = line.map(::state).stateIn(scope, SharingStarted.WhileSubscribed(5_000), state(line.value))
         object : MiniPlayerSource {
