@@ -50,9 +50,8 @@ class NavigationActivity : ComponentActivity() {
     private var mapController: NavigationMapController? = null
     private val viaPoints = mutableStateListOf<Coordinate>()
     private var selectedDestination by mutableStateOf<Destination?>(null)
-    /** 地図を航空写真で見せるか。次に開いたときも同じ種類にする */
+    /** 地図を航空写真で見せるか。保存と車の画面への共有は [AndroidNavigationRuntime.mapSatellite] が受け持つ */
     private var mapSatellite by mutableStateOf(false)
-    private val mapPreferences by lazy { getSharedPreferences(MAP_PREFERENCES, MODE_PRIVATE) }
     private val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         runtime.locations.acquire(this)
     }
@@ -72,7 +71,7 @@ class NavigationActivity : ComponentActivity() {
         }
         // ほかの画面（RECORD タブの「この道へ行く」など）から目的地を渡されたとき
         if (savedInstanceState == null) requestedDestination(intent)?.let { selectedDestination = it }
-        mapSatellite = mapPreferences.getBoolean(SATELLITE_KEY, false)
+        mapSatellite = runtime.mapSatellite.value
         val layout = FrameLayout(this)
         mapController = NavigationMapController(this, runtime, lifecycleScope).also { controller ->
             controller.setSatellite(mapSatellite)
@@ -205,7 +204,7 @@ class NavigationActivity : ComponentActivity() {
                         onMapSatelliteChanged = { enabled ->
                             mapSatellite = enabled
                             mapController?.setSatellite(enabled)
-                            mapPreferences.edit().putBoolean(SATELLITE_KEY, enabled).apply()
+                            runtime.setMapSatellite(enabled)
                         },
                     )
                 } }
@@ -371,5 +370,3 @@ class NavigationActivity : ComponentActivity() {
     }
 }
 
-private const val MAP_PREFERENCES = "map-display"
-private const val SATELLITE_KEY = "satellite"

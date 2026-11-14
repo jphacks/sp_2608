@@ -95,4 +95,17 @@ class AndroidNavigationRuntime(application: Application) {
     private val mutableVoiceEnabled = MutableStateFlow(true)
     val voiceEnabled = mutableVoiceEnabled.asStateFlow()
     fun setVoiceEnabled(enabled: Boolean) { mutableVoiceEnabled.value = enabled }
+
+    /** 地図を航空写真で見せるか。スマホで選び、車の画面もこれに合わせる。次に開いたときも同じ種類にする */
+    private val mapPreferences = application.getSharedPreferences(MAP_PREFERENCES, Context.MODE_PRIVATE)
+    private val mutableMapSatellite = MutableStateFlow(mapPreferences.getBoolean(SATELLITE_KEY, false))
+    val mapSatellite = mutableMapSatellite.asStateFlow()
+    fun setMapSatellite(enabled: Boolean) {
+        if (mutableMapSatellite.value == enabled) return
+        mutableMapSatellite.value = enabled
+        mapPreferences.edit().putBoolean(SATELLITE_KEY, enabled).apply()
+    }
 }
+
+private const val MAP_PREFERENCES = "map-display"
+private const val SATELLITE_KEY = "satellite"
