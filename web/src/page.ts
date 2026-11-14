@@ -42,7 +42,6 @@ export function routeArtSvg(trip: StoredTrip): string {
     // 経路線と重ならない向きにラベルを置く（間引く前の点で判定）
     const label = placeLabel(p, points, ART_W, ART_H);
     const lx = label.x.toFixed(1);
-    // 星の塗りは写真の最多色。写真を読んだあとブラウザ側で fill を差し替える（写真が無ければ白のまま）
     spot =
       `<g class="spot" transform="translate(${x} ${y})"><path id="spot-star" d="M0 -14 L4 -4 L15 -4 L6 3 L9 14 L0 7 L-9 14 L-6 3 L-15 -4 L-4 -4 Z"/></g>` +
       `<text class="spot-label" x="${lx}" y="${label.y.toFixed(1)}" text-anchor="${label.anchor}">` +
@@ -153,6 +152,7 @@ export function renderTripPage(trip: StoredTrip, photoUrl: string | null): strin
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="/sticker-editor.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,28 +168,32 @@ export function renderTripPage(trip: StoredTrip, photoUrl: string | null): strin
 html{background:var(--paper)}
 body{margin:0;color:var(--ink);font-family:var(--jp);background:var(--paper);-webkit-font-smoothing:antialiased}
 main{max-width:480px;margin:0 auto;padding:24px 16px 48px}
-.brand{font-family:var(--en);font-weight:500;letter-spacing:.08em;font-size:13px;color:var(--muted);margin:0 0 16px}
 .sticker{aspect-ratio:7/10;background:#fff;border-radius:6px;box-shadow:0 8px 28px rgba(30,42,36,.14);overflow:hidden;display:flex;flex-direction:column}
 .art{position:relative;flex:0 0 65%;background:var(--mist);overflow:hidden}
 .art-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .art-placeholder{background:linear-gradient(180deg,var(--sunglow) 0%,var(--sunset) 45%,var(--sky) 46%,var(--mountains) 100%)}
-.route-art{position:absolute;inset:0;width:100%;height:100%}
+.route-art{--photo-spot:#762E2B;position:absolute;inset:0;width:100%;height:100%}
 .route-shadow{fill:none;stroke:rgba(30,42,36,.18);stroke-width:18;stroke-linecap:round;stroke-linejoin:round;transform:translate(2px,3px)}
 .route-line{fill:none;stroke:#fff;stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
-.spot path{fill:#fff;stroke:#fff;stroke-width:3;stroke-linejoin:round;paint-order:stroke}
-.spot-label{fill:#fff;font-family:var(--en);font-weight:700;font-size:24px;letter-spacing:.04em}
-.meta{flex:1 1 35%;padding:5% 5% 4%;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto 1fr;gap:0 16px;font-family:var(--en)}
-.date{grid-row:1;grid-column:1;font-weight:500;font-size:clamp(14px,4.2vw,20px);line-height:1.2;border-bottom:1.5px solid var(--ink);padding-bottom:6px;align-self:start}
-.date span{display:block}
-.place{grid-row:2;grid-column:1;font-family:var(--jp);font-weight:500;font-size:clamp(13px,3.8vw,18px);margin-top:8px}
-.members{grid-row:1/4;grid-column:2;text-align:right;font-size:clamp(11px,3.1vw,15px);line-height:1.25}
-.members h2{font-size:clamp(11px,3.2vw,15px);font-weight:700;letter-spacing:.04em;margin:0 0 6px}
+.spot path{fill:var(--photo-spot);stroke:#fff8ed;stroke-width:3;stroke-linejoin:round;paint-order:stroke}
+.spot-label{fill:var(--photo-spot);stroke:#fff8ed;stroke-width:4;stroke-linejoin:round;paint-order:stroke;font-family:var(--en);font-weight:700;font-size:24px;letter-spacing:.04em}
+.meta{flex:1 1 35%;min-height:0;padding:4% 5%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,24%);grid-template-rows:auto minmax(0,1fr);column-gap:5%;font-family:var(--en)}
+.place{grid-column:1/-1;font-family:var(--jp);font-weight:700;font-size:clamp(12px,3.7vw,18px);line-height:1.35;margin:0 0 5px;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.members{grid-row:2;grid-column:2;border-top:1px solid var(--ink);padding-top:5px;font-size:clamp(10px,2.8vw,14px);line-height:1.25;min-width:0;overflow:auto;overflow-wrap:anywhere}
+.members h2{font-size:clamp(8px,2.3vw,11px);font-weight:700;letter-spacing:.07em;margin:0 0 4px}
 .members ul{list-style:none;margin:0;padding:0}
-.stats{grid-row:3;grid-column:1;display:flex;gap:9%;align-items:end}
-.stat .label{font-size:clamp(10px,2.9vw,13px);letter-spacing:.06em;font-weight:500;margin-bottom:2px}
-.stat .num{font-weight:700;font-size:clamp(26px,8.5vw,42px);line-height:1}
-.stat .unit{font-weight:700;font-size:clamp(11px,3.4vw,16px);margin:0 6px 0 3px}
+.stats{grid-row:2;grid-column:1;border-top:1px solid var(--ink);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(3,minmax(min-content,1fr));gap:0;margin:0;font-variant-numeric:tabular-nums}
+.stat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;border-bottom:1px solid #1e2a2433}
+.stat dt{color:var(--ink);font-size:clamp(8px,2.3vw,12px);letter-spacing:.04em;font-weight:600;white-space:nowrap}
+.stat dt span{margin-right:.55em;color:var(--muted)}
+.stat dd{margin:0;text-align:right;white-space:nowrap;font-size:clamp(10px,3.3vw,18px);font-weight:600;line-height:1.25}
+.stat .unit{font-size:.66em;margin-left:.2em;margin-right:.25em}
 .muted{color:var(--muted)}
+.card-details{margin-top:12px;padding:12px 16px;border:1px solid rgba(30,42,36,.14);border-radius:10px;background:#fffdf7;font-size:14px}
+.card-details summary{cursor:pointer;font-weight:700}
+.card-details dl{margin:14px 0 10px;font-size:14px}
+.card-details p{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.card-details a{color:inherit;text-underline-offset:.2em}
 section{margin-top:28px}
 section h2{font-family:var(--en);font-size:13px;font-weight:500;letter-spacing:.1em;color:var(--muted);margin:0 0 10px;text-transform:uppercase}
 dl{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:0;font-size:15px}
@@ -236,10 +240,16 @@ dd .en{font-family:var(--en);font-weight:500}
 footer{margin-top:40px;font-size:12px;color:var(--muted)}
 footer a{color:inherit}
 </style>
+<link rel="stylesheet" href="/trip-theme.css">
 </head>
 <body>
 <main>
-<p class="brand">TABIRECO</p>
+<header class="trip-header">
+  <picture class="trip-logo">
+    <source media="(prefers-color-scheme: dark)" srcset="/tabireco-dark.png">
+    <img src="/tabireco-light.png" alt="TABIRECO">
+  </picture>
+</header>
 
 <article class="sticker" aria-label="旅のステッカー">
   <div class="art">
@@ -247,15 +257,55 @@ footer a{color:inherit}
     ${routeArtSvg(trip)}
   </div>
   <div class="meta">
-    <div class="date"><span>${escapeHtml(date.year)}</span><span>${escapeHtml(date.date)}</span></div>
     <div class="place">${escapeHtml(place)}</div>
+    <dl class="stats">
+      <div class="stat"><dt><span aria-hidden="true">01</span>DATE</dt><dd>${escapeHtml(date.year)} · ${escapeHtml(date.date)}</dd></div>
+      <div class="stat"><dt><span aria-hidden="true">02</span>DISTANCE</dt><dd><span class="num">${escapeHtml(distance.value)}</span><span class="unit">${distance.unit}</span></dd></div>
+      <div class="stat"><dt><span aria-hidden="true">03</span>TIME</dt><dd>${timeHtml}</dd></div>
+    </dl>
     <div class="members"><h2>MEMBERS</h2><ul>${membersHtml}</ul></div>
-    <div class="stats">
-      <div class="stat"><div class="label">DISTANCE</div><span class="num">${escapeHtml(distance.value)}</span><span class="unit">${distance.unit}</span></div>
-      <div class="stat"><div class="label">TIME</div>${timeHtml}</div>
-    </div>
   </div>
 </article>
+
+<details class="card-details">
+  <summary>旅カードの詳細</summary>
+  <dl>
+    <dt>目的地</dt><dd>${escapeHtml(trip.destinationTitle)}</dd>
+    <dt>出発・到着</dt><dd><span class="en">${formatClock(trip.startedAtEpochMillis, trip.timeZoneId)} → ${formatClock(trip.arrivedAtEpochMillis, trip.timeZoneId)}</span></dd>
+    <dt>平均速度</dt><dd>${speed === null ? "—" : `<span class="en">${speed}</span> km/h`}</dd>
+  </dl>
+  <a href="#trip-route">地図で走行ルートを見る</a>
+  ${trip.geometry.length > 1 && trip.geometry.length <= 4 ? `<p>経路線は記録された ${trip.geometry.length} 地点を結んでいます。</p>` : ""}
+</details>
+
+<section class="sticker-editor" aria-labelledby="editor-title">
+  <p class="editor-kicker">MAKE IT YOURS</p>
+  <h2 id="editor-title">旅のステッカーを飾ろう</h2>
+  <p class="lead">好きなステッカーや写真を追加して、カードの上で自由に動かせます。</p>
+  <div class="sticker-palette" aria-label="ステッカーを追加">
+<button type="button" data-sticker-image="/stickers/tape-blue.png" aria-label="水色のマスキングテープを追加" title="水色のマスキングテープ" style="background:#f5f3ec"><img src="/stickers/tape-blue.png" alt="水色のマスキングテープ" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/tape-green.png" aria-label="緑のマスキングテープを追加" title="緑のマスキングテープ" style="background:#f5f3ec"><img src="/stickers/tape-green.png" alt="緑のマスキングテープ" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/travel-postmark-white.png" aria-label="白い旅の消印を追加" title="白い旅の消印" style="background:#4f6457"><img src="/stickers/travel-postmark-white.png" alt="白い旅の消印" width="44" height="44"></button>
+<button type="button" data-sticker-image="/stickers/travel-postmark-blue.png" aria-label="青い旅の消印を追加" title="青い旅の消印" style="background:#f5f3ec"><img src="/stickers/travel-postmark-blue.png" alt="青い旅の消印" width="44" height="44"></button>
+
+    <button type="button" data-sticker-image="/stickers/tabireco-postmark.png" aria-label="旅れこ消印を追加" title="旅れこ消印"><img src="/stickers/tabireco-postmark.png" alt="旅れこ消印" width="44" height="44"></button>
+    <button type="button" data-sticker="🚗" aria-label="車を追加">🚗</button>
+    <button type="button" data-sticker="🏕️" aria-label="キャンプを追加">🏕️</button>
+    <button type="button" data-sticker="🎵" aria-label="音符を追加">🎵</button>
+    <button type="button" data-sticker="☀️" aria-label="太陽を追加">☀️</button>
+    <button type="button" data-sticker="🌼" aria-label="花を追加">🌼</button>
+    <button type="button" data-sticker="❤️" aria-label="ハートを追加">❤️</button>
+  </div>
+  <label class="upload-button">＋ 写真・ステッカー画像を選ぶ<input id="sticker-upload" type="file" accept="image/png,image/jpeg,image/webp" aria-label="写真・ステッカー画像を選ぶ"></label>
+  <p class="lead">JPG・PNG・WebP（10 MBまで）。透過PNGも使えます。</p>
+  <div class="editor-controls" id="editor-controls" hidden>
+    <label>サイズ<input id="sticker-size" type="range" min="10" max="65" value="22"></label>
+    <label>回転<input id="sticker-angle" type="range" min="-180" max="180" value="0"></label>
+    <div class="editor-actions"><button type="button" id="sticker-front">最前面へ</button><button type="button" id="sticker-remove">選択中を削除</button><button type="button" id="sticker-done">配置を完了</button></div>
+  </div>
+  <p class="editor-status" id="editor-status" role="status" aria-live="polite">このブラウザに自動保存されます。写真はサーバーに送信されません。</p>
+</section>
+
 
 <section>
   <h2>Trip</h2>
@@ -271,7 +321,7 @@ footer a{color:inherit}
 
 ${musicSectionsHtml(trip.music, trip)}
 
-<section>
+<section id="trip-route">
   <h2>Route</h2>
   <div id="map" role="img" aria-label="経路の地図"></div>
   <ul class="legend">
@@ -286,37 +336,6 @@ ${musicSectionsHtml(trip.music, trip)}
 </footer>
 </main>
 
-<script>
-(function(){
-  // 星の塗りを写真で一番多く使われている色にする。色を 32 段階に丸めて数え、最多の区分の平均色を使う。
-  var img = document.querySelector(".art-photo");
-  var star = document.getElementById("spot-star");
-  if (!img || !star || img.tagName !== "IMG") return;
-  function apply() {
-    try {
-      var w = 64, h = Math.max(1, Math.round(64 * img.naturalHeight / img.naturalWidth));
-      var canvas = document.createElement("canvas");
-      canvas.width = w; canvas.height = h;
-      var ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, w, h);
-      var px = ctx.getImageData(0, 0, w, h).data;
-      var bins = {};
-      for (var i = 0; i < px.length; i += 4) {
-        if (px[i + 3] < 128) continue;
-        var key = (px[i] >> 5) + "," + (px[i + 1] >> 5) + "," + (px[i + 2] >> 5);
-        var b = bins[key] || (bins[key] = [0, 0, 0, 0]);
-        b[0] += px[i]; b[1] += px[i + 1]; b[2] += px[i + 2]; b[3]++;
-      }
-      var best = null;
-      for (var k in bins) if (!best || bins[k][3] > best[3]) best = bins[k];
-      if (!best) return;
-      var r = Math.round(best[0] / best[3]), g = Math.round(best[1] / best[3]), bl = Math.round(best[2] / best[3]);
-      star.style.fill = "rgb(" + r + "," + g + "," + bl + ")";
-    } catch (e) { /* 読めなければ白のまま */ }
-  }
-  if (img.complete && img.naturalWidth > 0) apply(); else img.addEventListener("load", apply);
-})();
-</script>
 <script>
 (function(){
   // 盛り上がりの折れ線に、指やマウスの位置の時刻と割合を出す
@@ -348,6 +367,7 @@ ${musicSectionsHtml(trip.music, trip)}
   svg.addEventListener("touchend", hide);
 })();
 </script>
+<script src="/sticker-editor.js" defer></script>
 <script src="https://unpkg.com/maplibre-gl@${MAPLIBRE_VERSION}/dist/maplibre-gl.js"></script>
 <script>
 (function(){
@@ -366,13 +386,13 @@ ${musicSectionsHtml(trip.music, trip)}
     if (coords.length > 1) {
       map.addSource("route", { type: "geojson", data: data.route });
       map.addLayer({ id: "route-casing", type: "line", source: "route", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#ffffff", "line-width": 8 } });
-      map.addLayer({ id: "route-line", type: "line", source: "route", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#EB6B40", "line-width": 4 } });
+      map.addLayer({ id: "route-line", type: "line", source: "route", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#436F80", "line-width": 4 } });
     }
     var all = coords.concat([data.goal], data.start ? [data.start] : [], data.photo ? [data.photo] : []);
     var b = all.reduce(function(acc, c){ return acc.extend(c); }, new maplibregl.LngLatBounds(all[0], all[0]));
     map.fitBounds(b, { padding: 36, duration: 0, maxZoom: 14 });
     if (data.start) dot(data.start, "#75B1A9");
-    dot(data.goal, "#EB6B40");
+    dot(data.goal, "#53785F");
     if (data.photo) dot(data.photo, "#D9B44A");
   });
 })();
