@@ -40,6 +40,8 @@ class AndroidSpotifyRuntime(
     microphone: SharedSensorFeed<AudioFrame>,
     journey: () -> MusicJourney? = { null },
     private val scenery: () -> SceneryRoute? = { null },
+    /** 案内中の経路の形から分かる運転条件。景観BGMの要求に足す。 */
+    private val drivingConditions: () -> DrivingConditions = { DrivingConditions() },
     /** 経路 API のベース URL。景観BGMはその /bgm/ を同じトークンで呼ぶ。空なら景観BGMは使えない。 */
     routingUrl: String = "",
     private val routingToken: () -> String = { "" },
@@ -121,7 +123,8 @@ class AndroidSpotifyRuntime(
     )
     val cabinVolumeSteps = cabinVolume.steps
     private val bgmLoop = BgmPlaybackLoop(bgmMusic, service, session, playback, scope, scenery, cabinSpeech::current,
-        connected = { connection.value.connected }, onAuthorizationLost = { guests.close() }, onPlayback = ::logPlaybackChange)
+        connected = { connection.value.connected }, onAuthorizationLost = { guests.close() }, onPlayback = ::logPlaybackChange,
+        conditions = drivingConditions)
     /** ナビの案内と景観BGMのつなぎ。ナビ画面から使う。 */
     val driveBgm by lazy { DriveBgmLink(driveBgmPort, SharedPreferencesDriveBgmSettings(applicationContext), scope) }
     private val driveBgmPort = object : DriveBgmPort {
