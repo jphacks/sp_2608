@@ -1,0 +1,29 @@
+.trip-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.trip-logo{display:block;width:clamp(170px,60vw,270px);max-width:100%}
+.trip-logo img{display:block;width:100%;height:auto}
+:root{--logo-blue:#87BFD2;--logo-green:#80AD90;--data-blue:#436F80;--data-green:#53785F;--selection:#943E37}
+main > section > h2{padding-bottom:7px;border-bottom:1px solid var(--logo-blue)}
+main > section:nth-of-type(even) > h2{border-bottom-color:var(--logo-green)}
+.card-details summary{border-inline-start:2px solid var(--logo-green);padding-inline-start:8px}
+.editor-kicker,.rank{color:var(--data-green)}
+.bar-fill,.mood-chart .area,.mood-chart .dot{fill:var(--data-blue)}
+.bar-fill{background:var(--data-blue)}
+.mood-chart .line{stroke:var(--data-blue)}
+.legend .goal i{background:#53785F}
+.placed-sticker:focus-visible,.placed-sticker[aria-pressed=true],.sticker-editor button:focus-visible,.upload-button:focus-within{outline-color:var(--selection)}
+.editor-controls input{accent-color:var(--selection)}
+
+@media (prefers-color-scheme: dark) {
+:root{color-scheme:dark;--paper:#202222;--ink:#F3EFE5;--muted:#BBBEB4;--data-blue:#A0C9D8;--data-green:#A8C4AD;--selection:#E29184}
+.sticker{color-scheme:light;--ink:#1E2A24;--muted:#5C6B63;color:var(--ink)}
+.card-details,.sticker-editor,.tooltip{background:#252B26;border-color:#4B554D}
+.sticker-editor button,.upload-button{background:#303832;border-color:#5B695E}
+.sticker-editor button:hover,.upload-button:hover{background:#3A453D}
+.editor-controls,.table-view td,.table-view th{border-color:#4B554D}
+.bar-track{background:#424D44}
+.mood-chart .grid{stroke:#4B554D}
+.sticker-palette .ink-sticker--blue{--stamp-ink:#A9CDD8}
+.sticker-palette .ink-sticker--green{--stamp-ink:#C7CFB0}
+.sticker-palette .ink-sticker--ochre{--stamp-ink:#E6D5A8}
+.sticker-palette .ink-sticker--red{--stamp-ink:#E8AEA5}
+}
