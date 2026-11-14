@@ -104,6 +104,7 @@ describe("ライブ表示の受け口", () => {
     const html = await res.text();
     expect(html).toContain('"demo":true');
     expect(html).toContain("/live/demo?speed=2");
+    expect(html).not.toContain('id="mode-auto"');
   });
 
   it("ページは枠だけを返し、受付番号を埋め込む", async () => {
@@ -113,5 +114,8 @@ describe("ライブ表示の受け口", () => {
     const html = await res.text();
     expect(html).toContain(`"code":"${code}"`);
     expect(html).toContain('id="cands"');
+    // 受付番号のページは、実際の走行とデモを切り替えられる
+    expect(html).toContain('id="mode-auto"');
+    expect(html).toContain('id="mode-demo"');
   });
 });

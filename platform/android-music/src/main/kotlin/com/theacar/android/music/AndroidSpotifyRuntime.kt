@@ -9,6 +9,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.theacar.android.location.AndroidLocationSource
 import com.theacar.bgm.BgmApiService
+import com.theacar.bgm.LiveViewApi
 import com.theacar.bgm.bgmHttpClient
 import com.theacar.sensing.AudioFrame
 import com.theacar.sensing.SharedSensorFeed
@@ -18,6 +19,8 @@ import com.theacar.weather.WeatherRepository
 import com.theacar.music.*
 import com.theacar.spotify.SpotifyMusicService
 import com.theacar.spotify.spotifyHttpClient
+import android.util.Base64
+import java.security.SecureRandom
 import java.util.Locale
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +45,11 @@ class AndroidSpotifyRuntime(
     /** 経路 API のベース URL。景観BGMはその /bgm/ を同じトークンで呼ぶ。空なら景観BGMは使えない。 */
     routingUrl: String = "",
     private val routingToken: () -> String = { "" },
+    /** 案内中の経路（Web のライブ表示に送る）。案内中でなければ null。 */
+    liveRoute: () -> LiveRoute? = { null },
+    /** Web 版の URL とアップロード用トークン（旅の記録の送信と同じもの）。空ならライブ表示は使えない。 */
+    liveWebUrl: String = "",
+    liveWebToken: String = "",
 ) {
     private val applicationContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -77,7 +85,10 @@ class AndroidSpotifyRuntime(
     private val musicLogUploader = androidMusicLogUploader(applicationContext)
     val bgmMusic = BgmMusicSession(bgmApi,
         service, scope, System::currentTimeMillis, listener = object : BgmPlaybackListener {
-            override fun onPlayed(track: RecommendedTrack, nowMillis: Long) = musicLog.onTrackStarted(track, nowMillis)
+            override fun onPlayed(track: RecommendedTrack, nowMillis: Long) {
+                musicLog.onTrackStarted(track, nowMillis)
+                live.onBgmTrackStarted(track, track.message)
+            }
             override fun onStopped(nowMillis: Long) = musicLog.onTrackStopped(nowMillis)
         }, trace = { Log.i(LOG_TAG, it) })
     /** 同乗者のリクエスト。QR コードから開いたページで探した曲を、景観BGMの予約の列か「今すぐ」で流す。 */
@@ -91,6 +102,7 @@ class AndroidSpotifyRuntime(
     private val cabinSpeech: CabinSpeechMonitor = CabinSpeechMonitor(microphone, scope, SystemClock::elapsedRealtime,
         onSecond = { second ->
             musicLog.onSecond(System.currentTimeMillis(), second.speaking)
+            live.observeSpeech(second.speaking)
             cabinVolume.observe(second)
         })
     val cabin = cabinSpeech.status
@@ -145,6 +157,62 @@ class AndroidSpotifyRuntime(
         }
     }
     val environmentCheck = environment.check
+
+    private val liveApi = LiveViewApi(liveWebUrl, liveWebToken)
+    /** Web のライブ表示の送り先が設定されているか。 */
+    val liveConfigured = liveApi.configured
+    private val liveSettings = applicationContext.getSharedPreferences("live-view", Context.MODE_PRIVATE)
+    /** 走行中の選曲の様子を Web のライブ表示へ送る。利用者がオンにしたときだけ。 */
+    val live: LiveReporter = LiveReporter(liveApi, scope, System::currentTimeMillis, liveRoute,
+        car = {
+            locations.location.value.fix?.let { fix ->
+                LiveCar(fix.coordinate.latitude, fix.coordinate.longitude,
+                    (fix.speedMetersPerSecond ?: 0f).toDouble().coerceAtLeast(0.0) * 3.6, fix.bearingDegrees?.toDouble())
+            }
+        },
+        cabinState = { cabinSpeech.current().takeIf { bgmMusic.state.value.enabled } },
+        nowPlaying = ::liveNowPlaying,
+        evaluation = { bgmMusic.evaluation.value },
+        trace = { Log.i(LOG_TAG, it) })
+
+    /** ライブ表示のページ。受付番号は端末に保存し、作り直すまで変わらない（モニターに同じ URL を出しておける）。 */
+    fun liveUrl(): String? = liveApi.pageUrl(liveCode())
+
+    fun setLiveView(enabled: Boolean) {
+        if (enabled && !liveConfigured) return
+        liveSettings.edit().putBoolean(LIVE_ENABLED, enabled).apply()
+        bgmMusic.previewing = enabled
+        if (enabled) live.start(liveCode()) else live.stop()
+    }
+
+    /** 受付番号を作り直す。前の URL を知っている人には、もう見えなくなる。 */
+    fun renewLiveCode() {
+        liveSettings.edit().putString(LIVE_CODE, newLiveCode()).apply()
+        if (live.state.value.enabled) live.start(liveCode())
+    }
+
+    private fun liveCode(): String = liveSettings.getString(LIVE_CODE, null)?.takeIf { LiveReporter.CODE.matches(it) }
+        ?: newLiveCode().also { liveSettings.edit().putString(LIVE_CODE, it).apply() }
+
+    private fun newLiveCode(): String {
+        val bytes = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        return Base64.encodeToString(bytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
+    }
+
+    private fun liveNowPlaying(): LiveNowPlaying? {
+        val now = playback.latest() ?: return null
+        val track = now.playback.track ?: return null
+        val duration = track.durationMillis ?: return null
+        val elapsed = if (now.playback.playing) (SystemClock.elapsedRealtime() - now.receivedAtMillis).coerceAtLeast(0) else 0
+        val position = ((now.playback.positionMillis ?: 0) + elapsed).toInt().coerceIn(0, duration)
+        val bgm = bgmMusic.state.value
+        val kind = when (track.uri) {
+            bgm.playingRequest?.uri -> LivePlaybackKind.REQUEST
+            bgm.playingUri -> LivePlaybackKind.BGM
+            else -> LivePlaybackKind.OTHER
+        }
+        return LiveNowPlaying(track.title, track.artist, position, duration, now.playback.playing, kind)
+    }
 
     fun inspectEnvironment() = environment.inspect()
 
@@ -328,6 +396,7 @@ class AndroidSpotifyRuntime(
 
     init {
         auth.restore()
+        if (liveConfigured && liveSettings.getBoolean(LIVE_ENABLED, false)) setLiveView(true)
         scope.launch {
             session.state.collect {
                 if (it.failure == MusicFailure.AUTHORIZATION) {
@@ -371,5 +440,7 @@ class AndroidSpotifyRuntime(
     companion object {
         private const val LOG_TAG = "TheaCarBgm"
         private const val ARRIVAL_NOTE = "目的地に着いたので、この曲で景観BGMを終えます"
+        private const val LIVE_ENABLED = "enabled"
+        private const val LIVE_CODE = "code"
     }
 }

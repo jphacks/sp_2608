@@ -64,8 +64,22 @@ class BgmMusicSession(
     private val listener: BgmPlaybackListener? = null,
     /** 曲を決めた・切り替えた理由の記録先。曲が途中で変わったときに原因を追えるようにする。 */
     private val trace: (String) -> Unit = {},
+    /** [previewing] がオンのとき、途中の評価をする間隔。 */
+    private val previewIntervalMillis: Long = 10_000,
 ) {
-    init { require(leadMillis >= 0 && minimumIntervalMillis >= 0 && historyLimit > 0) }
+    init { require(leadMillis >= 0 && minimumIntervalMillis >= 0 && historyLimit > 0 && previewIntervalMillis > 0) }
+
+    private val mutableEvaluation = MutableStateFlow<LiveEvaluation?>(null)
+    /** 直近の評価（途中の評価か、次の曲として決めたときの評価）。Web のライブ表示に出す。 */
+    val evaluation = mutableEvaluation.asStateFlow()
+
+    /**
+     * オンの間、次の曲を決めるまで [previewIntervalMillis] ごとに「今決めるなら」の評価もする（Web のライブ表示のため）。
+     * 途中の評価は表示にだけ使い、流す曲・履歴・前の曲調には触れない。
+     */
+    var previewing: Boolean = false
+    private var previewJob: Job? = null
+    private var lastPreviewAt: Long? = null
 
     private val mutableState = MutableStateFlow(BgmMusicState())
     val state = mutableState.asStateFlow()
@@ -159,6 +173,8 @@ class BgmMusicSession(
 
     fun reset() {
         stop()
+        mutableEvaluation.value = null
+        lastPreviewAt = null
         history.clear()
         queue.clear()
         previousTarget = null
@@ -187,6 +203,7 @@ class BgmMusicSession(
     ) {
         if (closed || !state.value.enabled || job?.isActive == true) return
         mutableState.update { it.copy(sceneryAvailable = scenery != null) }
+        preview(scenery, cabin, conditions, playback)
         if (playbackBusy) return
         if (deviceId == null) { fail(MusicFailure.NO_DEVICE); return }
         if (deviceId != lastDeviceId) { if (lastDeviceId != null) trace("device: 再生先が変わった"); lastDeviceId = deviceId }
@@ -243,6 +260,7 @@ class BgmMusicSession(
                 val (picked, uri) = resolved
                 // 照合を待つ間に止められていたら流さない。止めた直後に新しい曲が始まるのを防ぐ。
                 if (currentGeneration != generation || closed) return@launch
+                response.evaluation?.let { mutableEvaluation.value = LiveEvaluation(nowMillis(), true, it, picked) }
                 // 演出の一言は chosen に対して書かれているので、次点へ回ったときは出さない。
                 val entry = Prepared(uri, picked, picked.message.takeIf { picked.trackId == chosen.trackId })
                 history += PlayedTrack(picked.trackId, picked.ownerId, picked.artist)
@@ -333,6 +351,29 @@ class BgmMusicSession(
         if (prepared != null || queue.isNotEmpty()) return null
         val remaining = remainingMillis(playback) ?: return null
         return if (remaining <= leadMillis) Next.PREPARE else null
+    }
+
+    /** 途中の評価。次の曲を決めたあと（準備した曲や予約があるとき）は、決めたときの評価を出しておくのでしない。 */
+    private fun preview(scenery: SceneryRoute?, cabin: CabinState, conditions: DrivingConditions, playback: MusicPlayback) {
+        if (!previewing || scenery == null || finishing || state.value.requestsOnly) return
+        if (prepared != null || queue.isNotEmpty() || previewJob?.isActive == true) return
+        val now = nowMillis()
+        lastPreviewAt?.let { if (now - it < previewIntervalMillis) return }
+        lastPreviewAt = now
+        val currentGeneration = generation
+        val route = scenery.copy(nextDurationMillis = scenery.nextDurationMillis ?: playback.track?.durationMillis)
+        val request = BgmRecommendationRequest(members, pool, mode, cabin, route, conditions,
+            history.toList(), previousTarget, PREVIEW_TOP_K)
+        previewJob = scope.launch {
+            try {
+                val response = recommendations.recommend(request)
+                // 待つ間に次の曲が決まっていたら、決めたときの評価を上書きしない
+                if (currentGeneration != generation || closed || prepared != null || job?.isActive == true) return@launch
+                response.evaluation?.let { mutableEvaluation.value = LiveEvaluation(nowMillis(), false, it) }
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+            }
+        }
     }
 
     /** 着いたあとの1回分。今の曲が終わる（または再生先が勝手に次へ進んだ）ところで一時停止する。 */
@@ -446,6 +487,8 @@ class BgmMusicSession(
         const val AUTO_ADVANCE_MILLIS = 12_000
         /** 再生を指示してから、前の曲の再生状態を無視する長さ。 */
         const val REPLACED_GRACE_MILLIS = 10_000L
+        /** 途中の評価で受け取る候補の数（ライブ表示の候補一覧に出す）。 */
+        const val PREVIEW_TOP_K = 10
     }
 }
 

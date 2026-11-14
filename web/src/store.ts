@@ -3,6 +3,7 @@
 import type { StoredTrip, Trip } from "./trip";
 import type { MoodSample, PlayedTrack, TripMusic } from "./music";
 import { musicInPeriod } from "./music";
+import { liveExpiresAt, type LiveGeometry, type LiveSnapshot, type LiveUpload } from "./live";
 
 export type Env = {
   DB: D1Database;
@@ -193,4 +194,47 @@ export async function putPhoto(env: Env, id: string, body: ArrayBuffer, contentT
 
 export async function getPhoto(env: Env, id: string): Promise<R2ObjectBody | null> {
   return env.PHOTOS.get(photoKey(id));
+}
+
+// ---- ライブ表示（走行中の景観BGMの様子） ----
+
+type LiveRow = { snapshot: string; route_key: string | null; updated_at: number; expires_at: number };
+
+/** 最新の様子で上書きする。経路の形は送られてきたときだけ差し替え、無ければ前のものを残す。 */
+export async function putLive(env: Env, code: string, upload: LiveUpload, now: number): Promise<void> {
+  const { snapshot, geometry } = upload;
+  const routeKey = snapshot.route?.key ?? null;
+  await env.DB.prepare(
+    `INSERT INTO live_sessions (code, snapshot, route_key, geometry, updated_at, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+     ON CONFLICT(code) DO UPDATE SET snapshot = excluded.snapshot, updated_at = excluded.updated_at, expires_at = excluded.expires_at,
+       route_key = excluded.route_key,
+       geometry = CASE WHEN excluded.geometry IS NOT NULL THEN excluded.geometry
+                       WHEN live_sessions.route_key IS excluded.route_key THEN live_sessions.geometry ELSE NULL END`,
+  )
+    .bind(code, JSON.stringify(snapshot), routeKey, geometry ? JSON.stringify(geometry) : null, now, liveExpiresAt(snapshot, now))
+    .run();
+}
+
+export type LiveState = { snapshot: LiveSnapshot; routeKey: string | null; updatedAt: number } | null;
+
+/** 期限が過ぎたものは無いものとして扱う。 */
+export async function getLive(env: Env, code: string, now: number): Promise<LiveState> {
+  const row = await env.DB.prepare("SELECT snapshot, route_key, updated_at, expires_at FROM live_sessions WHERE code = ?1")
+    .bind(code)
+    .first<LiveRow>();
+  if (!row || row.expires_at <= now) return null;
+  return { snapshot: JSON.parse(row.snapshot) as LiveSnapshot, routeKey: row.route_key, updatedAt: row.updated_at };
+}
+
+export async function getLiveGeometry(env: Env, code: string, now: number): Promise<{ routeKey: string | null; geometry: LiveGeometry } | null> {
+  const row = await env.DB.prepare("SELECT route_key, geometry, expires_at FROM live_sessions WHERE code = ?1")
+    .bind(code)
+    .first<{ route_key: string | null; geometry: string | null; expires_at: number }>();
+  if (!row || row.expires_at <= now || !row.geometry) return null;
+  return { routeKey: row.route_key, geometry: JSON.parse(row.geometry) as LiveGeometry };
+}
+
+/** 期限が過ぎた受付を消す。書き込みのついでに呼ぶ（専用の定期実行を持たないため）。 */
+export async function deleteExpiredLive(env: Env, now: number): Promise<void> {
+  await env.DB.prepare("DELETE FROM live_sessions WHERE expires_at <= ?1").bind(now).run();
 }

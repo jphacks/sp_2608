@@ -26,6 +26,9 @@ import kotlinx.coroutines.launch
 class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var job: Job? = null
+    private val mutableRunning = kotlinx.coroutines.flow.MutableStateFlow(false)
+    /** 模擬走行中か。画面の長押しで出し入れするときに、どちらにするかを決める。 */
+    val running: kotlinx.coroutines.flow.StateFlow<Boolean> = mutableRunning
 
     /** 案内中でないときは何もせず false を返す。 */
     fun start(topSpeedKmh: Double): Boolean {
@@ -37,6 +40,7 @@ class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
         val index = RouteGeometryIndex(route)
         val total = route.distanceMeters.toDouble()
         val top = (topSpeedKmh / 3.6).coerceAtLeast(1.0)
+        mutableRunning.value = true
         job = scope.launch {
             var travelled = 0.0
             var elapsed = 0.0
@@ -67,6 +71,8 @@ class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
             } finally {
                 // 差し込んだままだと、そこに居続けてしまう。打ち切られたときも必ず測位へ返す
                 runtime.locations.simulate(null)
+                // 走り直しで止められた古い走行は、新しい走行の「走行中」を消さない
+                if (job === coroutineContext[Job]) { job = null; mutableRunning.value = false }
             }
         }
         return true
@@ -77,6 +83,7 @@ class DriveSimulator(private val runtime: AndroidNavigationRuntime) {
         job?.cancel()
         job = null
         runtime.locations.simulate(null)
+        mutableRunning.value = false
     }
 
     /** 一定速だと倍率も傾きも変わらず、確かめたいものが見えない。加速と上げ下げを入れる。 */

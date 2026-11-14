@@ -115,11 +115,11 @@ describe('blend：すべての曲から（好みを反映）', () => {
   it('リストにある曲を選んだときは名前を出し、同じアーティストの曲ならそう伝える', () => {
     const pool = [track('mine', { owners: ['b'] })];
     expect(recommend({ mode: 'blend', pool, scene: flatScene, members, seed: 1 }).chosen?.message).toBe(
-      'Bさんのリストから今の雰囲気に合う曲を流します',
+      '景色の手がかりが少ないので、Bさんのリストからドライブに合う曲を流します',
     );
     const pool2 = [track('liked', { owners: ['b'], artist: 'Y' }), track('cousin', { artist: 'Y' })];
     const r = recommend({ mode: 'blend', pool: pool2, scene: flatScene, members, history: [{ track_id: 'liked' }], seed: 1 });
-    expect(r.chosen?.message).toBe('みんなのリストにあるアーティストの、今の雰囲気に合う曲を流します');
+    expect(r.chosen?.message).toBe('景色の手がかりが少ないので、みんなのリストにあるアーティストの、ドライブに合う曲を流します');
   });
 });
 
