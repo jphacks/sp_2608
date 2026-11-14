@@ -111,4 +111,24 @@ class DriveBgmLineTest {
         // 選曲の一言は前の曲のものなので出さず、表示の切り替えまでは一般的な説明にする
         assertEquals("景色と車内の様子で選曲中", line.subtitle)
     }
+
+    @Test fun theSceneThatPickedTheSongColorsTheRecord() {
+        val bgm = playingBgm.copy(playingScene = "sea")
+        val line = driveBgmLine(state(bgm), now(true), connected = true, guiding = true)
+        assertEquals("sea", line.scene)
+        assertEquals(false, line.requested)
+        // 景観BGMの曲でなければ、前の曲の景色は出さない
+        val other = MusicTrack("spotify:track:0000000000000000000001", "ハルジオン", "YOASOBI", "", 200_000)
+        val queued = driveBgmLine(state(bgm), now(true, other), connected = true, guiding = true)
+        assertNull(queued.scene)
+        assertEquals(true, queued.requested)
+        val request = SongRequest("guest:1", matsuri.uri, "まつり", "藤井 風", requester = "たろう")
+        val guest = driveBgmLine(state(bgm.copy(playingRequest = request)), now(true), connected = true, guiding = true)
+        assertNull(guest.scene)
+        assertEquals(true, guest.requested)
+        // 自分で選んだ曲は、どちらでもない
+        val picked = driveBgmLine(state(), now(true), connected = true, guiding = true)
+        assertNull(picked.scene)
+        assertEquals(false, picked.requested)
+    }
 }

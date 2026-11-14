@@ -22,6 +22,8 @@ data class BgmMusicState(
     val message: String? = null,
     /** 流れている景観BGMの曲を選んだときの推奨音量（0.2〜1、普段は 0.6）。選んだ時点ではなく、その曲が流れ始めたときに変わる。 */
     val recommendedVolume: Float? = null,
+    /** 流れている景観BGMの曲を選んだときに一番多かった景色（sea・forest など）。推奨音量と同じく、その曲が流れ始めたときに変わる。 */
+    val playingScene: String? = null,
     val revealEtaSeconds: Int? = null,
     val coverage: Double? = null,
     val sceneryAvailable: Boolean = false,
@@ -112,6 +114,7 @@ class BgmMusicSession(
         val message: String? = null,
         val request: SongRequest? = null,
         val volume: Float? = null,
+        val scene: String? = null,
     )
     private enum class Next { PLAY_NOW, PREPARE }
     private var lastRequestAt: Long? = null
@@ -269,7 +272,8 @@ class BgmMusicSession(
                 if (currentGeneration != generation || closed) return@launch
                 response.evaluation?.let { mutableEvaluation.value = LiveEvaluation(nowMillis(), true, it, picked) }
                 // 演出の一言は chosen に対して書かれているので、次点へ回ったときは出さない。
-                val entry = Prepared(uri, picked, picked.message.takeIf { picked.trackId == chosen.trackId }, volume = response.volume)
+                val entry = Prepared(uri, picked, picked.message.takeIf { picked.trackId == chosen.trackId }, volume = response.volume,
+                    scene = response.evaluation?.dominantScene())
                 history += PlayedTrack(picked.trackId, picked.ownerId, picked.artist)
                 if (history.size > historyLimit) history.removeAt(0)
                 if (next == Next.PLAY_NOW) {
@@ -438,7 +442,7 @@ class BgmMusicSession(
         listener?.onPlayed(track, nowMillis())
         mutableState.update {
             it.copy(playing = track, message = entry.message, playedCount = it.playedCount + 1,
-                recommendedVolume = entry.volume ?: it.recommendedVolume, playingUri = entry.uri, playingRequest = null, upNextUri = upcoming()?.uri)
+                recommendedVolume = entry.volume ?: it.recommendedVolume, playingScene = entry.scene, playingUri = entry.uri, playingRequest = null, upNextUri = upcoming()?.uri)
         }
     }
 
